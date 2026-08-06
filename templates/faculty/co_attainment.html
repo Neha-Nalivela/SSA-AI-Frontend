@@ -1,0 +1,49 @@
+{% extends "faculty_base.html" %}
+
+{% block title %}
+CO Attainment
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <h3>CO Attainment - {{ subject_id }}</h3>
+    <div class="card mt-3">
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead class="table-dark">
+                        <tr>
+                            <th>CO ID</th>
+                            <th>Description</th>
+                            <th>Target %</th>
+                            <th>Attainment %</th>
+                            <th>Avg %</th>
+                            <th>Reached</th>
+                            <th>Total Students</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% if rows and rows|length > 0 %}
+                            {% for r in rows %}
+                                <tr>
+                                    <td>{{ r.COID }}</td>
+                                    <td>{{ r.Description }}</td>
+                                    <td>{{ r.Target }}%</td>
+                                    <td>{{ r['Attainment%'] }}%</td>
+                                    <td>{{ r['Avg%'] }}%</td>
+                                    <td>{{ r.NumReached }}</td>
+                                    <td>{{ r.TotalStudents }}</td>
+                                </tr>
+                            {% endfor %}
+                        {% else %}
+                            <tr>
+                                <td colspan="7" class="text-center py-4">No CO attainment data available for this subject.</td>
+                            </tr>
+                        {% endif %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

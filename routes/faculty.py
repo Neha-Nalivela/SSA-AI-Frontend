@@ -36,6 +36,10 @@ from services.faculty_subject_service import (
     get_subject_attendance_students,
     get_attendance_for_student
 )
+from services.attainment_service import (
+    compute_co_attainment_for_subject,
+    compute_po_attainment_for_subject
+)
 
 faculty = Blueprint(
     "faculty",
@@ -411,6 +415,41 @@ def subject_attendance_student(subject_id, student_id):
         subject=subject,
         records=records,
         student_id=student_id
+    )
+
+
+
+@faculty.route("/faculty/co-attainment")
+def co_attainment_index():
+    reference_id = session.get("reference_id")
+    subjects = get_faculty_subjects(reference_id)
+    return render_template(
+        "faculty/co_attainment_index.html",
+        subjects=subjects
+    )
+
+
+@faculty.route("/faculty/subject/<subject_id>/co-attainment")
+def subject_co_attainment(subject_id):
+    reference_id = session.get("reference_id")
+    df = compute_co_attainment_for_subject(reference_id, subject_id)
+    rows = df.to_dict(orient="records") if not df.empty else []
+    return render_template(
+        "faculty/co_attainment.html",
+        subject_id=subject_id,
+        rows=rows
+    )
+
+
+@faculty.route("/faculty/subject/<subject_id>/po-attainment")
+def subject_po_attainment(subject_id):
+    reference_id = session.get("reference_id")
+    df = compute_po_attainment_for_subject(reference_id, subject_id)
+    rows = df.to_dict(orient="records") if not df.empty else []
+    return render_template(
+        "faculty/po_attainment.html",
+        subject_id=subject_id,
+        rows=rows
     )
 @faculty.route("/faculty/subject/<subject_id>/external-marks")
 def subject_external_marks(subject_id):

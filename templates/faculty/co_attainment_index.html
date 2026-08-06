@@ -1,0 +1,24 @@
+{% extends "faculty_base.html" %}
+
+{% block title %}
+CO Attainment - Subjects
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <h3>Your Subjects - CO Attainment</h3>
+    <div class="list-group mt-3">
+        {% if subjects is not none and subjects.shape[0] > 0 %}
+            {% for s in subjects.iterrows() %}
+                {% set sub = s[1] %}
+                <a class="list-group-item list-group-item-action d-flex justify-content-between align-items-center" href="/faculty/subject/{{ sub.SubjectID }}/co-attainment">
+                    {{ sub.SubjectCode }} - {{ sub.SubjectName }}
+                    <span class="badge bg-primary rounded-pill">View</span>
+                </a>
+            {% endfor %}
+        {% else %}
+            <div class="alert alert-info">No subjects assigned.</div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
