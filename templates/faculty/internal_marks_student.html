@@ -1,7 +1,7 @@
 {% extends "faculty_base.html" %}
 
 {% block title %}
-Internal Marks - Student Detail
+{{ "External" if external else "Internal" }} Marks - Student Detail
 {% endblock %}
 
 {% block content %}
@@ -13,8 +13,8 @@ Internal Marks - Student Detail
             <small class="text-muted">Subject ID: {{ subject.SubjectID }}</small>
         </div>
 
-        <a href="/faculty/subject/{{ subject.SubjectID }}/internal-marks" class="btn btn-secondary">
-            ← Back to Internal Marks
+        <a href="/faculty/subject/{{ subject.SubjectID }}/{{ "external" if external else "internal" }}-marks" class="btn btn-secondary">
+            ← Back to {{ "External" if external else "Internal" }} Marks
         </a>
     </div>
 
@@ -43,7 +43,7 @@ Internal Marks - Student Detail
                             {% endfor %}
                         {% else %}
                             <tr>
-                                <td colspan="4" class="text-center py-4">No internal marks available for this student.</td>
+                                <td colspan="4" class="text-center py-4">No marks available for this student.</td>
                             </tr>
                         {% endif %}
                     </tbody>
