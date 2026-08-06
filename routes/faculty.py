@@ -27,7 +27,9 @@ from services.faculty_subject_service import (
     get_faculty_subjects,
     get_subject_dashboard,
     get_subject_internal_mark_students,
-    get_internal_marks_for_student
+    get_internal_marks_for_student,
+    get_subject_external_mark_students,
+    get_external_marks_for_student
 )
 
 faculty = Blueprint(
@@ -355,5 +357,59 @@ def subject_internal_marks_student(subject_id, student_id):
         "faculty/internal_marks_student.html",
         subject=subject,
         student_marks=student_marks,
-        student_id=student_id
+        student_id=student_id,
+        external=False
+    )
+
+
+@faculty.route("/faculty/subject/<subject_id>/external-marks")
+def subject_external_marks(subject_id):
+
+    reference_id = session.get("reference_id")
+
+    subject, student_summary = get_subject_external_mark_students(
+        reference_id,
+        subject_id
+    )
+
+    student_rows = []
+    exam_label = "End Semester"
+    student_count = 0
+    exam_count = 0
+    total_count = 0
+
+    if student_summary is not None and not student_summary.empty:
+        student_rows = student_summary.to_dict(orient="records")
+        student_count = len(student_rows)
+        exam_count = int(sum(int(r.get(exam_label, 0)) > 0 for r in student_rows))
+        total_count = sum(int(r.get("Total", 0)) for r in student_rows)
+
+    return render_template(
+        "faculty/external_marks.html",
+        subject=subject,
+        students=student_rows,
+        student_count=student_count,
+        exam_label=exam_label,
+        exam_count=exam_count,
+        total_questions=total_count
+    )
+
+
+@faculty.route("/faculty/subject/<subject_id>/external-marks/student/<student_id>")
+def subject_external_marks_student(subject_id, student_id):
+
+    reference_id = session.get("reference_id")
+
+    subject, student_marks = get_external_marks_for_student(
+        reference_id,
+        subject_id,
+        student_id
+    )
+
+    return render_template(
+        "faculty/internal_marks_student.html",
+        subject=subject,
+        student_marks=student_marks,
+        student_id=student_id,
+        external=True
     )
