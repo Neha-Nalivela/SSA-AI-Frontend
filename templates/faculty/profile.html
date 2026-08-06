@@ -1,0 +1,223 @@
+{% extends "faculty_base.html" %}
+
+{% block title %}
+My Profile
+{% endblock %}
+
+{% block content %}
+
+<div class="container-fluid">
+
+<div class="card shadow-sm">
+
+<div class="card-header bg-primary text-white">
+
+<h4 class="mb-0">
+
+My Profile
+
+</h4>
+
+</div>
+
+<div class="card-body">
+
+<form
+method="POST"
+action="{{ url_for('faculty.update_profile') }}">
+
+<div class="row">
+
+<div class="col-md-6">
+
+<label>Name</label>
+
+<input
+
+name="Name"
+
+class="form-control"
+
+value="{{ faculty.Name }}">
+
+</div>
+
+<div class="col-md-6">
+
+<label>Faculty ID</label>
+
+<input
+
+class="form-control"
+
+value="{{ faculty.FacultyID }}"
+
+readonly>
+
+</div>
+
+</div>
+
+<br>
+
+<div class="row">
+
+<div class="col-md-6">
+
+<label>Department</label>
+
+<input
+
+name="Department"
+
+class="form-control"
+
+value="{{ faculty.Department }}"
+
+readonly>
+
+</div>
+
+<div class="col-md-6">
+
+<label>Designation</label>
+
+<input
+
+name="Designation"
+
+class="form-control"
+
+value="{{ faculty.Designation }}"
+
+readonly>
+
+</div>
+
+</div>
+
+<br>
+
+<div class="row">
+
+<div class="col-md-6">
+
+<label>Qualification</label>
+
+<input
+
+name="Qualification"
+
+class="form-control"
+
+value="{{ faculty.Qualification }}">
+
+</div>
+
+<div class="col-md-6">
+
+<label>Experience</label>
+
+<input
+
+name="Experience"
+
+class="form-control"
+
+value="{{ faculty.Experience }}">
+
+</div>
+
+</div>
+
+<br>
+
+<div class="row">
+
+<div class="col-md-6">
+
+<label>Phone</label>
+
+<input
+
+name="Phone"
+
+class="form-control"
+
+value="{{ faculty.Phone }}">
+
+</div>
+
+<div class="col-md-6">
+
+<label>Email</label>
+
+<input
+
+name="Email"
+
+class="form-control"
+
+value="{{ faculty.Email }}">
+
+</div>
+
+</div>
+
+<br>
+
+<div class="row">
+
+<div class="col-md-6">
+
+<label>Joining Date</label>
+
+<input
+
+type="date"
+
+name="JoiningDate"
+
+class="form-control"
+
+value="{{ faculty.JoiningDate }}">
+
+</div>
+
+<div class="col-md-6">
+
+<label>Status</label>
+
+<input
+
+name="Status"
+
+class="form-control"
+
+value="{{ faculty.Status }}"
+
+readonly>
+
+</div>
+
+</div>
+
+<br>
+
+<button
+
+class="btn btn-success">
+
+Update Profile
+
+</button>
+
+</form>
+
+</div>
+
+</div>
+
+</div>
+
+{% endblock %}

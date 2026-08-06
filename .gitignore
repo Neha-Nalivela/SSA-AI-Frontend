@@ -1,0 +1,29 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+
+# Virtual Environment
+.venv/
+venv/
+env/
+
+# VS Code
+.vscode/
+
+# Python cache
+.pytest_cache/
+data/
+# Environment
+.env
+
+# OS
+Thumbs.db
+.DS_Store
+
+# Excel temporary files
+~$*.xlsx
+
+# Logs
+*.log
+

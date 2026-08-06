@@ -1,0 +1,222 @@
+{% extends "dashboard_base.html" %}
+
+{% block title %}
+Edit CO-PO Mapping
+{% endblock %}
+
+{% block content %}
+
+<div class="container-fluid">
+
+<div class="card shadow-sm">
+
+<div class="card-header bg-primary text-white">
+
+<h4 class="mb-0">
+Edit CO-PO Mapping
+</h4>
+
+</div>
+
+<div class="card-body">
+
+<form
+method="POST"
+action="{{ url_for('co_po_admin.update',
+mapping_id=mapping.MappingID) }}">
+
+<div class="row">
+
+<div class="col-md-4">
+
+<label>Mapping ID</label>
+
+<input
+type="text"
+class="form-control"
+value="{{ mapping.MappingID }}"
+readonly>
+
+</div>
+
+<div class="col-md-4">
+
+<label>Subject ID</label>
+
+<select
+name="SubjectID"
+class="form-select">
+
+{% for s in subjects.iterrows() %}
+{% set sub=s[1] %}
+
+<option
+value="{{ sub.SubjectID }}"
+{% if sub.SubjectID==mapping.SubjectID %}
+selected
+{% endif %}>
+
+{{ sub.SubjectID }}
+
+</option>
+
+{% endfor %}
+
+</select>
+
+</div>
+
+<div class="col-md-4">
+
+<label>CO ID</label>
+
+<select
+name="COID"
+class="form-select">
+
+{% for c in co.iterrows() %}
+{% set item=c[1] %}
+
+<option
+value="{{ item.COID }}"
+{% if item.COID==mapping.COID %}
+selected
+{% endif %}>
+
+{{ item.COID }}
+
+</option>
+
+{% endfor %}
+
+</select>
+
+</div>
+
+</div>
+
+<br>
+
+<div class="row">
+
+<div class="col-md-6">
+
+<label>PO ID</label>
+
+<select
+name="POID"
+class="form-select">
+
+{% for p in po.iterrows() %}
+{% set item=p[1] %}
+
+<option
+value="{{ item.POID }}"
+{% if item.POID==mapping.POID %}
+selected
+{% endif %}>
+
+{{ item.POID }}
+
+</option>
+
+{% endfor %}
+
+</select>
+
+</div>
+
+<div class="col-md-3">
+
+<label>Level</label>
+
+<select
+name="Level"
+class="form-select">
+
+<option value="1"
+{% if mapping.Level==1 %}
+selected
+{% endif %}>
+1
+</option>
+
+<option value="2"
+{% if mapping.Level==2 %}
+selected
+{% endif %}>
+2
+</option>
+
+<option value="3"
+{% if mapping.Level==3 %}
+selected
+{% endif %}>
+3
+</option>
+
+</select>
+
+</div>
+
+<div class="col-md-3">
+
+<label>Status</label>
+
+<select
+name="Status"
+class="form-select">
+
+<option
+value="Active"
+{% if mapping.Status=="Active" %}
+selected
+{% endif %}>
+
+Active
+
+</option>
+
+<option
+value="Archived"
+{% if mapping.Status=="Archived" %}
+selected
+{% endif %}>
+
+Archived
+
+</option>
+
+</select>
+
+</div>
+
+</div>
+
+<br>
+
+<a
+href="{{ url_for('co_po_admin.mappings') }}"
+class="btn btn-secondary">
+
+Cancel
+
+</a>
+
+<button
+type="submit"
+class="btn btn-success">
+
+Update Mapping
+
+</button>
+
+</form>
+
+</div>
+
+</div>
+
+</div>
+
+{% endblock %}

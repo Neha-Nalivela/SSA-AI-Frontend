@@ -1,0 +1,498 @@
+{% extends "dashboard_base.html" %}
+
+{% block title %}
+Faculty
+{% endblock %}
+
+{% block content %}
+
+<div class="container-fluid">
+
+    <div class="d-flex justify-content-between align-items-center mb-4">
+
+        <div>
+
+            <h2 class="mb-0">
+                Faculty Management
+            </h2>
+
+            <small class="text-muted">
+                Manage Faculty Records
+            </small>
+
+        </div>
+
+        <button
+            class="btn btn-primary"
+            data-bs-toggle="modal"
+            data-bs-target="#addFacultyModal">
+
+            + Add Faculty
+
+        </button>
+
+    </div>
+    <div class="card shadow-sm mb-4">
+
+    <div class="card-body">
+
+        <div class="row">
+
+            <div class="col-md-4">
+
+                <input
+                    id="searchInput"
+                    class="form-control"
+                    placeholder="Search Faculty ID / Name">
+
+            </div>
+
+            <div class="col-md-3">
+
+                <select
+                    id="departmentFilter"
+                    class="form-select">
+
+                    <option value="">All Departments</option>
+                    <option>CSE</option>
+
+                </select>
+
+            </div>
+
+            <div class="col-md-3">
+
+                <select
+                    id="statusFilter"
+                    class="form-select">
+
+                    <option value="">All Status</option>
+                    <option>Active</option>
+                    <option>Archived</option>
+
+                </select>
+
+            </div>
+
+            <div class="col-md-2">
+
+                <button 
+                    type="button"
+                    class="btn btn-success w-100">
+                    Search
+                </button>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+<div class="card shadow-sm">
+
+<div class="card-body">
+
+<div class="table-responsive">
+
+<table class="table table-hover">
+
+<thead class="table-dark">
+
+<tr>
+
+<th>Faculty ID</th>
+
+<th>Name</th>
+
+<th>Department</th>
+
+<th>Designation</th>
+
+<th>Qualification</th>
+
+<th>Experience</th>
+
+<th>Email</th>
+
+<th>Status</th>
+
+<th>Action</th>
+
+</tr>
+
+</thead>
+
+<tbody id="facultyTable">
+
+{% for row in faculty.iterrows() %}
+{% set f = row[1] %}
+
+<tr>
+
+<td>{{ f.FacultyID }}</td>
+
+<td>{{ f.Name }}</td>
+
+<td>{{ f.Department }}</td>
+
+<td>{{ f.Designation }}</td>
+
+<td>{{ f.Qualification }}</td>
+
+<td>{{ f.Experience }}</td>
+
+<td>{{ f.Email }}</td>
+
+<td>{{ f.Status }}</td>
+
+<td>
+
+<div class="dropdown">
+
+<button
+class="btn btn-light btn-sm"
+data-bs-toggle="dropdown">
+
+⋮
+
+</button>
+
+<ul class="dropdown-menu">
+
+<li>
+
+<a
+class="dropdown-item"
+href="{{ url_for('faculty_admin.edit_faculty',
+faculty_id=f.FacultyID) }}">
+
+✏ Edit
+
+</a>
+
+</li>
+
+<li>
+
+<a
+class="dropdown-item"
+href="{{ url_for('faculty_admin.archive',
+faculty_id=f.FacultyID) }}">
+
+Archive
+
+</a>
+
+</li>
+
+<li>
+
+<a
+class="dropdown-item text-danger"
+href="{{ url_for('faculty_admin.delete',
+faculty_id=f.FacultyID) }}">
+
+Delete
+
+</a>
+
+</li>
+
+</ul>
+
+</div>
+
+</td>
+
+</tr>
+
+{% endfor %}
+
+</tbody>
+
+</table>
+
+</div>
+
+</div>
+
+</div>
+<div class="modal fade" id="addFacultyModal">
+
+<div class="modal-dialog modal-xl">
+
+<div class="modal-content">
+
+<form
+method="POST"
+action="{{ url_for('faculty_admin.add_faculty') }}">
+
+<div class="modal-header">
+
+<h4>Add Faculty</h4>
+
+<button
+type="button"
+class="btn-close"
+data-bs-dismiss="modal">
+</button>
+
+</div>
+
+<div class="modal-body">
+
+<div class="row">
+
+<div class="col-md-6">
+
+<label>Faculty ID</label>
+
+<input
+type="text"
+name="FacultyID"
+class="form-control"
+required>
+
+</div>
+
+<div class="col-md-6">
+
+<label>Name</label>
+
+<input
+type="text"
+name="Name"
+class="form-control"
+required>
+
+</div>
+
+</div>
+
+<br>
+
+<div class="row">
+
+<div class="col-md-4">
+
+<label>Department</label>
+
+<select
+name="Department"
+class="form-select">
+
+<option>CSE</option>
+
+</select>
+
+</div>
+
+<div class="col-md-4">
+
+<label>Designation</label>
+
+<select
+name="Designation"
+class="form-select">
+
+<option>Assistant Professor</option>
+
+<option>Associate Professor</option>
+
+<option>Professor</option>
+
+<option>HOD</option>
+
+</select>
+
+</div>
+
+<div class="col-md-4">
+
+<label>Qualification</label>
+
+<input
+type="text"
+name="Qualification"
+class="form-control">
+
+</div>
+
+</div>
+
+<br>
+
+<div class="row">
+
+<div class="col-md-4">
+
+<label>Experience</label>
+
+<input
+type="number"
+name="Experience"
+class="form-control">
+
+</div>
+
+<div class="col-md-4">
+
+<label>Phone</label>
+
+<input
+type="text"
+name="Phone"
+class="form-control">
+
+</div>
+
+<div class="col-md-4">
+
+<label>Email</label>
+
+<input
+type="email"
+name="Email"
+class="form-control">
+
+</div>
+
+</div>
+
+<br>
+
+<div class="row">
+
+<div class="col-md-6">
+
+<label>Joining Date</label>
+
+<input
+type="date"
+name="JoiningDate"
+class="form-control">
+
+</div>
+
+<div class="col-md-6">
+
+<label>Status</label>
+
+<select
+name="Status"
+class="form-select">
+
+<option>Active</option>
+
+<option>Archived</option>
+
+</select>
+
+</div>
+
+</div>
+
+</div>
+
+<div class="modal-footer">
+
+<button
+type="button"
+class="btn btn-secondary"
+data-bs-dismiss="modal">
+
+Cancel
+
+</button>
+
+<button
+class="btn btn-success">
+
+Save Faculty
+
+</button>
+
+</div>
+
+</form>
+
+</div>
+
+</div>
+
+</div>
+
+<script>
+
+const searchInput = document.getElementById("searchInput");
+const departmentFilter = document.getElementById("departmentFilter");
+const statusFilter = document.getElementById("statusFilter");
+const searchButton = document.querySelector(".btn-success");
+
+searchInput.addEventListener("keyup", filterFaculty);
+departmentFilter.addEventListener("change", filterFaculty);
+statusFilter.addEventListener("change", filterFaculty);
+
+if(searchButton){
+    searchButton.addEventListener("click", filterFaculty);
+}
+
+function filterFaculty(){
+
+    let searchText = searchInput.value.toLowerCase().trim();
+
+    let departmentValue = departmentFilter.value;
+
+    let statusValue = statusFilter.value;
+
+    let rows = document.querySelectorAll("#facultyTable tr");
+
+    rows.forEach(function(row){
+
+        let facultyID = row.cells[0].innerText.toLowerCase();
+
+        let facultyName = row.cells[1].innerText.toLowerCase();
+
+        let department = row.cells[2].innerText.trim();
+
+        let status = row.cells[7].innerText.trim();
+
+        let visible = true;
+
+        // Search
+
+        if(
+            searchText !== "" &&
+            !facultyID.includes(searchText) &&
+            !facultyName.includes(searchText)
+        ){
+            visible = false;
+        }
+
+        // Department
+
+        if(
+            departmentValue !== "" &&
+            department !== departmentValue
+        ){
+            visible = false;
+        }
+
+        // Status
+
+        if(
+            statusValue !== "" &&
+            status !== statusValue
+        ){
+            visible = false;
+        }
+
+        row.style.display = visible ? "" : "none";
+
+    });
+
+}
+
+</script>
+{% endblock %}

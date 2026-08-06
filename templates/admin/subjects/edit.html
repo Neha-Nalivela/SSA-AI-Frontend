@@ -1,0 +1,188 @@
+{% extends "dashboard_base.html" %}
+
+{% block title %}
+Edit Subject
+{% endblock %}
+
+{% block content %}
+
+<div class="container">
+
+<div class="card shadow">
+
+<div class="card-header">
+
+<h3>Edit Subject</h3>
+
+</div>
+
+<div class="card-body">
+
+<form
+method="POST"
+action="{{ url_for('subject_admin.update_subject_route',
+subject_id=subject.SubjectID) }}">
+<div class="row">
+
+<div class="col-md-4">
+
+<label>Subject ID</label>
+
+<input
+class="form-control"
+value="{{ subject.SubjectID }}"
+readonly>
+
+</div>
+
+<div class="col-md-4">
+
+<label>Course ID</label>
+
+<input
+name="CourseID"
+class="form-control"
+value="{{ subject.CourseID }}">
+
+</div>
+
+<div class="col-md-4">
+
+<label>Semester</label>
+
+<input
+name="Semester"
+class="form-control"
+value="{{ subject.Semester }}">
+
+</div>
+
+</div>
+<br>
+
+<div class="row">
+
+<div class="col-md-6">
+
+<label>Subject Code</label>
+
+<input
+name="SubjectCode"
+class="form-control"
+value="{{ subject.SubjectCode }}">
+
+</div>
+
+<div class="col-md-6">
+
+<label>Subject Name</label>
+
+<input
+name="SubjectName"
+class="form-control"
+value="{{ subject.SubjectName }}">
+
+</div>
+
+</div>
+<br>
+
+<div class="row">
+
+<div class="col-md-4">
+
+<label>Credits</label>
+
+<input
+name="Credits"
+class="form-control"
+value="{{ subject.Credits }}">
+
+</div>
+
+<div class="col-md-4">
+
+<label>BTL Level</label>
+
+<input
+name="BTLLevel"
+class="form-control"
+value="{{ subject.BTLLevel }}">
+
+</div>
+
+<div class="col-md-4">
+
+<label>Faculty ID</label>
+
+<input
+name="FacultyID"
+class="form-control"
+value="{{ subject.FacultyID }}">
+
+</div>
+
+</div>
+<br>
+
+<div class="row">
+
+<div class="col-md-6">
+
+<label>Status</label>
+
+<select
+name="Status"
+class="form-select">
+
+<option
+{% if subject.Status=="Active" %}
+selected
+{% endif %}
+>
+
+Active
+
+</option>
+
+<option
+{% if subject.Status=="Archived" %}
+selected
+{% endif %}
+>
+
+Archived
+
+</option>
+
+</select>
+
+</div>
+
+</div>
+<br>
+
+<button
+class="btn btn-success">
+
+Update Subject
+
+</button>
+
+<a
+href="{{ url_for('subject_admin.subjects') }}"
+class="btn btn-secondary">
+
+Cancel
+
+</a>
+
+</form>
+
+</div>
+
+</div>
+
+</div>
+
+{% endblock %}

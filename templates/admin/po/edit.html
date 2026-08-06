@@ -1,0 +1,113 @@
+{% extends "dashboard_base.html" %}
+
+{% block title %}
+Edit Program Outcome
+{% endblock %}
+
+{% block content %}
+
+<div class="container">
+
+<div class="card shadow">
+
+<div class="card-header">
+
+<h3>Edit Program Outcome</h3>
+
+</div>
+
+<div class="card-body">
+
+<form
+method="POST"
+action="{{ url_for('po_admin.update', po_id=po.POID) }}">
+
+<div class="row">
+
+<div class="col-md-4">
+
+<label>PO ID</label>
+
+<input
+class="form-control"
+value="{{ po.POID }}"
+readonly>
+
+</div>
+
+<div class="col-md-4">
+
+<label>PO Code</label>
+
+<input
+name="POCode"
+class="form-control"
+value="{{ po.POCode }}"
+required>
+
+</div>
+
+<div class="col-md-4">
+
+<label>Status</label>
+
+<select
+name="Status"
+class="form-select">
+
+<option value="Active"
+{% if po.Status=="Active" %}selected{% endif %}>
+Active
+</option>
+
+<option value="Archived"
+{% if po.Status=="Archived" %}selected{% endif %}>
+Archived
+</option>
+
+</select>
+
+</div>
+
+</div>
+
+<br>
+
+<label>Description</label>
+
+<textarea
+name="Description"
+rows="6"
+class="form-control"
+required>{{ po.Description }}</textarea>
+
+<br>
+
+<div class="text-end">
+
+<a
+href="{{ url_for('po_admin.po') }}"
+class="btn btn-secondary">
+
+Cancel
+
+</a>
+
+<button
+class="btn btn-success">
+
+Update PO
+
+</button>
+
+</div>
+
+</form>
+
+</div>
+
+</div>
+
+</div>
+
+{% endblock %}

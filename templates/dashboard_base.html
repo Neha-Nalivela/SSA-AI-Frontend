@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+
+    <title>
+        {% block title %}
+        Academic AI
+        {% endblock %}
+    </title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+
+    <link rel="stylesheet"
+          href="{{ url_for('static', filename='css/style.css') }}">
+
+</head>
+
+<body>
+
+<div class="wrapper">
+
+    <!-- Sidebar -->
+
+    <div class="sidebar">
+
+        <h3 class="text-center">
+            Academic AI
+        </h3>
+
+        <hr>
+
+        <a href="{{ url_for('admin.dashboard') }}">
+            🏠 Dashboard
+        </a>
+
+        <a href="{{ url_for('student_admin.students') }}">
+            👨‍🎓 Students
+        </a>
+
+        <a href="{{ url_for('faculty_admin.faculty') }}">
+            👩‍🏫 Faculty
+        </a>
+
+        <a href="{{ url_for('subject_admin.subjects') }}">
+            📚 Subjects
+        </a>
+
+        <a href="{{ url_for('co_admin.co') }}">
+            📊 Course Outcomes
+        </a>
+
+        <a href="{{ url_for('po_admin.po') }}">
+            📈 Program Outcomes
+        </a>
+        <a href="{{ url_for('co_po_admin.mappings') }}">
+            🔗 CO-PO Mapping
+        </a>
+        <a href="/admin/reports">
+            📄 Reports
+        </a>
+        <a href="{{ url_for('question_bank_admin.questions') }}">
+            ❓ Question Bank
+        </a>
+
+        <a href="/admin/settings">
+            ⚙ Settings
+        </a>
+
+    </div>
+
+
+    <!-- Main Content -->
+
+    <div class="main">
+
+        <!-- Navbar -->
+
+        <nav class="navbar navbar-light bg-white shadow-sm">
+
+            <div class="container-fluid">
+
+                <div class="d-flex justify-content-between align-items-center w-100">
+
+                    <h5 class="mb-0">
+                        Academic AI Administration
+                    </h5>
+
+                    <div>
+
+                        <span class="me-3 fw-bold">
+
+                            {{ session.get('reference_id') }}
+
+                        </span>
+
+                        <a href="/logout"
+                           class="btn btn-danger btn-sm">
+
+                            Logout
+
+                        </a>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </nav>
+
+
+        <!-- Content Area -->
+
+        <div class="content p-3">
+
+            <!-- Flash Messages -->
+
+            {% with messages = get_flashed_messages(with_categories=true) %}
+
+                {% if messages %}
+
+                    {% for category, message in messages %}
+
+                        <div class="alert alert-{{ category }} alert-dismissible fade show">
+
+                            {{ message }}
+
+                            <button
+                                    type="button"
+                                    class="btn-close"
+                                    data-bs-dismiss="alert">
+                            </button>
+
+                        </div>
+
+                    {% endfor %}
+
+                {% endif %}
+
+            {% endwith %}
+
+
+            <!-- Page Content -->
+
+            {% block content %}
+
+            {% endblock %}
+
+        </div>
+
+    </div>
+
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+</body>
+
+</html>

@@ -1,0 +1,500 @@
+{% extends "dashboard_base.html" %}
+
+{% block title %}
+CO-PO Mapping
+{% endblock %}
+
+{% block content %}
+
+<div class="container-fluid">
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+
+<div>
+
+<h2 class="mb-0">
+CO-PO Mapping
+</h2>
+
+<small class="text-muted">
+Manage Course Outcome and Program Outcome Mapping
+</small>
+
+</div>
+
+<button
+class="btn btn-primary"
+data-bs-toggle="modal"
+data-bs-target="#addMappingModal">
+
++ Add Mapping
+
+</button>
+
+</div>
+<div class="card shadow-sm mb-4">
+
+<div class="card-body">
+
+<div class="row g-3">
+
+<div class="col-md-3">
+
+<input
+id="searchInput"
+class="form-control"
+placeholder="Search Mapping">
+
+</div>
+
+<div class="col-md-2">
+
+<select
+id="subjectFilter"
+class="form-select">
+
+<option value="">All Subjects</option>
+
+{% for s in subjects.iterrows() %}
+{% set sub = s[1] %}
+
+<option value="{{ sub.SubjectID }}">
+{{ sub.SubjectID }}
+</option>
+
+{% endfor %}
+
+</select>
+
+</div>
+
+<div class="col-md-2">
+
+<select
+id="poFilter"
+class="form-select">
+
+<option value="">All PO</option>
+
+{% for p in po.iterrows() %}
+{% set item = p[1] %}
+
+<option value="{{ item.POID }}">
+{{ item.POID }}
+</option>
+
+{% endfor %}
+
+</select>
+
+</div>
+
+<div class="col-md-2">
+
+<select
+id="levelFilter"
+class="form-select">
+
+<option value="">All Levels</option>
+
+<option>1</option>
+<option>2</option>
+<option>3</option>
+
+</select>
+
+</div>
+
+<div class="col-md-3">
+
+<select
+id="statusFilter"
+class="form-select">
+
+<option value="">All Status</option>
+
+<option>Active</option>
+
+<option>Archived</option>
+
+</select>
+
+</div>
+
+</div>
+
+</div>
+
+</div>
+<div class="card shadow-sm">
+
+<div class="card-body">
+
+<div class="table-responsive">
+
+<table class="table table-hover">
+
+<thead class="table-dark">
+
+<tr>
+
+<th>Mapping ID</th>
+
+<th>Subject ID</th>
+
+<th>CO ID</th>
+
+<th>PO ID</th>
+
+<th>Level</th>
+
+<th>Status</th>
+
+<th>Action</th>
+
+</tr>
+
+</thead>
+
+<tbody id="mappingTable">
+
+{% for row in mappings.iterrows() %}
+{% set m = row[1] %}
+
+<tr>
+
+<td>{{ m.MappingID }}</td>
+
+<td>{{ m.SubjectID }}</td>
+
+<td>{{ m.COID }}</td>
+
+<td>{{ m.POID }}</td>
+
+<td>{{ m.Level }}</td>
+
+<td>{{ m.Status }}</td>
+
+<td>
+
+<div class="dropdown">
+
+<button
+class="btn btn-light btn-sm"
+data-bs-toggle="dropdown">
+
+⋮
+
+</button>
+
+<ul class="dropdown-menu">
+
+<li>
+
+<a
+class="dropdown-item"
+href="{{ url_for('co_po_admin.edit_mapping',
+mapping_id=m.MappingID) }}">
+
+✏ Edit
+
+</a>
+
+</li>
+
+<li>
+
+<a
+class="dropdown-item"
+href="{{ url_for('co_po_admin.archive',
+mapping_id=m.MappingID) }}">
+
+Archive
+
+</a>
+
+</li>
+
+<li>
+
+<a
+class="dropdown-item text-danger"
+href="{{ url_for('co_po_admin.delete',
+mapping_id=m.MappingID) }}">
+
+Delete
+
+</a>
+
+</li>
+
+</ul>
+
+</div>
+
+</td>
+
+</tr>
+
+{% endfor %}
+
+</tbody>
+
+</table>
+
+</div>
+
+</div>
+
+</div>
+<div class="modal fade" id="addMappingModal">
+
+<div class="modal-dialog modal-lg">
+
+<div class="modal-content">
+
+<form
+method="POST"
+action="{{ url_for('co_po_admin.add_mapping') }}">
+
+<div class="modal-header">
+
+<h4>Add CO-PO Mapping</h4>
+
+<button
+type="button"
+class="btn-close"
+data-bs-dismiss="modal">
+</button>
+
+</div>
+
+<div class="modal-body">
+
+<div class="row">
+
+<div class="col-md-6">
+
+<label>Mapping ID</label>
+
+<input
+name="MappingID"
+class="form-control"
+required>
+
+</div>
+
+<div class="col-md-6">
+
+<label>Subject</label>
+
+<select
+name="SubjectID"
+class="form-select"
+required>
+
+{% for s in subjects.iterrows() %}
+{% set sub=s[1] %}
+
+<option value="{{ sub.SubjectID }}">
+{{ sub.SubjectID }}
+</option>
+
+{% endfor %}
+
+</select>
+
+</div>
+
+</div>
+
+<br>
+
+<div class="row">
+
+<div class="col-md-4">
+
+<label>CO</label>
+
+<select
+name="COID"
+class="form-select">
+
+{% for c in co.iterrows() %}
+{% set item=c[1] %}
+
+<option value="{{ item.COID }}">
+{{ item.COID }}
+</option>
+
+{% endfor %}
+
+</select>
+
+</div>
+
+<div class="col-md-4">
+
+<label>PO</label>
+
+<select
+name="POID"
+class="form-select">
+
+{% for p in po.iterrows() %}
+{% set item=p[1] %}
+
+<option value="{{ item.POID }}">
+{{ item.POID }}
+</option>
+
+{% endfor %}
+
+</select>
+
+</div>
+
+<div class="col-md-4">
+
+<label>Level</label>
+
+<select
+name="Level"
+class="form-select">
+
+<option value="1">1</option>
+
+<option value="2">2</option>
+
+<option value="3">3</option>
+
+</select>
+
+</div>
+
+</div>
+
+<br>
+
+<label>Status</label>
+
+<select
+name="Status"
+class="form-select">
+
+<option>Active</option>
+
+<option>Archived</option>
+
+</select>
+
+</div>
+
+<div class="modal-footer">
+
+<button
+type="button"
+class="btn btn-secondary"
+data-bs-dismiss="modal">
+
+Cancel
+
+</button>
+
+<button
+class="btn btn-success">
+
+Save Mapping
+
+</button>
+
+</div>
+
+</form>
+
+</div>
+
+</div>
+
+</div>
+<script>
+
+const search = document.getElementById("searchInput");
+const subject = document.getElementById("subjectFilter");
+const po = document.getElementById("poFilter");
+const level = document.getElementById("levelFilter");
+const status = document.getElementById("statusFilter");
+
+function filterMapping(){
+
+    let searchValue = search.value.toLowerCase();
+    let subjectValue = subject.value;
+    let poValue = po.value;
+    let levelValue = level.value;
+    let statusValue = status.value;
+
+    let rows = document.querySelectorAll("#mappingTable tr");
+
+    rows.forEach(function(row){
+
+        let mappingID = row.cells[0].innerText.toLowerCase();
+        let subjectID = row.cells[1].innerText;
+        let coID = row.cells[2].innerText.toLowerCase();
+        let poID = row.cells[3].innerText;
+        let mapLevel = row.cells[4].innerText.trim();
+        let mapStatus = row.cells[5].innerText.trim();
+
+        let visible = true;
+
+        if(
+            searchValue &&
+            !mappingID.includes(searchValue) &&
+            !subjectID.toLowerCase().includes(searchValue) &&
+            !coID.includes(searchValue) &&
+            !poID.toLowerCase().includes(searchValue)
+        ){
+            visible = false;
+        }
+
+        if(
+            subjectValue &&
+            subjectID != subjectValue
+        ){
+            visible = false;
+        }
+
+        if(
+            poValue &&
+            poID != poValue
+        ){
+            visible = false;
+        }
+
+        if(
+            levelValue &&
+            mapLevel != levelValue
+        ){
+            visible = false;
+        }
+
+        if(
+            statusValue &&
+            mapStatus != statusValue
+        ){
+            visible = false;
+        }
+
+        row.style.display = visible ? "" : "none";
+
+    });
+
+}
+
+search.addEventListener("keyup", filterMapping);
+subject.addEventListener("change", filterMapping);
+po.addEventListener("change", filterMapping);
+level.addEventListener("change", filterMapping);
+status.addEventListener("change", filterMapping);
+
+</script>
+{% endblock %}

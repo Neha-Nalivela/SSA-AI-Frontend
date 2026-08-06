@@ -1,0 +1,195 @@
+{% extends "faculty_base.html" %}
+
+{% block title %}
+My Subjects
+{% endblock %}
+
+{% block content %}
+
+<div class="container-fluid">
+
+    <div class="d-flex justify-content-between align-items-center mb-4">
+
+        <div>
+
+            <h2>My Subjects</h2>
+
+            <small class="text-muted">
+
+                Subjects Assigned To You
+
+            </small>
+
+        </div>
+
+    </div>
+
+    <div class="card shadow-sm mb-4">
+
+        <div class="card-body">
+
+            <div class="row">
+
+                <div class="col-md-6">
+
+                    <input
+                        id="searchInput"
+                        class="form-control"
+                        placeholder="Search Subject">
+
+                </div>
+
+                <div class="col-md-3">
+
+                    <select
+                        id="semesterFilter"
+                        class="form-select">
+
+                        <option value="">
+                            All Semesters
+                        </option>
+
+                        <option>1</option>
+                        <option>2</option>
+                        <option>3</option>
+                        <option>4</option>
+                        <option>5</option>
+                        <option>6</option>
+                        <option>7</option>
+                        <option>8</option>
+
+                    </select>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+    <div class="card shadow-sm">
+
+        <div class="card-body">
+
+            <div class="table-responsive">
+
+                <table class="table table-hover">
+
+                    <thead class="table-dark">
+
+                        <tr>
+
+                            <th>Subject ID</th>
+
+                            <th>Code</th>
+
+                            <th>Name</th>
+
+                            <th>Semester</th>
+
+                            <th>Credits</th>
+
+                            <th>Action</th>
+
+                        </tr>
+
+                    </thead>
+
+                    <tbody id="subjectTable">
+
+                        {% for row in subjects.iterrows() %}
+                        {% set s = row[1] %}
+
+                        <tr>
+
+                            <td>{{ s.SubjectID }}</td>
+
+                            <td>{{ s.SubjectCode }}</td>
+
+                            <td>{{ s.SubjectName }}</td>
+
+                            <td>{{ s.Semester }}</td>
+
+                            <td>{{ s.Credits }}</td>
+
+                            <td>
+                                <a
+                                href="/faculty/subject/{{ s.SubjectID }}"
+                                class="btn btn-primary btn-sm">
+                                Open
+                                </a>
+
+                            </td>
+
+                        </tr>
+
+                        {% endfor %}
+
+                    </tbody>
+
+                </table>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+<script>
+
+const search=document.getElementById("searchInput");
+
+const semester=document.getElementById("semesterFilter");
+
+function filterSubjects(){
+
+let value=search.value.toLowerCase();
+
+let sem=semester.value;
+
+let rows=document.querySelectorAll("#subjectTable tr");
+
+rows.forEach(function(row){
+
+let id=row.cells[0].innerText.toLowerCase();
+
+let code=row.cells[1].innerText.toLowerCase();
+
+let name=row.cells[2].innerText.toLowerCase();
+
+let semesterValue=row.cells[3].innerText.trim();
+
+let visible=true;
+
+if(
+value &&
+!id.includes(value) &&
+!code.includes(value) &&
+!name.includes(value)
+){
+visible=false;
+}
+
+if(
+sem &&
+semesterValue!=sem
+){
+visible=false;
+}
+
+row.style.display=visible?"":"none";
+
+});
+
+}
+
+search.addEventListener("keyup",filterSubjects);
+
+semester.addEventListener("change",filterSubjects);
+
+</script>
+
+{% endblock %}

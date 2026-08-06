@@ -1,0 +1,176 @@
+{% extends "faculty_base.html" %}
+
+{% block title %}
+View Question
+{% endblock %}
+
+{% block content %}
+
+<div class="container-fluid">
+
+    <div class="d-flex justify-content-between align-items-center mb-4">
+
+        <div>
+
+            <h2>Question Details</h2>
+
+            <small class="text-muted">
+
+                Complete Question Information
+
+            </small>
+
+        </div>
+
+        <a href="/faculty/question-bank"
+           class="btn btn-secondary">
+
+            ← Back
+
+        </a>
+
+    </div>
+
+    <div class="card shadow-sm">
+
+        <div class="card-header bg-primary text-white">
+
+            Question Information
+
+        </div>
+
+        <div class="card-body">
+
+            <div class="row mb-3">
+
+                <div class="col-md-4">
+
+                    <strong>Question ID</strong><br>
+
+                    {{ question.QuestionID }}
+
+                </div>
+
+                <div class="col-md-4">
+
+                    <strong>Subject</strong><br>
+
+                    {{ question.Subject }}
+
+                </div>
+
+                <div class="col-md-4">
+
+                    <strong>Subject ID</strong><br>
+
+                    {{ question.SubjectID }}
+
+                </div>
+
+            </div>
+
+            <div class="row mb-3">
+
+                <div class="col-md-4">
+
+                    <strong>Topic</strong><br>
+
+                    {{ question.Topic }}
+
+                </div>
+
+                <div class="col-md-4">
+
+                    <strong>Sub Topic</strong><br>
+
+                    {{ question.Subtopic }}
+
+                </div>
+
+                <div class="col-md-4">
+
+                    <strong>Question Type</strong><br>
+
+                    {{ question.QuestionType }}
+
+                </div>
+
+            </div>
+
+            <div class="row mb-3">
+
+                <div class="col-md-3">
+
+                    <strong>CO</strong><br>
+
+                    {{ question.COID }}
+
+                </div>
+
+                <div class="col-md-3">
+
+                    <strong>BTL</strong><br>
+
+                    {{ question.BTL }}
+
+                </div>
+
+                <div class="col-md-3">
+
+                    <strong>Exam</strong><br>
+
+                    {{ question.Exam }}
+
+                </div>
+
+                <div class="col-md-3">
+
+                    <strong>Marks</strong><br>
+
+                    {{ question.MaxMarks }}
+
+                </div>
+
+            </div>
+
+            <div class="row mb-3">
+
+                <div class="col-md-6">
+
+                    <strong>Difficulty</strong><br>
+
+                    {{ question.Difficulty }}
+
+                </div>
+
+                <div class="col-md-6">
+
+                    <strong>Status</strong><br>
+
+                    {{ question.Status }}
+
+                </div>
+
+            </div>
+
+            <hr>
+
+            <div class="mb-3">
+
+                <strong>Question</strong>
+
+                <div class="border rounded p-3 mt-2 bg-light">
+
+                    {{ question.Question }}
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+{% endblock %}

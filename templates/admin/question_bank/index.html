@@ -1,0 +1,681 @@
+{% extends "dashboard_base.html" %}
+
+{% block title %}
+Question Bank
+{% endblock %}
+
+{% block content %}
+
+<div class="container-fluid">
+
+    <div class="d-flex justify-content-between align-items-center mb-4">
+
+        <div>
+
+            <h2 class="mb-0">
+                Question Bank
+            </h2>
+
+            <small class="text-muted">
+                Manage Subject Question Bank
+            </small>
+
+        </div>
+
+        <button
+            class="btn btn-primary"
+            data-bs-toggle="modal"
+            data-bs-target="#addQuestionModal">
+
+            + Add Question
+
+        </button>
+
+    </div>
+    <div class="card shadow-sm mb-4">
+
+<div class="card-body">
+
+<div class="row g-2">
+
+<div class="col-md-3">
+
+<input
+id="searchInput"
+class="form-control"
+placeholder="Search Question ID / Question">
+
+</div>
+
+<div class="col-md-2">
+
+<select
+id="subjectFilter"
+class="form-select">
+
+<option value="">All Subjects</option>
+
+{% for row in subjects.iterrows() %}
+{% set s = row[1] %}
+
+<option value="{{ s.SubjectID }}">
+
+{{ s.SubjectID }}
+
+</option>
+
+{% endfor %}
+
+</select>
+
+</div>
+
+<div class="col-md-2">
+
+<select
+id="coFilter"
+class="form-select">
+
+<option value="">All CO</option>
+
+{% for row in co.iterrows() %}
+{% set c = row[1] %}
+
+<option value="{{ c.COID }}">
+
+{{ c.COID }}
+
+</option>
+
+{% endfor %}
+
+</select>
+
+</div>
+
+<div class="col-md-1">
+
+<select
+id="btlFilter"
+class="form-select">
+
+<option value="">BTL</option>
+
+<option>L1</option>
+<option>L2</option>
+<option>L3</option>
+<option>L4</option>
+<option>L5</option>
+<option>L6</option>
+
+</select>
+
+</div>
+
+<div class="col-md-2">
+
+<select
+id="difficultyFilter"
+class="form-select">
+
+<option value="">Difficulty</option>
+
+<option>Easy</option>
+
+<option>Medium</option>
+
+<option>Hard</option>
+
+</select>
+
+</div>
+
+<div class="col-md-2">
+
+<select
+id="statusFilter"
+class="form-select">
+
+<option value="">Status</option>
+
+<option>Active</option>
+
+<option>Archived</option>
+
+</select>
+
+</div>
+
+</div>
+
+</div>
+
+</div>
+<div class="card shadow-sm">
+
+<div class="card-body">
+
+<div class="table-responsive">
+
+<table class="table table-hover">
+
+<thead class="table-dark">
+
+<tr>
+
+<th>ID</th>
+
+<th>Subject</th>
+
+<th>CO</th>
+
+<th>Topic</th>
+
+<th>BTL</th>
+
+<th>Exam</th>
+
+<th>Marks</th>
+
+<th>Difficulty</th>
+
+<th>Status</th>
+
+<th width="80">
+
+Action
+
+</th>
+
+</tr>
+
+</thead>
+
+<tbody id="questionTable">
+
+{% for row in questions.iterrows() %}
+{% set q = row[1] %}
+
+<tr>
+
+<td>{{ q.QuestionID }}</td>
+
+<td>{{ q.SubjectID }}</td>
+
+<td>{{ q.COID }}</td>
+
+<td>{{ q.Topic }}</td>
+
+<td>{{ q.BTL }}</td>
+
+<td>{{ q.Exam }}</td>
+
+<td>{{ q.MaxMarks }}</td>
+
+<td>{{ q.Difficulty }}</td>
+
+<td>{{ q.Status }}</td>
+
+<td>
+
+<div class="dropdown">
+
+<button
+class="btn btn-light btn-sm"
+data-bs-toggle="dropdown">
+
+⋮
+
+</button>
+
+<ul class="dropdown-menu">
+
+<li>
+
+<a
+class="dropdown-item"
+href="{{ url_for('question_bank_admin.edit_question',
+question_id=q.QuestionID) }}">
+
+✏ Edit
+
+</a>
+
+</li>
+
+<li>
+
+<a
+class="dropdown-item"
+href="{{ url_for('question_bank_admin.archive',
+question_id=q.QuestionID) }}">
+
+Archive
+
+</a>
+
+</li>
+
+<li>
+
+<a
+class="dropdown-item text-danger"
+href="{{ url_for('question_bank_admin.delete',
+question_id=q.QuestionID) }}">
+
+Delete
+
+</a>
+
+</li>
+
+</ul>
+
+</div>
+
+</td>
+
+</tr>
+
+{% endfor %}
+
+</tbody>
+
+</table>
+
+</div>
+
+</div>
+
+</div>
+<div class="modal fade" id="addQuestionModal">
+
+<div class="modal-dialog modal-xl">
+
+<div class="modal-content">
+
+<form
+method="POST"
+action="{{ url_for('question_bank_admin.add_question') }}">
+
+<div class="modal-header">
+
+<h4>Add Question</h4>
+
+<button
+type="button"
+class="btn-close"
+data-bs-dismiss="modal">
+</button>
+
+</div>
+
+<div class="modal-body">
+
+<div class="row">
+
+<div class="col-md-3">
+
+<label>Question ID</label>
+
+<input
+name="QuestionID"
+class="form-control"
+required>
+
+</div>
+
+<div class="col-md-3">
+
+<label>Subject</label>
+
+<select
+name="SubjectID"
+class="form-select"
+required>
+
+{% for row in subjects.iterrows() %}
+{% set s = row[1] %}
+
+<option value="{{ s.SubjectID }}">
+
+{{ s.SubjectID }} - {{ s.SubjectName }}
+
+</option>
+
+{% endfor %}
+
+</select>
+
+</div>
+
+<div class="col-md-3">
+
+<label>Subject Name</label>
+
+<input
+name="Subject"
+class="form-control"
+required>
+
+</div>
+
+<div class="col-md-3">
+
+<label>CO</label>
+
+<select
+name="COID"
+class="form-select">
+
+{% for row in co.iterrows() %}
+{% set c = row[1] %}
+
+<option>
+
+{{ c.COID }}
+
+</option>
+
+{% endfor %}
+
+</select>
+
+</div>
+
+</div>
+
+<br>
+<div class="row">
+
+<div class="col-md-4">
+
+<label>Topic</label>
+
+<input
+name="Topic"
+class="form-control"
+required>
+
+</div>
+
+<div class="col-md-4">
+
+<label>Subtopic</label>
+
+<input
+name="Subtopic"
+class="form-control"
+required>
+
+</div>
+
+<div class="col-md-4">
+
+<label>BTL</label>
+
+<select
+name="BTL"
+class="form-select">
+
+<option>L1</option>
+<option>L2</option>
+<option>L3</option>
+<option>L4</option>
+<option>L5</option>
+<option>L6</option>
+
+</select>
+
+</div>
+
+</div>
+
+<br>
+
+<div class="row">
+
+<div class="col-md-4">
+
+<label>Exam</label>
+
+<select
+name="Exam"
+class="form-select">
+
+<option>Internal-1</option>
+
+<option>Internal-2</option>
+
+<option>Assignment</option>
+
+<option>Lab</option>
+
+<option>Mid Semester</option>
+
+<option>End Semester</option>
+
+</select>
+
+</div>
+
+<div class="col-md-4">
+
+<label>Maximum Marks</label>
+
+<select
+name="MaxMarks"
+class="form-select">
+
+<option>2</option>
+<option>5</option>
+<option>10</option>
+<option>15</option>
+
+</select>
+
+</div>
+
+<div class="col-md-4">
+
+<label>Difficulty</label>
+
+<select
+name="Difficulty"
+class="form-select">
+
+<option>Easy</option>
+
+<option>Medium</option>
+
+<option>Hard</option>
+
+</select>
+
+</div>
+
+</div>
+
+<br>
+
+<div class="row">
+
+<div class="col-md-6">
+
+<label>Question Type</label>
+
+<select
+name="QuestionType"
+class="form-select">
+
+<option>MCQ</option>
+
+<option>Short Answer</option>
+
+<option>Long Answer</option>
+
+<option>Programming</option>
+
+<option>Case Study</option>
+
+</select>
+
+</div>
+
+<div class="col-md-6">
+
+<label>Status</label>
+
+<select
+name="Status"
+class="form-select">
+
+<option>Active</option>
+
+<option>Archived</option>
+
+</select>
+
+</div>
+
+</div>
+
+<br>
+
+<label>Question</label>
+
+<textarea
+
+name="Question"
+
+rows="5"
+
+class="form-control"
+
+required>
+
+</textarea>
+
+</div>
+<div class="modal-footer">
+
+<button
+
+type="button"
+
+class="btn btn-secondary"
+
+data-bs-dismiss="modal">
+
+Cancel
+
+</button>
+
+<button
+
+class="btn btn-success">
+
+Save Question
+
+</button>
+
+</div>
+
+</form>
+
+</div>
+
+</div>
+
+</div>
+<script>
+
+const search=document.getElementById("searchInput");
+const subject=document.getElementById("subjectFilter");
+const co=document.getElementById("coFilter");
+const btl=document.getElementById("btlFilter");
+const difficulty=document.getElementById("difficultyFilter");
+const status=document.getElementById("statusFilter");
+
+function filterQuestion(){
+
+let searchValue=search.value.toLowerCase();
+let subjectValue=subject.value;
+let coValue=co.value;
+let btlValue=btl.value;
+let difficultyValue=difficulty.value;
+let statusValue=status.value;
+
+let rows=document.querySelectorAll("#questionTable tr");
+
+rows.forEach(function(row){
+
+let id=row.cells[0].innerText.toLowerCase();
+let subject=row.cells[1].innerText.trim();
+let co=row.cells[2].innerText.trim();
+let topic=row.cells[3].innerText.toLowerCase();
+let btl=row.cells[4].innerText.trim();
+let difficulty=row.cells[7].innerText.trim();
+let status=row.cells[8].innerText.trim();
+
+let visible=true;
+
+if(
+searchValue &&
+!id.includes(searchValue) &&
+!topic.includes(searchValue)
+){
+visible=false;
+}
+
+if(
+subjectValue &&
+subject!=subjectValue
+){
+visible=false;
+}
+
+if(
+coValue &&
+co!=coValue
+){
+visible=false;
+}
+
+if(
+btlValue &&
+btl!=btlValue
+){
+visible=false;
+}
+
+if(
+difficultyValue &&
+difficulty!=difficultyValue
+){
+visible=false;
+}
+
+if(
+statusValue &&
+status!=statusValue
+){
+visible=false;
+}
+
+row.style.display=visible?"":"none";
+
+});
+
+}
+
+search.addEventListener("keyup",filterQuestion);
+subject.addEventListener("change",filterQuestion);
+co.addEventListener("change",filterQuestion);
+btl.addEventListener("change",filterQuestion);
+difficulty.addEventListener("change",filterQuestion);
+status.addEventListener("change",filterQuestion);
+
+</script>
+
+{% endblock %}

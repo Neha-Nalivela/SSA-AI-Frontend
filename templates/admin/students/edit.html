@@ -1,0 +1,139 @@
+{% extends "dashboard_base.html" %}
+
+{% block title %}
+Edit Student
+{% endblock %}
+
+{% block content %}
+
+<div class="container">
+
+<div class="card shadow">
+
+<div class="card-header">
+
+<h3>Edit Student</h3>
+
+</div>
+
+<div class="card-body">
+
+<form
+
+method="POST"
+
+action="{{ url_for('student_admin.update_student_route', student_id=student.StudentID) }}">
+
+<div class="mb-3">
+
+<label>Student ID</label>
+
+<input
+
+class="form-control"
+
+value="{{ student.StudentID }}"
+
+readonly>
+
+</div>
+
+<div class="mb-3">
+
+<label>Name</label>
+
+<input
+
+class="form-control"
+
+name="Name"
+
+value="{{ student.Name }}">
+
+</div>
+
+<div class="mb-3">
+
+<label>Department</label>
+
+<input
+
+class="form-control"
+
+name="Department"
+
+value="{{ student.Department }}">
+
+</div>
+
+<div class="mb-3">
+
+<label>Year</label>
+
+<input
+
+class="form-control"
+
+name="Year"
+
+value="{{ student.Year }}">
+
+</div>
+
+<div class="mb-3">
+
+<label>Semester</label>
+
+<input
+
+class="form-control"
+
+name="Semester"
+
+value="{{ student.Semester }}">
+
+</div>
+
+<div class="mb-3">
+
+<label>Section</label>
+
+<input
+
+class="form-control"
+
+name="Section"
+
+value="{{ student.Section }}">
+
+</div>
+
+<div class="mb-3">
+
+<label>Email</label>
+
+<input
+
+class="form-control"
+
+name="Email"
+
+value="{{ student.Email }}">
+
+</div>
+
+<button class="btn btn-success">
+
+Update Student
+
+</button>
+
+</form>
+
+</div>
+
+</div>
+
+</div>
+
+{% endblock %}

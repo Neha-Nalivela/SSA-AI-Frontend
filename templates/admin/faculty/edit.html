@@ -1,0 +1,236 @@
+{% extends "dashboard_base.html" %}
+
+{% block title %}
+Edit Faculty
+{% endblock %}
+
+{% block content %}
+
+<div class="container">
+
+    <div class="card shadow">
+
+        <div class="card-header">
+
+            <h3>Edit Faculty</h3>
+
+        </div>
+
+        <div class="card-body">
+
+            <form
+                method="POST"
+                action="{{ url_for('faculty_admin.update_faculty_route',
+                faculty_id=faculty.FacultyID) }}">
+
+                <div class="row">
+
+                    <div class="col-md-6">
+
+                        <label>Faculty ID</label>
+
+                        <input
+                            class="form-control"
+                            value="{{ faculty.FacultyID }}"
+                            readonly>
+
+                    </div>
+
+                    <div class="col-md-6">
+
+                        <label>Name</label>
+
+                        <input
+                            name="Name"
+                            class="form-control"
+                            value="{{ faculty.Name }}">
+
+                    </div>
+
+                </div>
+
+                <br>
+
+                <div class="row">
+
+                    <div class="col-md-4">
+
+                        <label>Department</label>
+
+                        <select
+                            name="Department"
+                            class="form-select">
+
+                            <option
+                            {% if faculty.Department=="CSE" %}
+                            selected
+                            {% endif %}>
+                            CSE
+                            </option>
+
+                        </select>
+
+                    </div>
+
+                    <div class="col-md-4">
+
+                        <label>Designation</label>
+
+                        <select
+                            name="Designation"
+                            class="form-select">
+
+                            <option
+                            {% if faculty.Designation=="Assistant Professor" %}
+                            selected
+                            {% endif %}>
+                            Assistant Professor
+                            </option>
+
+                            <option
+                            {% if faculty.Designation=="Associate Professor" %}
+                            selected
+                            {% endif %}>
+                            Associate Professor
+                            </option>
+
+                            <option
+                            {% if faculty.Designation=="Professor" %}
+                            selected
+                            {% endif %}>
+                            Professor
+                            </option>
+
+                            <option
+                            {% if faculty.Designation=="HOD" %}
+                            selected
+                            {% endif %}>
+                            HOD
+                            </option>
+
+                        </select>
+
+                    </div>
+
+                    <div class="col-md-4">
+
+                        <label>Qualification</label>
+
+                        <input
+                            name="Qualification"
+                            class="form-control"
+                            value="{{ faculty.Qualification }}">
+
+                    </div>
+
+                </div>
+
+                <br>
+
+                <div class="row">
+
+                    <div class="col-md-3">
+
+                        <label>Experience</label>
+
+                        <input
+                            name="Experience"
+                            class="form-control"
+                            value="{{ faculty.Experience }}">
+
+                    </div>
+
+                    <div class="col-md-3">
+
+                        <label>Phone</label>
+
+                        <input
+                            name="Phone"
+                            class="form-control"
+                            value="{{ faculty.Phone }}">
+
+                    </div>
+
+                    <div class="col-md-3">
+
+                        <label>Email</label>
+
+                        <input
+                            name="Email"
+                            class="form-control"
+                            value="{{ faculty.Email }}">
+
+                    </div>
+
+                    <div class="col-md-3">
+
+                        <label>Joining Date</label>
+
+                        <input
+                            type="date"
+                            name="JoiningDate"
+                            class="form-control"
+                            value="{{ faculty.JoiningDate }}">
+
+                    </div>
+
+                </div>
+
+                <br>
+
+                <div class="row">
+
+                    <div class="col-md-4">
+
+                        <label>Status</label>
+
+                        <select
+                            name="Status"
+                            class="form-select" id="statusFilter">
+
+                            <option
+                            {% if faculty.Status=="Active" %}
+                            selected
+                            {% endif %}>
+                            Active
+                            </option>
+
+                            <option
+                            {% if faculty.Status=="Archived" %}
+                            selected
+                            {% endif %}>
+                            Archived
+                            </option>
+
+                        </select>
+
+                    </div>
+
+                </div>
+
+                <br>
+
+                <button
+                    class="btn btn-success">
+
+                    Update Faculty
+
+                </button>
+
+                <a
+                    href="{{ url_for('faculty_admin.faculty') }}"
+                    class="btn btn-secondary">
+
+                    Cancel
+
+                </a>
+
+            </form>
+
+        </div>
+
+    </div>
+
+</div>
+
+{% endblock %}

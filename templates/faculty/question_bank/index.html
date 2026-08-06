@@ -1,0 +1,291 @@
+{% extends "faculty_base.html" %}
+
+{% block title %}
+Question Bank
+{% endblock %}
+
+{% block content %}
+
+<div class="container-fluid">
+
+    <!-- Header -->
+
+    <div class="d-flex justify-content-between align-items-center mb-4">
+
+        <div>
+
+            <h2>Question Bank</h2>
+
+            <small class="text-muted">
+                Manage Subject Questions
+            </small>
+
+        </div>
+
+        <a href="/faculty/question-bank/add"
+           class="btn btn-primary">
+
+            + Add Question
+
+        </a>
+
+    </div>
+
+    <!-- Search & Filters -->
+
+    <div class="card shadow-sm mb-4">
+
+        <div class="card-body">
+
+            <div class="row g-3">
+
+                <div class="col-md-4">
+
+                    <input
+                        type="text"
+                        id="searchInput"
+                        class="form-control"
+                        placeholder="Search Question">
+
+                </div>
+
+                <div class="col-md-2">
+
+                    <select
+                        id="coFilter"
+                        class="form-select">
+
+                        <option value="">All CO</option>
+
+                        <option>CO1</option>
+                        <option>CO2</option>
+                        <option>CO3</option>
+                        <option>CO4</option>
+                        <option>CO5</option>
+
+                    </select>
+
+                </div>
+
+                <div class="col-md-2">
+
+                    <select
+                        id="btlFilter"
+                        class="form-select">
+
+                        <option value="">All BTL</option>
+
+                        <option>BTL1</option>
+                        <option>BTL2</option>
+                        <option>BTL3</option>
+                        <option>BTL4</option>
+                        <option>BTL5</option>
+                        <option>BTL6</option>
+
+                    </select>
+
+                </div>
+
+                <div class="col-md-2">
+
+                    <select
+                        id="difficultyFilter"
+                        class="form-select">
+
+                        <option value="">Difficulty</option>
+
+                        <option>Easy</option>
+                        <option>Medium</option>
+                        <option>Hard</option>
+
+                    </select>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+    <!-- Questions Table -->
+
+    <div class="card shadow-sm">
+
+        <div class="card-body">
+
+            <div class="table-responsive">
+
+                <table class="table table-hover">
+
+                    <thead class="table-dark">
+                        <tr>
+                            <th>ID</th>
+                            <th>Subject</th>
+                            <th>Question</th>
+                            <th>QuestionType</th>
+                            <th>Topic</th>
+                            <th>CO</th>
+                            <th>BTL</th>
+                            <th>Marks</th>
+                            <th>Difficulty</th>
+                            <th>Status</th>
+                            <th>Action</th>
+                        </tr>
+
+                    </thead>
+
+                    <tbody id="questionTable">
+
+                        {% for row in questions.iterrows() %}
+
+                        {% set q = row[1] %}
+
+                        <tr>
+
+                            <td>{{ q.QuestionID }}</td>
+                            <td>{{ q.Subject }}</td>
+                            <td>{{ q.Question }}</td>
+                            <td>{{ q.QuestionType}}</td>
+                            <td>{{ q.Topic }}</td>
+                            <td>{{ q.COID }}</td>
+                            <td>{{ q.BTL }}</td>
+                            <td>{{ q.MaxMarks }}</td>
+                            <td>{{ q.Difficulty }}</td>
+                            <td>{{ q.Status }}</td>
+                            <td>
+
+                            <div class="dropdown">
+
+                                <button
+                                    class="btn btn-light btn-sm"
+                                    type="button"
+                                    data-bs-toggle="dropdown">
+                                    ⋮
+                                </button>
+                                    <ul class="dropdown-menu dropdown-menu-end">
+                                        <li>
+                                            <a class="dropdown-item"
+                                                href="/faculty/question-bank/view/{{ q.QuestionID }}">
+                                                👁 View
+
+                                            </a>
+                                        </li>
+                                        <li>
+                                            <a class="dropdown-item"
+                                                href="/faculty/question-bank/edit/{{ q.QuestionID }}">
+                                                ✏ Edit
+
+                                            </a>
+
+                                        </li>
+
+                                        <li><hr class="dropdown-divider"></li>
+
+                                        <li>
+
+                                            <a class="dropdown-item text-warning"
+                                                href="/faculty/question-bank/archive/{{ q.QuestionID }}">
+
+                                                📦 Archive
+
+                                            </a>
+
+                                        </li>
+
+                                        <li>
+
+                                            <a class="dropdown-item text-danger"
+                                                href="/faculty/question-bank/delete/{{ q.QuestionID }}"
+                                                onclick="return confirm('Delete this question?');">
+
+                                                🗑 Delete
+
+                                            </a>
+
+                                        </li>
+
+                                    </ul>
+
+                                </div>
+
+                            </td>
+                        </tr>
+
+                        {% endfor %}
+
+                    </tbody>
+
+                </table>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+<script>
+
+const search=document.getElementById("searchInput");
+const co=document.getElementById("coFilter");
+
+const btl=document.getElementById("btlFilter");
+
+const difficulty=document.getElementById("difficultyFilter");
+co.addEventListener("change", filterQuestions);
+btl.addEventListener("change", filterQuestions);
+difficulty.addEventListener("change", filterQuestions);
+
+function filterQuestions(){
+
+    let searchValue=search.value.toLowerCase();
+
+    let coValue=co.value;
+
+    let btlValue=btl.value;
+
+    let diffValue=difficulty.value;
+
+    let rows=document.querySelectorAll("#questionTable tr");
+
+    rows.forEach(function(row){
+        let id=row.cells[0].innerText.toLowerCase();
+        let subject=row.cells[1].innerText.toLowerCase();
+        let question=row.cells[2].innerText.toLowerCase();
+        let topic=row.cells[4].innerText.toLowerCase();
+        let co=row.cells[5].innerText.trim();
+        let btl=row.cells[6].innerText.trim();
+        let difficulty=row.cells[8].innerText.trim();
+        let visible=true;
+
+        if(
+            searchValue &&
+            !id.includes(searchValue) &&
+            !subject.includes(searchValue)&&
+            !question.includes(searchValue) &&
+            !topic.includes(searchValue)
+        ){
+            visible=false;
+        }
+        if(coValue && co!=coValue){
+            visible=false;
+        }
+        if(btlValue && btl!=btlValue){
+            visible=false;
+        }
+        if(diffValue && difficulty!=diffValue){
+            visible=false;
+        }
+        row.style.display=visible?"":"none";
+    });
+}
+
+search.addEventListener("keyup",filterQuestions);
+
+
+
+</script>
+
+{% endblock %}

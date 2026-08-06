@@ -1,0 +1,508 @@
+{% extends "dashboard_base.html" %}
+
+{% block title %}
+Students
+{% endblock %}
+
+{% block content %}
+
+<div class="container-fluid">
+
+    <!-- Page Header -->
+
+    <div class="d-flex justify-content-between align-items-center mb-4">
+
+        <div>
+
+            <h2 class="mb-0">
+                Student Management
+            </h2>
+
+            <small class="text-muted">
+                Manage all student records
+            </small>
+
+        </div>
+
+        <button
+            class="btn btn-primary"
+            data-bs-toggle="modal"
+            data-bs-target="#addStudentModal">
+
+            + Add Student
+
+        </button>
+
+    </div>
+
+    <!-- Filters -->
+
+    <div class="card shadow-sm mb-4">
+
+        <div class="card-body">
+
+            <div class="row">
+
+                <div class="col-md-4">
+
+                    <input
+                        type="text"
+                        id="searchInput"
+                        class="form-control"
+                        placeholder="Search Student ID / Name">
+
+                </div>
+
+                <div class="col-md-2">
+
+                    <select class="form-select" id="yearFilter">
+
+                        <option>All Years</option>
+                        <option>1st Year</option>
+                        <option>2nd Year</option>
+                        <option>3rd Year</option>
+                        <option>4th Year</option>
+
+                    </select>
+
+                </div>
+
+                <div class="col-md-2">
+
+                    <select class="form-select" id="semesterFilter">
+
+                        <option>All Sections</option>
+                        <option>A</option>
+                        <option>B</option>
+                        <option>C</option>
+                        <option>D</option>
+
+                    </select>
+
+                </div>
+
+                <div class="col-md-2">
+
+                    <select class="form-select" id="departmentFilter">
+
+                        <option>All Departments</option>
+                        <option>CSE</option>
+                        <option>ECE</option>
+                        <option>EEE</option>
+                        <option>MECH</option>
+                        <option>CIVIL</option>
+
+                    </select>
+
+                </div>
+
+                <div class="col-md-2">
+
+                    <button class="btn btn-success w-100">
+
+                        Search
+
+                    </button>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+    <!-- Student Table -->
+
+    <div class="card shadow-sm">
+
+        <div class="card-body">
+
+            <div class="table-responsive">
+
+                <table class="table table-hover align-middle">
+
+                    <thead class="table-dark">
+
+                        <tr>
+
+                            <th>Student ID</th>
+                            <th>Name</th>
+                            <th>Department</th>
+                            <th>Year</th>
+                            <th>Semester</th>
+                            <th>Section</th>
+                            <th>Email</th>
+                            <th width="80">Action</th>
+
+                        </tr>
+
+                    </thead>
+
+                    <tbody id="studentTable">
+
+                        {% if students.empty %}
+
+                            <tr>
+
+                                <td colspan="8" class="text-center">
+
+                                    No students found.
+
+                                </td>
+
+                            </tr>
+
+                        {% endif %}
+
+                        {% for student in students.iterrows() %}
+                        {% set s = student[1] %}
+
+                        <tr>
+
+                            <td>{{ s.StudentID }}</td>
+
+                            <td>{{ s.Name }}</td>
+
+                            <td>{{ s.Department }}</td>
+
+                            <td>{{ s.Year }}</td>
+
+                            <td>{{ s.Semester }}</td>
+
+                            <td>{{ s.Section }}</td>
+
+                            <td>{{ s.Email }}</td>
+
+                            <td>
+
+                                <div class="dropdown">
+
+                                    <button
+                                        class="btn btn-light btn-sm"
+                                        data-bs-toggle="dropdown">
+
+                                        ⋮
+
+                                    </button>
+
+                                    <ul class="dropdown-menu">
+
+                                        <li>
+
+                                            <a
+                                                class="dropdown-item"
+                                                href="#">
+
+                                                👁 View
+
+                                            </a>
+
+                                        </li>
+
+                                        <li>
+
+                                            <a
+                                                class="dropdown-item"
+                                                href="{{ url_for('student_admin.edit_student', student_id=s.StudentID) }}">
+
+                                                ✏ Edit
+
+                                            </a>
+
+                                        </li>
+
+                                        <li>
+
+                                            <hr class="dropdown-divider">
+
+                                        </li>
+
+                                        <li>
+                                            <a
+                                                class="dropdown-item text-danger"
+                                                href="{{ url_for('student_admin.archive', student_id=s.StudentID) }}">
+                                                Archive
+                                            </a>
+
+                                        </li>
+                                        <li>
+                                            <a
+                                                class="dropdown-item text-danger"
+                                                href="{{ url_for('student_admin.delete', student_id=s.StudentID) }}">
+                                                🗑 Delete
+                                            </a>
+
+                                        </li>
+
+                                    </ul>
+
+                                </div>
+
+                            </td>
+
+                        </tr>
+
+                        {% endfor %}
+
+                    </tbody>
+
+                </table>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+<!-- Add Student Modal -->
+
+<div class="modal fade" id="addStudentModal">
+
+    <div class="modal-dialog modal-xl">
+
+        <div class="modal-content">
+
+            <form
+                method="POST"
+                action="{{ url_for('student_admin.add_student') }}">
+
+                <div class="modal-header">
+
+                    <h4>Add Student</h4>
+
+                    <button
+                        type="button"
+                        class="btn-close"
+                        data-bs-dismiss="modal">
+
+                    </button>
+
+                </div>
+
+                <div class="modal-body">
+
+                    <div class="row">
+
+                        <div class="col-md-6">
+
+                            <label>Student ID</label>
+
+                            <input
+                                type="text"
+                                name="StudentID"
+                                class="form-control"
+                                required>
+
+                        </div>
+
+                        <div class="col-md-6">
+
+                            <label>Name</label>
+
+                            <input
+                                type="text"
+                                name="Name"
+                                class="form-control"
+                                required>
+
+                        </div>
+
+                    </div>
+
+                    <br>
+
+                    <div class="row">
+
+                        <div class="col-md-3">
+
+                            <label>Department</label>
+
+                            <select
+                                name="Department"
+                                class="form-select">
+
+                                <option>CSE</option>
+                                <option>ECE</option>
+                                <option>EEE</option>
+                                <option>MECH</option>
+                                <option>CIVIL</option>
+
+                            </select>
+
+                        </div>
+
+                        <div class="col-md-3">
+
+                            <label>Year</label>
+
+                            <select
+                                name="Year"
+                                class="form-select">
+
+                                <option>1</option>
+                                <option>2</option>
+                                <option>3</option>
+                                <option>4</option>
+
+                            </select>
+
+                        </div>
+
+                        <div class="col-md-3">
+
+                            <label>Semester</label>
+
+                            <select
+                                name="Semester"
+                                class="form-select">
+
+                                <option>1</option>
+                                <option>2</option>
+                                <option>3</option>
+                                <option>4</option>
+                                <option>5</option>
+                                <option>6</option>
+                                <option>7</option>
+                                <option>8</option>
+
+                            </select>
+
+                        </div>
+
+                        <div class="col-md-3">
+
+                            <label>Section</label>
+
+                            <select
+                                name="Section"
+                                class="form-select">
+
+                                <option>A</option>
+                                <option>B</option>
+                                <option>C</option>
+                                <option>D</option>
+
+                            </select>
+
+                        </div>
+
+                    </div>
+
+                    <br>
+
+                    <div class="row">
+
+                        <div class="col-md-12">
+
+                            <label>Email</label>
+
+                            <input
+                                type="email"
+                                name="Email"
+                                class="form-control"
+                                required>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+                <div class="modal-footer">
+
+                    <button
+                        class="btn btn-secondary"
+                        data-bs-dismiss="modal"
+                        type="button">
+
+                        Cancel
+
+                    </button>
+
+                    <button
+                        class="btn btn-success"
+                        type="submit">
+
+                        Save Student
+
+                    </button>
+
+                </div>
+
+            </form>
+
+        </div>
+
+    </div>
+
+</div>
+<script>
+const search = document.getElementById("searchInput");
+const year = document.getElementById("yearFilter");
+const semester = document.getElementById("semesterFilter");
+const department = document.getElementById("departmentFilter");
+
+function filterStudents() {
+
+    let searchText = search.value.toLowerCase();
+    let yearValue = year.value;
+    let semesterValue = semester.value;
+    let departmentValue = department.value;
+
+    let rows = document.querySelectorAll("#studentTable tr");
+
+    rows.forEach(row => {
+
+        let studentId = row.cells[0].innerText.toLowerCase();
+        let name = row.cells[1].innerText.toLowerCase();
+        let dept = row.cells[2].innerText.trim();
+        let studentYear = row.cells[3].innerText.trim();
+        let sem = row.cells[4].innerText.trim();
+
+        let visible = true;
+
+        if (
+            searchText &&
+            !studentId.includes(searchText) &&
+            !name.includes(searchText)
+        ){
+            visible = false;
+        }
+
+        if (
+            yearValue !== "All Years" &&
+            studentYear !== yearValue.charAt(0)
+        ){
+            visible = false;
+        }
+
+        if (
+            semesterValue !== "All Sections" &&
+            sem !== semesterValue
+        ){
+            visible = false;
+        }
+
+        if (
+            departmentValue !== "All Departments" &&
+            dept !== departmentValue
+        ){
+            visible = false;
+        }
+
+        row.style.display = visible ? "" : "none";
+
+    });
+
+}
+
+search.addEventListener("keyup", filterStudents);
+year.addEventListener("change", filterStudents);
+semester.addEventListener("change", filterStudents);
+department.addEventListener("change", filterStudents);
+</script>
+{% endblock %}

@@ -1,0 +1,504 @@
+{% extends "dashboard_base.html" %}
+
+{% block title %}
+Subjects
+{% endblock %}
+
+{% block content %}
+
+<div class="container-fluid">
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+
+<div>
+
+<h2 class="mb-0">
+Subject Management
+</h2>
+
+<small class="text-muted">
+Manage Subject Records
+</small>
+
+</div>
+
+<button
+class="btn btn-primary"
+data-bs-toggle="modal"
+data-bs-target="#addSubjectModal">
+
++ Add Subject
+
+</button>
+
+</div>
+
+<div class="card shadow-sm mb-4">
+
+<div class="card-body">
+
+<div class="row">
+
+<div class="col-md-4">
+
+<input
+id="searchInput"
+class="form-control"
+placeholder="Search Subject Code / Name">
+
+</div>
+
+<div class="col-md-2">
+
+<select
+id="semesterFilter"
+class="form-select">
+
+<option value="">All Semesters</option>
+
+<option>1</option>
+<option>2</option>
+<option>3</option>
+<option>4</option>
+<option>5</option>
+<option>6</option>
+<option>7</option>
+<option>8</option>
+
+</select>
+
+</div>
+
+<div class="col-md-3">
+
+<select
+id="facultyFilter"
+class="form-select">
+
+<option value="">All Faculty</option>
+
+{% for f in faculty.iterrows() %}
+{% set x = f[1] %}
+<option>{{ x.FacultyID }}</option>
+{% endfor %}
+
+</select>
+
+</div>
+
+<div class="col-md-3">
+
+<select
+id="statusFilter"
+class="form-select">
+
+<option value="">All Status</option>
+
+<option>Active</option>
+<option>Archived</option>
+
+</select>
+
+</div>
+
+</div>
+
+</div>
+
+</div>
+<div class="card shadow-sm">
+
+<div class="card-body">
+
+<div class="table-responsive">
+
+<table class="table table-hover">
+
+<thead class="table-dark">
+
+<tr>
+
+<th>Subject ID</th>
+<th>Code</th>
+<th>Subject Name</th>
+<th>Semester</th>
+<th>Credits</th>
+<th>Faculty</th>
+<th>Status</th>
+<th>Action</th>
+
+</tr>
+
+</thead>
+
+<tbody id="subjectTable">
+
+{% for row in subjects.iterrows() %}
+{% set s = row[1] %}
+
+<tr>
+
+<td>{{ s.SubjectID }}</td>
+<td>{{ s.SubjectCode }}</td>
+<td>{{ s.SubjectName }}</td>
+<td>{{ s.Semester }}</td>
+<td>{{ s.Credits }}</td>
+<td>{{ s.FacultyID }}</td>
+<td>{{ s.Status }}</td>
+<td>
+<div class="dropdown">
+<button
+class="btn btn-light btn-sm"
+data-bs-toggle="dropdown">
+⋮
+</button>
+<ul class="dropdown-menu">
+<li>
+<a
+class="dropdown-item"
+href="{{ url_for('subject_admin.edit_subject',
+subject_id=s.SubjectID) }}">
+✏ Edit
+</a>
+</li>
+<li>
+
+<a
+class="dropdown-item"
+href="{{ url_for('subject_admin.archive',
+subject_id=s.SubjectID) }}">
+
+Archive
+
+</a>
+
+</li>
+
+<li>
+
+<a
+class="dropdown-item text-danger"
+href="{{ url_for('subject_admin.delete',
+subject_id=s.SubjectID) }}">
+
+Delete
+
+</a>
+
+</li>
+
+</ul>
+
+</div>
+
+</td>
+
+</tr>
+
+{% endfor %}
+
+</tbody>
+
+</table>
+
+</div>
+
+</div>
+
+</div>
+<div class="modal fade" id="addSubjectModal">
+
+<div class="modal-dialog modal-xl">
+
+<div class="modal-content">
+
+<form
+method="POST"
+action="{{ url_for('subject_admin.add_subject') }}">
+<div class="modal-body">
+
+<div class="row">
+
+<div class="col-md-4">
+
+<label>Subject ID</label>
+
+<input
+type="text"
+name="SubjectID"
+class="form-control"
+required>
+
+</div>
+
+<div class="col-md-4">
+
+<label>Course ID</label>
+
+<select
+name="CourseID"
+class="form-select">
+
+<option>CSE001</option>
+
+</select>
+
+</div>
+
+<div class="col-md-4">
+
+<label>Semester</label>
+
+<select
+name="Semester"
+class="form-select">
+
+<option>1</option>
+<option>2</option>
+<option>3</option>
+<option>4</option>
+<option>5</option>
+<option>6</option>
+<option>7</option>
+<option>8</option>
+
+</select>
+
+</div>
+
+</div>
+<br>
+
+<div class="row">
+
+<div class="col-md-6">
+
+<label>Subject Code</label>
+
+<input
+type="text"
+name="SubjectCode"
+class="form-control"
+required>
+
+</div>
+
+<div class="col-md-6">
+
+<label>Subject Name</label>
+
+<input
+type="text"
+name="SubjectName"
+class="form-control"
+required>
+
+</div>
+
+</div>
+<br>
+
+<div class="row">
+
+<div class="col-md-4">
+
+<label>Credits</label>
+
+<input
+type="number"
+name="Credits"
+class="form-control">
+
+</div>
+
+<div class="col-md-4">
+
+<label>BTL Level</label>
+
+<select
+name="BTLLevel"
+class="form-select">
+
+<option>L1</option>
+<option>L2</option>
+<option>L3</option>
+<option>L4</option>
+<option>L5</option>
+<option>L6</option>
+
+</select>
+
+</div>
+
+<div class="col-md-4">
+
+<label>Faculty</label>
+
+<select
+name="FacultyID"
+class="form-select">
+
+{% for row in faculty.iterrows() %}
+{% set f = row[1] %}
+
+<option>{{ f.FacultyID }}</option>
+
+{% endfor %}
+
+</select>
+
+</div>
+
+</div>
+<br>
+
+<div class="row">
+
+<div class="col-md-6">
+
+<label>Status</label>
+
+<select
+name="Status"
+class="form-select">
+
+<option>Active</option>
+<option>Archived</option>
+
+</select>
+
+</div>
+
+</div>
+
+</div>
+<div class="modal-footer">
+
+<button
+type="button"
+class="btn btn-secondary"
+data-bs-dismiss="modal">
+
+Cancel
+
+</button>
+
+<button
+class="btn btn-success">
+
+Save Subject
+
+</button>
+
+</div>
+
+</form>
+
+</div>
+
+</div>
+
+</div>
+<script>
+
+const search = document.getElementById("searchInput");
+const semester = document.getElementById("semesterFilter");
+const faculty = document.getElementById("facultyFilter");
+const status = document.getElementById("statusFilter");
+
+function filterSubjects(){
+
+    let searchValue = search.value.toLowerCase();
+
+    let semesterValue = semester.value;
+
+    let facultyValue = faculty.value;
+
+    let statusValue = status.value;
+
+    let rows = document.querySelectorAll("#subjectTable tr");
+
+    rows.forEach(function(row){
+
+        let subjectID = row.cells[0].innerText.toLowerCase();
+
+        let code = row.cells[1].innerText.toLowerCase();
+
+        let name = row.cells[2].innerText.toLowerCase();
+
+        let rowSemester = row.cells[3].innerText.trim();
+
+        let rowFaculty = row.cells[5].innerText.trim();
+
+        let rowStatus = row.cells[6].innerText.trim();
+
+        let visible = true;
+
+        if(
+
+            searchValue &&
+
+            !subjectID.includes(searchValue) &&
+
+            !code.includes(searchValue) &&
+
+            !name.includes(searchValue)
+
+        ){
+
+            visible = false;
+
+        }
+
+        if(
+
+            semesterValue != "" &&
+
+            semesterValue != rowSemester
+
+        ){
+
+            visible = false;
+
+        }
+
+        if(
+
+            facultyValue != "" &&
+
+            facultyValue != rowFaculty
+
+        ){
+
+            visible = false;
+
+        }
+
+        if(
+
+            statusValue != "" &&
+
+            statusValue != rowStatus
+
+        ){
+
+            visible = false;
+
+        }
+
+        row.style.display = visible ? "" : "none";
+
+    });
+
+}
+
+search.addEventListener("keyup",filterSubjects);
+
+semester.addEventListener("change",filterSubjects);
+
+faculty.addEventListener("change",filterSubjects);
+
+status.addEventListener("change",filterSubjects);
+
+</script>
+{% endblock %}

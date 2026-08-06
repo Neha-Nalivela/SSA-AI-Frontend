@@ -1,0 +1,174 @@
+{% extends "dashboard_base.html" %}
+
+{% block title %}
+Edit Course Outcome
+{% endblock %}
+
+{% block content %}
+
+<div class="container">
+
+    <div class="card shadow">
+
+        <div class="card-header">
+
+            <h3>Edit Course Outcome</h3>
+
+        </div>
+
+        <div class="card-body">
+
+            <form
+                method="POST"
+                action="{{ url_for('co_admin.update', co_id=co.COID) }}">
+
+                <div class="row">
+
+                    <div class="col-md-3">
+
+                        <label class="form-label">
+                            CO ID
+                        </label>
+
+                        <input
+                            type="text"
+                            class="form-control"
+                            value="{{ co.COID }}"
+                            readonly>
+
+                    </div>
+
+                    <div class="col-md-3">
+
+                        <label class="form-label">
+                            Subject ID
+                        </label>
+
+                        <input
+                            type="text"
+                            name="SubjectID"
+                            class="form-control"
+                            value="{{ co.SubjectID }}"
+                            required>
+
+                    </div>
+
+                    <div class="col-md-3">
+
+                        <label class="form-label">
+                            CO Code
+                        </label>
+
+                        <input
+                            type="text"
+                            name="COCode"
+                            class="form-control"
+                            value="{{ co.COCode }}"
+                            required>
+
+                    </div>
+
+                    <div class="col-md-3">
+
+                        <label class="form-label">
+                            BTL Level
+                        </label>
+
+                        <select
+                            name="BTLLevel"
+                            class="form-select">
+
+                            <option value="L1" {% if co.BTLLevel=="L1" %}selected{% endif %}>L1</option>
+                            <option value="L2" {% if co.BTLLevel=="L2" %}selected{% endif %}>L2</option>
+                            <option value="L3" {% if co.BTLLevel=="L3" %}selected{% endif %}>L3</option>
+                            <option value="L4" {% if co.BTLLevel=="L4" %}selected{% endif %}>L4</option>
+                            <option value="L5" {% if co.BTLLevel=="L5" %}selected{% endif %}>L5</option>
+                            <option value="L6" {% if co.BTLLevel=="L6" %}selected{% endif %}>L6</option>
+
+                        </select>
+
+                    </div>
+
+                </div>
+
+                <br>
+
+                <div class="row">
+
+                    <div class="col-md-12">
+
+                        <label class="form-label">
+                            Description
+                        </label>
+
+                        <textarea
+                            name="Description"
+                            rows="5"
+                            class="form-control"
+                            required>{{ co.Description }}</textarea>
+
+                    </div>
+
+                </div>
+
+                <br>
+
+                <div class="row">
+
+                    <div class="col-md-4">
+
+                        <label class="form-label">
+                            Status
+                        </label>
+
+                        <select
+                            name="Status"
+                            class="form-select">
+
+                            <option value="Active"
+                                {% if co.Status=="Active" %}selected{% endif %}>
+                                Active
+                            </option>
+
+                            <option value="Archived"
+                                {% if co.Status=="Archived" %}selected{% endif %}>
+                                Archived
+                            </option>
+
+                        </select>
+
+                    </div>
+
+                </div>
+
+                <br>
+
+                <div class="text-end">
+
+                    <a
+                        href="{{ url_for('co_admin.co') }}"
+                        class="btn btn-secondary">
+
+                        Cancel
+
+                    </a>
+
+                    <button
+                        type="submit"
+                        class="btn btn-success">
+
+                        Update CO
+
+                    </button>
+
+                </div>
+
+            </form>
+
+        </div>
+
+    </div>
+
+</div>
+
+{% endblock %}

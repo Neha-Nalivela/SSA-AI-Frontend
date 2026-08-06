@@ -1,0 +1,99 @@
+{% extends "dashboard_base.html" %}
+{% block title %}
+Admin Dashboard
+{% endblock %}
+
+{% block content %}
+
+<h2 class="mb-4">
+    Dashboard
+</h2>
+<div class="row g-4">
+    <div class="col-md-3">
+        <div class="card shadow-sm border-0">
+            <div class="card-body text-center">
+                <h6>Total Students</h6>
+                <h2 class="text-primary">
+                    {{ data.total_students }}
+                </h2>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card shadow-sm border-0">
+            <div class="card-body text-center">
+                <h6>Total Faculty</h6>
+                <h2 class="text-success">
+                    {{ data.total_faculty }}
+                </h2>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card shadow-sm border-0">
+            <div class="card-body text-center">
+                <h6>Total Subjects</h6>
+                <h2 class="text-warning">
+                    {{ data.total_subjects }}
+                </h2>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card shadow-sm border-0">
+            <div class="card-body text-center">
+                <h6>Active Users</h6>
+                <h2 class="text-danger">
+                    {{ data.active_users }}
+                </h2>
+            </div>
+        </div>
+    </div>
+</div>
+<hr class="my-5">
+
+<h4 class="mb-4">
+    Quick Actions
+</h4>
+
+<div class="row">
+
+    <div class="col-md-3">
+        <a href="{{ url_for('student_admin.students', add='true') }}"
+        class="btn btn-primary w-100">
+        Add Student
+        </a>
+    </div>
+
+    <div class="col-md-3">
+
+        <button class="btn btn-success w-100">
+
+            Add Faculty
+
+        </button>
+
+    </div>
+
+    <div class="col-md-3">
+
+        <button class="btn btn-warning w-100">
+
+            Add Subject
+
+        </button>
+
+    </div>
+
+    <div class="col-md-3">
+
+        <button class="btn btn-dark w-100">
+
+            Create User
+
+        </button>
+
+    </div>
+
+</div>
+{% endblock %}
