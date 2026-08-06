@@ -27,6 +27,58 @@ def get_questions_by_subject(subject_id):
     ]
 
 
+def get_questions_for_faculty_subject(faculty_ref, subject_id):
+
+    questions = DataManager.get("question_bank")
+    subjects = DataManager.get("subjects")
+
+    # try to reload if missing
+    if questions is None or subjects is None:
+        DataManager.refresh()
+        questions = DataManager.get("question_bank")
+        subjects = DataManager.get("subjects")
+
+    if questions is None or subjects is None:
+        return pd.DataFrame()
+
+    # normalize id columns and create numeric keys to handle different prefixes (e.g., S001 vs SUB001)
+    import re
+
+    def numeric_key(x):
+        x = str(x)
+        m = re.search(r"(\d+)", x)
+        return m.group(1) if m else x.strip()
+
+    if "SubjectID" in questions.columns:
+        questions["SubjectID"] = questions["SubjectID"].astype(str).str.strip()
+        questions["_SubjectKey"] = questions["SubjectID"].apply(numeric_key)
+    else:
+        questions["_SubjectKey"] = ""
+
+    if "SubjectID" in subjects.columns:
+        subjects["SubjectID"] = subjects["SubjectID"].astype(str).str.strip()
+        subjects["_SubjectKey"] = subjects["SubjectID"].apply(numeric_key)
+    else:
+        subjects["_SubjectKey"] = ""
+
+    if "FacultyID" in subjects.columns:
+        subjects["FacultyID"] = subjects["FacultyID"].astype(str).str.strip()
+
+    subject_key = numeric_key(subject_id)
+    faculty_ref = str(faculty_ref).strip()
+
+    # ensure subject belongs to faculty (compare numeric keys)
+    match = subjects[
+        (subjects["_SubjectKey"] == subject_key) &
+        (subjects["FacultyID"] == faculty_ref)
+    ]
+
+    if match.empty:
+        return pd.DataFrame()
+
+    return questions[questions["_SubjectKey"] == subject_key]
+
+
 def get_question(question_id):
 
     questions = DataManager.get("question_bank")

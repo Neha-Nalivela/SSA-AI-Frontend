@@ -145,83 +145,57 @@ Question Bank
                     </thead>
 
                     <tbody id="questionTable">
-
-                        {% for row in questions.iterrows() %}
-
-                        {% set q = row[1] %}
-
-                        <tr>
-
-                            <td>{{ q.QuestionID }}</td>
-                            <td>{{ q.Subject }}</td>
-                            <td>{{ q.Question }}</td>
-                            <td>{{ q.QuestionType}}</td>
-                            <td>{{ q.Topic }}</td>
-                            <td>{{ q.COID }}</td>
-                            <td>{{ q.BTL }}</td>
-                            <td>{{ q.MaxMarks }}</td>
-                            <td>{{ q.Difficulty }}</td>
-                            <td>{{ q.Status }}</td>
-                            <td>
-
-                            <div class="dropdown">
-
-                                <button
-                                    class="btn btn-light btn-sm"
-                                    type="button"
-                                    data-bs-toggle="dropdown">
-                                    ⋮
-                                </button>
-                                    <ul class="dropdown-menu dropdown-menu-end">
-                                        <li>
-                                            <a class="dropdown-item"
-                                                href="/faculty/question-bank/view/{{ q.QuestionID }}">
-                                                👁 View
-
-                                            </a>
-                                        </li>
-                                        <li>
-                                            <a class="dropdown-item"
-                                                href="/faculty/question-bank/edit/{{ q.QuestionID }}">
-                                                ✏ Edit
-
-                                            </a>
-
-                                        </li>
-
-                                        <li><hr class="dropdown-divider"></li>
-
-                                        <li>
-
-                                            <a class="dropdown-item text-warning"
-                                                href="/faculty/question-bank/archive/{{ q.QuestionID }}">
-
-                                                📦 Archive
-
-                                            </a>
-
-                                        </li>
-
-                                        <li>
-
-                                            <a class="dropdown-item text-danger"
-                                                href="/faculty/question-bank/delete/{{ q.QuestionID }}"
-                                                onclick="return confirm('Delete this question?');">
-
-                                                🗑 Delete
-
-                                            </a>
-
-                                        </li>
-
-                                    </ul>
-
-                                </div>
-
-                            </td>
-                        </tr>
-
-                        {% endfor %}
+                        {% if questions is not none and not questions.empty %}
+                            {% for row in questions.iterrows() %}
+                                {% set q = row[1] %}
+                                <tr>
+                                    <td>{{ q.QuestionID }}</td>
+                                    <td>{{ q.Subject }}</td>
+                                    <td>{{ q.Question }}</td>
+                                    <td>{{ q.QuestionType}}</td>
+                                    <td>{{ q.Topic }}</td>
+                                    <td>{{ q.COID }}</td>
+                                    <td>{{ q.BTL }}</td>
+                                    <td>{{ q.MaxMarks }}</td>
+                                    <td>{{ q.Difficulty }}</td>
+                                    <td>{{ q.Status }}</td>
+                                    <td>
+                                        <div class="dropdown">
+                                            <button
+                                                class="btn btn-light btn-sm"
+                                                type="button"
+                                                data-bs-toggle="dropdown">
+                                                ⋮
+                                            </button>
+                                            <ul class="dropdown-menu dropdown-menu-end">
+                                                <li>
+                                                    <a class="dropdown-item"
+                                                       href="/faculty/question-bank/view/{{ q.QuestionID }}">👁 View</a>
+                                                </li>
+                                                <li>
+                                                    <a class="dropdown-item"
+                                                       href="/faculty/question-bank/edit/{{ q.QuestionID }}">✏ Edit</a>
+                                                </li>
+                                                <li><hr class="dropdown-divider"></li>
+                                                <li>
+                                                    <a class="dropdown-item text-warning"
+                                                       href="/faculty/question-bank/archive/{{ q.QuestionID }}">📦 Archive</a>
+                                                </li>
+                                                <li>
+                                                    <a class="dropdown-item text-danger"
+                                                       href="/faculty/question-bank/delete/{{ q.QuestionID }}"
+                                                       onclick="return confirm('Delete this question?');">🗑 Delete</a>
+                                                </li>
+                                            </ul>
+                                        </div>
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                        {% else %}
+                            <tr>
+                                <td colspan="11" class="text-center py-4">No questions found.</td>
+                            </tr>
+                        {% endif %}
 
                     </tbody>
 

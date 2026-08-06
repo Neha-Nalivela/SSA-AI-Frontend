@@ -17,6 +17,7 @@ from services.question_bank_service import (
     get_all_questions,
     get_question,
     get_questions_by_subject,
+    get_questions_for_faculty_subject,
     save_question,
     update_question,
     archive_question,
@@ -123,8 +124,9 @@ def question_bank():
 
 @faculty.route("/faculty/subject/<subject_id>/question-bank")
 def subject_question_bank(subject_id):
+    reference_id = session.get("reference_id")
 
-    questions = get_questions_by_subject(subject_id)
+    questions = get_questions_for_faculty_subject(reference_id, subject_id)
 
     return render_template(
         "faculty/question_bank/index.html",
