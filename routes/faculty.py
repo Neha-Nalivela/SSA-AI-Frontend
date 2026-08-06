@@ -1,3 +1,4 @@
+
 from flask import Blueprint
 from flask import render_template
 from flask import session
@@ -5,7 +6,6 @@ from flask import request
 from flask import redirect
 from flask import url_for
 from flask import flash
-
 from services.faculty_dashboard_service import get_dashboard
 
 from services.faculty_profile_service import (
@@ -30,6 +30,11 @@ from services.faculty_subject_service import (
     get_internal_marks_for_student,
     get_subject_external_mark_students,
     get_external_marks_for_student
+)
+# attendance helpers
+from services.faculty_subject_service import (
+    get_subject_attendance_students,
+    get_attendance_for_student
 )
 
 faculty = Blueprint(
@@ -362,6 +367,51 @@ def subject_internal_marks_student(subject_id, student_id):
     )
 
 
+@faculty.route("/faculty/subject/<subject_id>/attendance")
+def subject_attendance(subject_id):
+
+    reference_id = session.get("reference_id")
+
+    subject, student_summary = get_subject_attendance_students(
+        reference_id,
+        subject_id
+    )
+
+    student_rows = []
+    student_count = 0
+    total_sessions = 0
+
+    if student_summary is not None and not student_summary.empty:
+        student_rows = student_summary.to_dict(orient="records")
+        student_count = len(student_rows)
+        total_sessions = int(student_summary["Total"].max() if "Total" in student_summary.columns else 0)
+
+    return render_template(
+        "faculty/attendance.html",
+        subject=subject,
+        students=student_rows,
+        student_count=student_count,
+        total_sessions=total_sessions
+    )
+
+
+@faculty.route("/faculty/subject/<subject_id>/attendance/student/<student_id>")
+def subject_attendance_student(subject_id, student_id):
+
+    reference_id = session.get("reference_id")
+
+    subject, records = get_attendance_for_student(
+        reference_id,
+        subject_id,
+        student_id
+    )
+
+    return render_template(
+        "faculty/attendance_student.html",
+        subject=subject,
+        records=records,
+        student_id=student_id
+    )
 @faculty.route("/faculty/subject/<subject_id>/external-marks")
 def subject_external_marks(subject_id):
 

@@ -184,3 +184,106 @@ def get_external_marks_for_student(reference_id, subject_id, student_id):
     student_marks = external_marks[external_marks["StudentID"] == student_id]
 
     return subject, student_marks
+
+
+def get_subject_attendance_students(reference_id, subject_id):
+    subjects = DataManager.get("subjects")
+    attendance = DataManager.get("attendance")
+
+    if subjects is None or attendance is None:
+        DataManager.refresh()
+        subjects = DataManager.get("subjects")
+        attendance = DataManager.get("attendance")
+
+    # normalize keys using the same helper
+    subjects, attendance = _normalize_subject_keys(subjects, attendance)
+
+    reference_id = str(reference_id).strip()
+    import re
+    subject_key = str(subject_id).strip()
+    match = re.search(r"(\d+)", subject_key)
+    subject_key = match.group(1) if match else subject_key
+
+    subject_match = subjects[
+        (subjects["_SubjectKey"] == subject_key) &
+        (subjects["FacultyID"] == reference_id)
+    ]
+
+    if subject_match.empty:
+        return None, attendance.iloc[0:0]
+
+    subject = subject_match.iloc[0]
+    filtered = attendance[attendance["_SubjectKey"] == subject_key]
+
+    if filtered.empty:
+        return subject, filtered.iloc[0:0]
+
+    # Determine attendance schema and compute present/absent
+    filtered = filtered.copy()
+    filtered["StudentID"] = filtered["StudentID"].astype(str).str.strip()
+
+    if "Status" in filtered.columns:
+        present_mask = filtered["Status"].astype(str).str.lower().isin(["present", "p", "1", "true"])
+        present = filtered[present_mask].groupby("StudentID").size()
+        total = filtered.groupby("StudentID").size()
+        present = present.reindex(total.index, fill_value=0)
+        absent = total - present
+    elif "Present" in filtered.columns:
+        # numeric present field
+        present = filtered.groupby("StudentID")["Present"].sum()
+        total = filtered.groupby("StudentID").size()
+        absent = total - present
+    else:
+        # fallback: count rows as total sessions; assume non-empty means present
+        total = filtered.groupby("StudentID").size()
+        present = total
+        absent = total - present
+
+    summary = present.to_frame(name="Present").join(total.to_frame(name="Total"))
+    summary["Absent"] = summary["Total"] - summary["Present"]
+    summary["Percentage"] = (summary["Present"] / summary["Total"] * 100).round(2)
+    summary = summary.reset_index()
+
+    students = DataManager.get("students")
+    students["StudentID"] = students["StudentID"].astype(str).str.strip()
+
+    summary = summary.merge(
+        students[["StudentID", "Name"]],
+        on="StudentID",
+        how="left"
+    )
+
+    return subject, summary.sort_values(["Percentage", "StudentID"], ascending=[False, True])
+
+
+def get_attendance_for_student(reference_id, subject_id, student_id):
+    # return raw attendance rows for a student in a subject
+    subjects = DataManager.get("subjects")
+    attendance = DataManager.get("attendance")
+
+    if subjects is None or attendance is None:
+        DataManager.refresh()
+        subjects = DataManager.get("subjects")
+        attendance = DataManager.get("attendance")
+
+    subjects, attendance = _normalize_subject_keys(subjects, attendance)
+
+    reference_id = str(reference_id).strip()
+    import re
+    subject_key = str(subject_id).strip()
+    match = re.search(r"(\d+)", subject_key)
+    subject_key = match.group(1) if match else subject_key
+
+    subject_match = subjects[
+        (subjects["_SubjectKey"] == subject_key) &
+        (subjects["FacultyID"] == reference_id)
+    ]
+
+    if subject_match.empty:
+        return None, attendance.iloc[0:0]
+
+    subject = subject_match.iloc[0]
+    attendance["StudentID"] = attendance["StudentID"].astype(str).str.strip()
+    records = attendance[(attendance["_SubjectKey"] == subject_key) & (attendance["StudentID"] == str(student_id).strip())]
+
+    return subject, records

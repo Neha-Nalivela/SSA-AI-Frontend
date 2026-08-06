@@ -1,0 +1,52 @@
+{% extends "faculty_base.html" %}
+
+{% block title %}
+Attendance - Student Detail
+{% endblock %}
+
+{% block content %}
+
+<div class="container-fluid">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h2>{{ student_id }} - {{ subject.SubjectName }}</h2>
+            <small class="text-muted">Subject ID: {{ subject.SubjectID }}</small>
+        </div>
+
+        <a href="/faculty/subject/{{ subject.SubjectID }}/attendance" class="btn btn-secondary">
+            ← Back to Attendance
+        </a>
+    </div>
+
+    <div class="card shadow-sm mb-4">
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead class="table-dark">
+                        <tr>
+                            <th>Date</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% if records is not none and not records.empty %}
+                            {% for row in records.iterrows() %}
+                                {% set r = row[1] %}
+                                <tr>
+                                    <td>{{ r.Date if r.Date is defined else r.get('Date', '') }}</td>
+                                    <td>{{ r.Status if r.Status is defined else r.get('Status', '') }}</td>
+                                </tr>
+                            {% endfor %}
+                        {% else %}
+                            <tr>
+                                <td colspan="2" class="text-center py-4">No attendance records for this student.</td>
+                            </tr>
+                        {% endif %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
