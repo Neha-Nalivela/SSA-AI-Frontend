@@ -40,6 +40,9 @@ from services.attainment_service import (
     compute_co_attainment_for_subject,
     compute_po_attainment_for_subject
 )
+from services.performance_service import (
+    get_subject_performance_analysis,
+)
 
 faculty = Blueprint(
     "faculty",
@@ -451,6 +454,24 @@ def subject_po_attainment(subject_id):
         subject_id=subject_id,
         rows=rows
     )
+
+
+@faculty.route("/faculty/subject/<subject_id>/analytics")
+def subject_performance_analysis(subject_id):
+    reference_id = session.get("reference_id")
+    subject, analysis = get_subject_performance_analysis(reference_id, subject_id)
+
+    if subject is None:
+        flash("Subject not found or not assigned to your account.", "warning")
+        return redirect(url_for("faculty.dashboard"))
+
+    return render_template(
+        "faculty/performance_analysis.html",
+        subject=subject,
+        analysis=analysis
+    )
+
+
 @faculty.route("/faculty/subject/<subject_id>/external-marks")
 def subject_external_marks(subject_id):
 

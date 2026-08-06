@@ -20,33 +20,37 @@ def get_subject_dashboard(reference_id, subject_id):
     question_bank = DataManager.get("question_bank")
     attendance = DataManager.get("attendance")
     student_marks = DataManager.get("marks")
-    subject = subjects[
-        subjects["SubjectID"] == subject_id
-    ].iloc[0]
-    total_students = len(
-        students[
-            students["Semester"] == subject["Semester"]
-        ]
-    )
-    total_questions = len(
-        question_bank[
-            question_bank["SubjectID"] == subject_id
-        ]
-    )
-    attendance_records = len(
-        attendance[
-            attendance["SubjectID"] == subject_id
-        ]
-    )
-    marks = student_marks[
-        student_marks["SubjectID"] == subject_id
-    ]
+    # normalize keys for subject matching (handles S001 vs SUB001 etc.)
+    subjects, student_marks = _normalize_subject_keys(subjects, student_marks)
+    question_bank = question_bank.copy()
+    question_bank["SubjectID"] = question_bank["SubjectID"].astype(str).str.strip()
+    question_bank["_SubjectKey"] = question_bank["SubjectID"].apply(lambda v: str(v)
+                                                                    and __import__('re').search(r"(\d+)", str(v)).group(1) if __import__('re').search(r"(\d+)", str(v)) else str(v).strip())
+
+    attendance = attendance.copy()
+    attendance["SubjectID"] = attendance["SubjectID"].astype(str).str.strip()
+    attendance["_SubjectKey"] = attendance["SubjectID"].apply(lambda v: str(v)
+                                                                  and __import__('re').search(r"(\d+)", str(v)).group(1) if __import__('re').search(r"(\d+)", str(v)) else str(v).strip())
+
+    subject = subjects[subjects["SubjectID"] == subject_id].iloc[0]
+    # numeric key for comparisons
+    import re
+    match = re.search(r"(\d+)", str(subject_id).strip())
+    subject_key = match.group(1) if match else str(subject_id).strip()
+
+    # filter marks/questions/attendance by normalized subject key
+    filtered_marks = student_marks[student_marks["_SubjectKey"] == subject_key]
+    if not filtered_marks.empty:
+        total_students = filtered_marks["StudentID"].astype(str).str.strip().nunique()
+    else:
+        total_students = len(students[students["Semester"] == subject["Semester"]])
+
+    total_questions = len(question_bank[question_bank["_SubjectKey"] == subject_key])
+    attendance_records = len(attendance[attendance["_SubjectKey"] == subject_key])
+    marks = filtered_marks
     average_marks = 0
     if not marks.empty:
-        average_marks = round(
-            marks["MarksObtained"].mean(),
-            2
-        )
+        average_marks = round(marks["MarksObtained"].mean(), 2)
     return {
         "subject": subject,
         "total_students": total_students,

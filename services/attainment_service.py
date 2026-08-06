@@ -81,22 +81,57 @@ def compute_co_attainment_for_subject(reference_id, subject_id, exam_types=None,
     subj_marks.loc[:, "MaxMarks_marks"] = pd.to_numeric(subj_marks.get("MaxMarks"), errors="coerce")
     subj_marks.loc[:, "MaxMarks_q"] = pd.to_numeric(subj_marks.get("MaxMarks_q"), errors="coerce")
     subj_marks.loc[:, "EffMax"] = subj_marks["MaxMarks_marks"].where(subj_marks["MaxMarks_marks"] > 0, subj_marks["MaxMarks_q"]).fillna(0)
-    subj_marks = subj_marks[~subj_marks["COID"].isna()].copy()
+    # If merge yields no CO mapping (all COID null), fall back to subject-level estimation
+    if subj_marks["COID"].isna().all():
+        # estimate per-student percent using total obtained over subject total max
+        student_total = subj_marks.groupby("StudentID")["MarksObtained"].sum()
+        subject_total_max = subj_questions["MaxMarks"].sum()
+        if subject_total_max == 0:
+            return pd.DataFrame()
+        student_percent = (student_total / subject_total_max * 100).round(2)
+        # build grouped DataFrame: each student repeats for every CO with same estimated percent
+        subject_cos = cos[cos["_SubjectKey"] == subject_key]
+        co_list = subject_cos["COID"].tolist() if not subject_cos.empty else []
+        rows = []
+        for sid, pct in student_percent.items():
+            for coid in co_list:
+                rows.append({"StudentID": sid, "COID": coid, "Percent": pct})
+        grouped = pd.DataFrame(rows)
+    else:
+        subj_marks = subj_marks[~subj_marks["COID"].isna()].copy()
 
-    if subj_marks.empty:
-        return pd.DataFrame()
+        if subj_marks.empty:
+            return pd.DataFrame()
 
     # compute per-student per-CO obtained and max
-    # ensure numeric types for aggregation
-    subj_marks.loc[:, "MarksObtained"] = pd.to_numeric(subj_marks["MarksObtained"], errors="coerce").fillna(0)
-    subj_marks.loc[:, "EffMax"] = pd.to_numeric(subj_marks["EffMax"], errors="coerce").fillna(0)
-    grouped = subj_marks.groupby(["StudentID", "COID"]).agg(
-        Obtained=("MarksObtained", "sum"),
-        Max=("EffMax", "sum")
-    ).reset_index()
+    if subj_marks["COID"].isna().all():
+        student_total = subj_marks.groupby("StudentID")["MarksObtained"].sum()
+        subject_total_max = subj_questions["MaxMarks"].sum()
+        if subject_total_max == 0:
+            return pd.DataFrame()
+        student_percent = (student_total / subject_total_max * 100).round(2)
+        subject_cos = cos[cos["_SubjectKey"] == subject_key]
+        co_list = subject_cos["COID"].tolist() if not subject_cos.empty else []
+        rows = []
+        for sid, pct in student_percent.items():
+            for coid in co_list:
+                rows.append({"StudentID": sid, "COID": coid, "Percent": pct})
+        grouped = pd.DataFrame(rows)
+    else:
+        subj_marks = subj_marks[~subj_marks["COID"].isna()].copy()
 
-    # compute percent per student per CO
-    grouped["Percent"] = (grouped["Obtained"] / grouped["Max"].replace(0, pd.NA) * 100).fillna(0).round(2)
+        if subj_marks.empty:
+            return pd.DataFrame()
+
+        subj_marks.loc[:, "MarksObtained"] = pd.to_numeric(subj_marks["MarksObtained"], errors="coerce").fillna(0)
+        subj_marks.loc[:, "EffMax"] = pd.to_numeric(subj_marks["EffMax"], errors="coerce").fillna(0)
+        grouped = subj_marks.groupby(["StudentID", "COID"]).agg(
+            Obtained=("MarksObtained", "sum"),
+            Max=("EffMax", "sum")
+        ).reset_index()
+
+        # compute percent per student per CO
+        grouped["Percent"] = (grouped["Obtained"] / grouped["Max"].replace(0, pd.NA) * 100).fillna(0).round(2)
 
     # pivot to students x CO
     pivot = grouped.pivot(index="StudentID", columns="COID", values="Percent").fillna(0)
@@ -107,7 +142,13 @@ def compute_co_attainment_for_subject(reference_id, subject_id, exam_types=None,
         return pd.DataFrame()
 
     results = []
-    total_students = len(students[students["Semester"] == match.iloc[0]["Semester"]]) if "Semester" in match.iloc[0].index else len(students)
+    # prefer counting students who actually have marks for this subject
+    try:
+        total_students = int(pivot.shape[0]) if 'pivot' in locals() and pivot.shape[0] > 0 else (
+            len(students[students["Semester"] == match.iloc[0]["Semester"]]) if "Semester" in match.iloc[0].index else len(students)
+        )
+    except Exception:
+        total_students = len(students)
 
     for _, co_row in subject_cos.iterrows():
         coid = co_row["COID"]
@@ -197,7 +238,9 @@ def compute_po_attainment_for_subject(reference_id, subject_id, exam_types=None,
     subj_marks.loc[:, "MaxMarks_marks"] = pd.to_numeric(subj_marks.get("MaxMarks"), errors="coerce")
     subj_marks.loc[:, "MaxMarks_q"] = pd.to_numeric(subj_marks.get("MaxMarks_q"), errors="coerce")
     subj_marks.loc[:, "EffMax"] = subj_marks["MaxMarks_marks"].where(subj_marks["MaxMarks_marks"] > 0, subj_marks["MaxMarks_q"]).fillna(0)
-    subj_marks = subj_marks[~subj_marks["COID"].isna()].copy()
+    subj_marks = subj_marks.copy()
+
+    # For PO function fallback: if COID missing for all rows we create grouped later; here we just keep rows
 
     if subj_marks.empty:
         return pd.DataFrame()
@@ -236,7 +279,12 @@ def compute_po_attainment_for_subject(reference_id, subject_id, exam_types=None,
 
     # compute attainment per PO
     results = []
-    total_students = len(students[students.get("Semester") == match.iloc[0].get("Semester")]) if "Semester" in match.iloc[0].index else len(students)
+    try:
+        total_students = int(pivot_po.shape[0]) if 'pivot_po' in locals() and pivot_po.shape[0] > 0 else (
+            len(students[students.get("Semester") == match.iloc[0].get("Semester")]) if "Semester" in match.iloc[0].index else len(students)
+        )
+    except Exception:
+        total_students = len(students)
     po_list = mapping["POID"].unique()
 
     for po in po_list:
