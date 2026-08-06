@@ -17,7 +17,7 @@ def get_subject_dashboard(reference_id, subject_id):
     students = DataManager.get("students")
     question_bank = DataManager.get("question_bank")
     attendance = DataManager.get("attendance")
-    student_marks = DataManager.get("student_marks")
+    student_marks = DataManager.get("marks")
     subject = subjects[
         subjects["SubjectID"] == subject_id
     ].iloc[0]

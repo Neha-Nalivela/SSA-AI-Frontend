@@ -22,12 +22,21 @@ Question Bank
 
         </div>
 
+        {% if subject_id %}
+        <a href="/faculty/subject/{{ subject_id }}/question-bank/add"
+           class="btn btn-primary">
+
+            + Add Question
+
+        </a>
+        {% else %}
         <a href="/faculty/question-bank/add"
            class="btn btn-primary">
 
             + Add Question
 
         </a>
+        {% endif %}
 
     </div>
 

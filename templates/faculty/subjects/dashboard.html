@@ -8,250 +8,235 @@
 
 <div class="container-fluid">
 
-<div class="d-flex justify-content-between align-items-center mb-4">
+    <!-- Header -->
 
-<div>
+    <div class="d-flex justify-content-between align-items-center mb-4">
 
-<h2>
+        <div>
 
-{{ data.subject.SubjectName }}
+            <h2>
 
-</h2>
+                {{ data.subject.SubjectName }}
 
-<small class="text-muted">
+            </h2>
 
-{{ data.subject.SubjectCode }}
+            <small class="text-muted">
 
-|
+                {{ data.subject.SubjectCode }}
+                |
+                Semester {{ data.subject.Semester }}
 
-Semester {{ data.subject.Semester }}
+            </small>
 
-</small>
+        </div>
 
-</div>
+        <a
+            href="/faculty/subjects"
+            class="btn btn-secondary">
 
-<a
-href="/faculty/subjects"
-class="btn btn-secondary">
+            ← Back
 
-← Back
+        </a>
 
-</a>
+    </div>
 
-</div>
-{% extends "faculty_base.html" %}
+    <!-- Statistics -->
 
-{% block title %}
-{{ data.subject.SubjectName }}
-{% endblock %}
+    <div class="row g-4">
 
-{% block content %}
+        <div class="col-md-3">
 
-<div class="container-fluid">
+            <div class="card shadow-sm">
 
-<div class="d-flex justify-content-between align-items-center mb-4">
+                <div class="card-body text-center">
 
-<div>
+                    <h6>Total Students</h6>
 
-<h2>
+                    <h2>
 
-{{ data.subject.SubjectName }}
+                        {{ data.total_students }}
 
-</h2>
+                    </h2>
 
-<small class="text-muted">
+                </div>
 
-{{ data.subject.SubjectCode }}
+            </div>
 
-|
+        </div>
 
-Semester {{ data.subject.Semester }}
+        <div class="col-md-3">
 
-</small>
+            <div class="card shadow-sm">
 
-</div>
+                <div class="card-body text-center">
 
-<a
-href="/faculty/subjects"
-class="btn btn-secondary">
+                    <h6>Total Questions</h6>
 
-← Back
+                    <h2>
 
-</a>
+                        {{ data.total_questions }}
 
-</div>
-<div class="row g-4">
+                    </h2>
 
-<div class="col-md-3">
+                </div>
 
-<div class="card shadow-sm">
+            </div>
 
-<div class="card-body text-center">
+        </div>
 
-<h6>Total Students</h6>
+        <div class="col-md-3">
 
-<h2>{{ data.total_students }}</h2>
+            <div class="card shadow-sm">
 
-</div>
+                <div class="card-body text-center">
 
-</div>
+                    <h6>Attendance Records</h6>
 
-</div>
+                    <h2>
 
-<div class="col-md-3">
+                        {{ data.attendance_records }}
 
-<div class="card shadow-sm">
+                    </h2>
 
-<div class="card-body text-center">
+                </div>
 
-<h6>Questions</h6>
+            </div>
 
-<h2>{{ data.total_questions }}</h2>
+        </div>
 
-</div>
+        <div class="col-md-3">
 
-</div>
+            <div class="card shadow-sm">
 
-</div>
+                <div class="card-body text-center">
 
-<div class="col-md-3">
+                    <h6>Average Marks</h6>
 
-<div class="card shadow-sm">
+                    <h2>
 
-<div class="card-body text-center">
+                        {{ data.average_marks }}
 
-<h6>Attendance Records</h6>
+                    </h2>
 
-<h2>{{ data.attendance_records }}</h2>
+                </div>
 
-</div>
+            </div>
 
-</div>
+        </div>
 
-</div>
+    </div>
 
-<div class="col-md-3">
+    <!-- Subject Modules -->
 
-<div class="card shadow-sm">
+    <div class="mt-5">
 
-<div class="card-body text-center">
+        <h3 class="mb-3">
 
-<h6>Average Marks</h6>
+            Subject Modules
 
-<h2>{{ data.average_marks }}</h2>
+        </h3>
 
-</div>
+        <div class="row g-3">
 
-</div>
+            <div class="col-lg-3">
 
-</div>
+                <a
+                    href="/faculty/subject/{{ data.subject.SubjectID }}/question-bank"
+                    class="btn btn-primary w-100 py-3">
 
-</div>
-<h3 class="mt-5 mb-3">
+                    📚 Question Bank
 
-Subject Modules
+                </a>
 
-</h3>
+            </div>
 
-<div class="row g-3">
+            <div class="col-lg-3">
 
-<div class="col-lg-3">
+                <a
+                    href="/faculty/subject/{{ data.subject.SubjectID }}/internal-marks"
+                    class="btn btn-success w-100 py-3">
 
-<a
-href="/faculty/subject/{{ data.subject.SubjectID }}/question-bank"
-class="btn btn-primary w-100 py-3">
+                    📝 Internal Marks
 
-Question Bank
+                </a>
 
-</a>
+            </div>
 
-</div>
+            <div class="col-lg-3">
 
-<div class="col-lg-3">
+                <a
+                    href="/faculty/subject/{{ data.subject.SubjectID }}/external-marks"
+                    class="btn btn-warning w-100 py-3">
 
-<a
-href="/faculty/subject/{{ data.subject.SubjectID }}/internal-marks"
-class="btn btn-success w-100 py-3">
+                    📄 External Marks
 
-Internal Marks
+                </a>
 
-</a>
+            </div>
 
-</div>
+            <div class="col-lg-3">
 
-<div class="col-lg-3">
+                <a
+                    href="/faculty/subject/{{ data.subject.SubjectID }}/attendance"
+                    class="btn btn-dark w-100 py-3">
 
-<a
-href="/faculty/subject/{{ data.subject.SubjectID }}/external-marks"
-class="btn btn-warning w-100 py-3">
+                    📅 Attendance
 
-External Marks
+                </a>
 
-</a>
+            </div>
 
-</div>
+            <div class="col-lg-3">
 
-<div class="col-lg-3">
+                <a
+                    href="/faculty/subject/{{ data.subject.SubjectID }}/co-attainment"
+                    class="btn btn-info w-100 py-3">
 
-<a
-href="/faculty/subject/{{ data.subject.SubjectID }}/attendance"
-class="btn btn-dark w-100 py-3">
+                    🎯 CO Attainment
 
-Attendance
+                </a>
 
-</a>
+            </div>
 
-</div>
+            <div class="col-lg-3">
 
-<div class="col-lg-3">
+                <a
+                    href="/faculty/subject/{{ data.subject.SubjectID }}/po-attainment"
+                    class="btn btn-secondary w-100 py-3">
 
-<a
-href="/faculty/subject/{{ data.subject.SubjectID }}/co-attainment"
-class="btn btn-info w-100 py-3">
+                    📈 PO Attainment
 
-CO Attainment
+                </a>
 
-</a>
+            </div>
 
-</div>
+            <div class="col-lg-3">
 
-<div class="col-lg-3">
+                <a
+                    href="/faculty/subject/{{ data.subject.SubjectID }}/analytics"
+                    class="btn btn-danger w-100 py-3">
 
-<a
-href="/faculty/subject/{{ data.subject.SubjectID }}/po-attainment"
-class="btn btn-secondary w-100 py-3">
+                    📊 Performance Analysis
 
-PO Attainment
+                </a>
 
-</a>
+            </div>
 
-</div>
+            <div class="col-lg-3">
 
-<div class="col-lg-3">
+                <a
+                    href="/faculty/subject/{{ data.subject.SubjectID }}/reports"
+                    class="btn btn-outline-dark w-100 py-3">
 
-<a
-href="/faculty/subject/{{ data.subject.SubjectID }}/analytics"
-class="btn btn-danger w-100 py-3">
+                    📑 Reports
 
-Performance Analysis
+                </a>
 
-</a>
+            </div>
 
-</div>
+        </div>
 
-<div class="col-lg-3">
-
-<a
-href="/faculty/subject/{{ data.subject.SubjectID }}/reports"
-class="btn btn-dark w-100 py-3">
-
-Reports
-
-</a>
-
-</div>
-
-</div>
+    </div>
 
 </div>
 

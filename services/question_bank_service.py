@@ -1,4 +1,5 @@
 from models.data_manager import DataManager
+import pandas as pd
 from models.file_paths import QUESTION_BANK
 
 from models.excel_manager import (
@@ -12,6 +13,18 @@ from models.excel_manager import (
 def get_all_questions():
 
     return DataManager.get("question_bank")
+
+
+def get_questions_by_subject(subject_id):
+
+    questions = DataManager.get("question_bank")
+
+    if questions is None:
+        return pd.DataFrame()
+
+    return questions[
+        questions["SubjectID"] == subject_id
+    ]
 
 
 def get_question(question_id):

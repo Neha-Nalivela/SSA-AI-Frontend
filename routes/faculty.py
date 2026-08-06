@@ -16,6 +16,7 @@ from services.faculty_profile_service import (
 from services.question_bank_service import (
     get_all_questions,
     get_question,
+    get_questions_by_subject,
     save_question,
     update_question,
     archive_question,
@@ -118,12 +119,36 @@ def question_bank():
         "faculty/question_bank/index.html",
         questions=questions
     )
+
+
+@faculty.route("/faculty/subject/<subject_id>/question-bank")
+def subject_question_bank(subject_id):
+
+    questions = get_questions_by_subject(subject_id)
+
+    return render_template(
+        "faculty/question_bank/index.html",
+        questions=questions,
+        subject_id=subject_id
+    )
 @faculty.route("/faculty/question-bank/add")
 def add_question_page():
 
     return render_template(
 
         "faculty/question_bank/add.html"
+
+    )
+
+
+@faculty.route("/faculty/subject/<subject_id>/question-bank/add")
+def add_question_page_subject(subject_id):
+
+    return render_template(
+
+        "faculty/question_bank/add.html",
+
+        subject_id=subject_id
 
     )
 @faculty.route(
