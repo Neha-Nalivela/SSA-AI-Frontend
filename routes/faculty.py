@@ -25,7 +25,9 @@ from services.question_bank_service import (
 )
 from services.faculty_subject_service import (
     get_faculty_subjects,
-    get_subject_dashboard
+    get_subject_dashboard,
+    get_subject_internal_mark_students,
+    get_internal_marks_for_student
 )
 
 faculty = Blueprint(
@@ -301,4 +303,57 @@ def subject_dashboard(subject_id):
 
         data=data
 
+    )
+
+
+@faculty.route("/faculty/subject/<subject_id>/internal-marks")
+def subject_internal_marks(subject_id):
+
+    reference_id = session.get("reference_id")
+
+    subject, student_summary = get_subject_internal_mark_students(
+        reference_id,
+        subject_id
+    )
+
+    student_rows = []
+    mid1_count = 0
+    mid2_count = 0
+    total_count = 0
+    student_count = 0
+
+    if student_summary is not None and not student_summary.empty:
+        student_rows = student_summary.to_dict(orient="records")
+        student_count = len(student_rows)
+        mid1_count = int(sum(int(r.get("Mid-1", 0)) > 0 for r in student_rows))
+        mid2_count = int(sum(int(r.get("Mid-2", 0)) > 0 for r in student_rows))
+        total_count = sum(int(r.get("Total", 0)) for r in student_rows)
+
+    return render_template(
+        "faculty/internal_marks.html",
+        subject=subject,
+        students=student_rows,
+        student_count=student_count,
+        mid1_count=mid1_count,
+        mid2_count=mid2_count,
+        total_questions=total_count
+    )
+
+
+@faculty.route("/faculty/subject/<subject_id>/internal-marks/student/<student_id>")
+def subject_internal_marks_student(subject_id, student_id):
+
+    reference_id = session.get("reference_id")
+
+    subject, student_marks = get_internal_marks_for_student(
+        reference_id,
+        subject_id,
+        student_id
+    )
+
+    return render_template(
+        "faculty/internal_marks_student.html",
+        subject=subject,
+        student_marks=student_marks,
+        student_id=student_id
     )

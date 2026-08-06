@@ -1,0 +1,56 @@
+{% extends "faculty_base.html" %}
+
+{% block title %}
+Internal Marks - Student Detail
+{% endblock %}
+
+{% block content %}
+
+<div class="container-fluid">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h2>{{ student_id }} - {{ subject.SubjectName }}</h2>
+            <small class="text-muted">Subject ID: {{ subject.SubjectID }}</small>
+        </div>
+
+        <a href="/faculty/subject/{{ subject.SubjectID }}/internal-marks" class="btn btn-secondary">
+            ← Back to Internal Marks
+        </a>
+    </div>
+
+    <div class="card shadow-sm mb-4">
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead class="table-dark">
+                        <tr>
+                            <th>Exam Type</th>
+                            <th>Question ID</th>
+                            <th>Marks Obtained</th>
+                            <th>Max Marks</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% if student_marks is not none and not student_marks.empty %}
+                            {% for row in student_marks.iterrows() %}
+                                {% set m = row[1] %}
+                                <tr>
+                                    <td>{{ m.ExamType }}</td>
+                                    <td>{{ m.QuestionID }}</td>
+                                    <td>{{ m.MarksObtained }}</td>
+                                    <td>{{ m.MaxMarks }}</td>
+                                </tr>
+                            {% endfor %}
+                        {% else %}
+                            <tr>
+                                <td colspan="4" class="text-center py-4">No internal marks available for this student.</td>
+                            </tr>
+                        {% endif %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}

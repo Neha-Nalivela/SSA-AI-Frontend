@@ -1,0 +1,97 @@
+{% extends "faculty_base.html" %}
+
+{% block title %}
+Internal Marks
+{% endblock %}
+
+{% block content %}
+
+<div class="container-fluid">
+
+    <div class="d-flex justify-content-between align-items-center mb-4">
+
+        <div>
+            <h2>Internal Marks - {{ subject.SubjectName }}</h2>
+            <small class="text-muted">Subject ID: {{ subject.SubjectID }}</small>
+        </div>
+
+        <a href="/faculty/subject/{{ subject.SubjectID }}" class="btn btn-secondary">
+            ← Back to Subject Dashboard
+        </a>
+
+    </div>
+
+    <div class="card shadow-sm mb-4">
+        <div class="card-body">
+            <div class="row gx-4">
+                <div class="col-md-4">
+                    <div class="p-3 bg-light rounded">
+                        <h6>Student Count</h6>
+                        <h4>{{ student_count }}</h4>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="p-3 bg-light rounded">
+                        <h6>Mid-1 Students</h6>
+                        <h4>{{ mid1_count }}</h4>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="p-3 bg-light rounded">
+                        <h6>Mid-2 Students</h6>
+                        <h4>{{ mid2_count }}</h4>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="card shadow-sm">
+        <div class="card-body">
+            <h5 class="mb-3">Student List</h5>
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead class="table-dark">
+                        <tr>
+                            <th>Student ID</th>
+                            <th>Name</th>
+                            <th>Mid-1 Questions</th>
+                            <th>Mid-2 Questions</th>
+                            <th>Total Questions</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% if students and students|length > 0 %}
+                            {% for row in students %}
+                                <tr>
+                                    <td>
+                                        <a href="{{ url_for('faculty.subject_internal_marks_student', subject_id=subject.SubjectID, student_id=row.StudentID) }}">
+                                            {{ row.StudentID }}
+                                        </a>
+                                    </td>
+                                    <td>{{ row.Name }}</td>
+                                    <td>{{ row['Mid-1'] }}</td>
+                                    <td>{{ row['Mid-2'] }}</td>
+                                    <td>{{ row.Total }}</td>
+                                    <td>
+                                        <a class="btn btn-sm btn-primary" href="{{ url_for('faculty.subject_internal_marks_student', subject_id=subject.SubjectID, student_id=row.StudentID) }}">
+                                            View Details
+                                        </a>
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                        {% else %}
+                            <tr>
+                                <td colspan="6" class="text-center py-4">No students with internal marks for this subject.</td>
+                            </tr>
+                        {% endif %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+{% endblock %}
