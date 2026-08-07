@@ -242,31 +242,41 @@ def get_subject_attendance_students(reference_id, subject_id):
     if filtered.empty:
         return subject, filtered.iloc[0:0]
 
-    # Determine attendance schema and compute present/absent
     filtered = filtered.copy()
     filtered["StudentID"] = filtered["StudentID"].astype(str).str.strip()
 
-    if "Status" in filtered.columns:
+    if {"ClassesConducted", "ClassesAttended"}.issubset(filtered.columns):
+        present = pd.to_numeric(filtered["ClassesAttended"], errors="coerce").fillna(0)
+        total = pd.to_numeric(filtered["ClassesConducted"], errors="coerce").fillna(0)
+        summary = pd.DataFrame({
+            "StudentID": filtered["StudentID"],
+            "Present": present,
+            "Total": total,
+        })
+        summary = summary.groupby("StudentID", as_index=False).sum()
+        summary["Absent"] = summary["Total"] - summary["Present"]
+        summary["Percentage"] = ((summary["Present"] / summary["Total"].replace(0, pd.NA)) * 100).fillna(0).round(2)
+    elif "Status" in filtered.columns:
         present_mask = filtered["Status"].astype(str).str.lower().isin(["present", "p", "1", "true"])
         present = filtered[present_mask].groupby("StudentID").size()
         total = filtered.groupby("StudentID").size()
         present = present.reindex(total.index, fill_value=0)
-        absent = total - present
+        summary = pd.DataFrame({"StudentID": total.index, "Present": present.values, "Total": total.values})
+        summary["Absent"] = summary["Total"] - summary["Present"]
+        summary["Percentage"] = (summary["Present"] / summary["Total"] * 100).round(2)
     elif "Present" in filtered.columns:
-        # numeric present field
         present = filtered.groupby("StudentID")["Present"].sum()
         total = filtered.groupby("StudentID").size()
-        absent = total - present
+        summary = pd.DataFrame({"StudentID": total.index, "Present": present.reindex(total.index, fill_value=0).values, "Total": total.values})
+        summary["Absent"] = summary["Total"] - summary["Present"]
+        summary["Percentage"] = (summary["Present"] / summary["Total"] * 100).round(2)
     else:
-        # fallback: count rows as total sessions; assume non-empty means present
         total = filtered.groupby("StudentID").size()
-        present = total
-        absent = total - present
+        summary = pd.DataFrame({"StudentID": total.index, "Present": total.values, "Total": total.values})
+        summary["Absent"] = 0
+        summary["Percentage"] = 100.0
 
-    summary = present.to_frame(name="Present").join(total.to_frame(name="Total"))
-    summary["Absent"] = summary["Total"] - summary["Present"]
-    summary["Percentage"] = (summary["Present"] / summary["Total"] * 100).round(2)
-    summary = summary.reset_index()
+    summary = summary.reset_index(drop=True)
 
     students = DataManager.get("students")
     students["StudentID"] = students["StudentID"].astype(str).str.strip()
