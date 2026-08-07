@@ -74,16 +74,65 @@ def get_remedial_actions(subject_id=None):
     return actions.to_dict(orient="records")
 
 
-def _build_remedial_recommendation(student_percent, category, subject_name):
+def _build_remedial_recommendation(student_percent, category, subject_name, subject_id=None):
+    subject_label = str(subject_name).strip() or "subject"
+    subject_key = str(subject_id).strip()
+    query_parts = [subject_label]
+
+    # use CO/PO and BTL context if available in the workbook
+    co_info = []
+    po_info = []
+    btl_info = []
+
+    try:
+        cos = DataManager.get("co")
+        if cos is not None and not cos.empty:
+            cos = cos.copy()
+            cos["SubjectID"] = cos["SubjectID"].astype(str).str.strip()
+            cos["_SubjectKey"] = cos["SubjectID"].apply(_numeric_key)
+            subject_cos = cos[cos["_SubjectKey"] == _numeric_key(subject_key)]
+            if not subject_cos.empty:
+                co_info = subject_cos["COID"].astype(str).tolist()[:2]
+                query_parts.extend(co_info)
+    except Exception:
+        co_info = []
+
+    try:
+        pos = DataManager.get("po")
+        if pos is not None and not pos.empty:
+            pos = pos.copy()
+            pos["POID"] = pos["POID"].astype(str).str.strip()
+            if not pos.empty:
+                po_info = pos["POID"].astype(str).tolist()[:2]
+                query_parts.extend(po_info)
+    except Exception:
+        po_info = []
+
+    try:
+        mapping = DataManager.get("co_po")
+        if mapping is not None and not mapping.empty:
+            mapping = mapping.copy()
+            mapping["SubjectID"] = mapping["SubjectID"].astype(str).str.strip()
+            mapping["_SubjectKey"] = mapping["SubjectID"].apply(_numeric_key)
+            subject_mapping = mapping[mapping["_SubjectKey"] == _numeric_key(subject_key)]
+            if not subject_mapping.empty:
+                btl_values = subject_mapping.get("BTL", [])
+                if len(btl_values):
+                    btl_info = [str(v) for v in btl_values.dropna().tolist()[:2]]
+                    query_parts.extend(btl_info)
+    except Exception:
+        btl_info = []
+
+    query = " ".join([p for p in query_parts if str(p).strip()])
+    youtube_link = "https://www.youtube.com/results?search_query=" + query.replace(" ", "+")
+
     if category == "Weak":
         remedial_classes = "Daily revision and doubt-clearing sessions"
         assessment = "Short quiz on weak topics"
-        youtube_link = "https://www.youtube.com/results?search_query=" + str(subject_name).replace(" ", "+") + "+tutorial"
         notes = "Focus on foundational concepts and repeated practice."
     else:
         remedial_classes = "Weekly practice and concept reinforcement"
         assessment = "Topic-wise assignment and oral test"
-        youtube_link = "https://www.youtube.com/results?search_query=" + str(subject_name).replace(" ", "+") + "+explanation"
         notes = "Improve consistency and strengthen moderate-level topics."
 
     if student_percent < 30:
@@ -222,7 +271,8 @@ def get_subject_performance_analysis(reference_id, subject_id):
                 student["RemedialAction"] = _build_remedial_recommendation(
                     student_percent,
                     category,
-                    subject.get("SubjectName", "")
+                    subject.get("SubjectName", ""),
+                    subject_id=subject_id,
                 )
 
     return subject, {
