@@ -1,3 +1,5 @@
+import pandas as pd
+
 from models.data_manager import DataManager
 
 
@@ -117,25 +119,43 @@ def _build_student_summary(subject, marks, exam_labels):
         return None, marks
 
     students = DataManager.get("students")
+    if students is None:
+        students = pd.DataFrame(columns=["StudentID", "Name"])
+
+    students = students.copy()
     students["StudentID"] = students["StudentID"].astype(str).str.strip()
 
-    student_summary = marks.groupby(["StudentID", "ExamType"]).size().unstack(fill_value=0)
-    student_summary = student_summary.reset_index()
+    marks = marks.copy()
+    marks["StudentID"] = marks["StudentID"].astype(str).str.strip()
+    marks["ExamType"] = marks["ExamType"].astype(str).str.strip()
+    marks["MarksObtained"] = pd.to_numeric(marks.get("MarksObtained"), errors="coerce").fillna(0)
+
+    if marks.empty:
+        student_summary = pd.DataFrame(columns=["StudentID", *exam_labels, "Total", "Average", "Name"])
+        student_summary = student_summary.merge(students[["StudentID", "Name"]], on="StudentID", how="outer")
+        for label in exam_labels:
+            student_summary[label] = pd.to_numeric(student_summary.get(label), errors="coerce").fillna(0)
+        student_summary["Total"] = student_summary[exam_labels].sum(axis=1)
+        student_summary["Average"] = student_summary[exam_labels].mean(axis=1)
+        return subject, student_summary.sort_values(["Total", "StudentID"], ascending=[False, True]).reset_index(drop=True)
+
+    aggregated = marks.groupby(["StudentID", "ExamType"], as_index=False)["MarksObtained"].sum()
+    student_summary = aggregated.pivot(index="StudentID", columns="ExamType", values="MarksObtained").fillna(0).reset_index()
 
     for label in exam_labels:
-        student_summary[label] = student_summary.get(label, 0)
+        student_summary[label] = pd.to_numeric(student_summary.get(label), errors="coerce").fillna(0)
 
-    summary_total = sum(student_summary[label] for label in exam_labels)
-    student_summary["Total"] = summary_total
+    student_summary["Total"] = student_summary[exam_labels].sum(axis=1)
+    student_summary["Average"] = student_summary[exam_labels].mean(axis=1)
 
     student_summary = student_summary.merge(
         students[["StudentID", "Name"]],
         on="StudentID",
         how="left"
     )
+    student_summary["Name"] = student_summary["Name"].fillna("")
 
-    order_cols = ["Total", "StudentID"]
-    return subject, student_summary.sort_values(order_cols, ascending=[False, True])
+    return subject, student_summary.sort_values(["Total", "StudentID"], ascending=[False, True]).reset_index(drop=True)
 
 
 def get_subject_internal_mark_students(reference_id, subject_id):

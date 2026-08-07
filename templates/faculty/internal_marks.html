@@ -32,14 +32,20 @@ Internal Marks
                 </div>
                 <div class="col-md-4">
                     <div class="p-3 bg-light rounded">
-                        <h6>Mid-1 Students</h6>
-                        <h4>{{ mid1_count }}</h4>
+                        <h6>Mid-1 Total Marks</h6>
+                        <h4>{{ mid1_total }}</h4>
                     </div>
                 </div>
                 <div class="col-md-4">
                     <div class="p-3 bg-light rounded">
-                        <h6>Mid-2 Students</h6>
-                        <h4>{{ mid2_count }}</h4>
+                        <h6>Mid-2 Total Marks</h6>
+                        <h4>{{ mid2_total }}</h4>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="p-3 bg-light rounded">
+                        <h6>Average Marks</h6>
+                        <h4>{{ average_total }}</h4>
                     </div>
                 </div>
             </div>
@@ -55,9 +61,9 @@ Internal Marks
                         <tr>
                             <th>Student ID</th>
                             <th>Name</th>
-                            <th>Mid-1 Questions</th>
-                            <th>Mid-2 Questions</th>
-                            <th>Total Questions</th>
+                            <th>Mid-1 Marks</th>
+                            <th>Mid-2 Marks</th>
+                            <th>Average</th>
                             <th>Action</th>
                         </tr>
                     </thead>
@@ -71,9 +77,17 @@ Internal Marks
                                         </a>
                                     </td>
                                     <td>{{ row.Name }}</td>
-                                    <td>{{ row['Mid-1'] }}</td>
-                                    <td>{{ row['Mid-2'] }}</td>
-                                    <td>{{ row.Total }}</td>
+                                    <td>
+                                        <a href="{{ url_for('faculty.subject_internal_marks_student', subject_id=subject.SubjectID, student_id=row.StudentID, exam_type='Mid-1') }}">
+                                            {{ row['Mid-1'] }}
+                                        </a>
+                                    </td>
+                                    <td>
+                                        <a href="{{ url_for('faculty.subject_internal_marks_student', subject_id=subject.SubjectID, student_id=row.StudentID, exam_type='Mid-2') }}">
+                                            {{ row['Mid-2'] }}
+                                        </a>
+                                    </td>
+                                    <td>{{ row.Average }}</td>
                                     <td>
                                         <a class="btn btn-sm btn-primary" href="{{ url_for('faculty.subject_internal_marks_student', subject_id=subject.SubjectID, student_id=row.StudentID) }}">
                                             View Details

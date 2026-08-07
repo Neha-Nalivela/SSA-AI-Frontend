@@ -331,26 +331,26 @@ def subject_internal_marks(subject_id):
     )
 
     student_rows = []
-    mid1_count = 0
-    mid2_count = 0
-    total_count = 0
+    mid1_total = 0
+    mid2_total = 0
+    average_total = 0
     student_count = 0
 
     if student_summary is not None and not student_summary.empty:
         student_rows = student_summary.to_dict(orient="records")
         student_count = len(student_rows)
-        mid1_count = int(sum(int(r.get("Mid-1", 0)) > 0 for r in student_rows))
-        mid2_count = int(sum(int(r.get("Mid-2", 0)) > 0 for r in student_rows))
-        total_count = sum(int(r.get("Total", 0)) for r in student_rows)
+        mid1_total = round(sum(float(r.get("Mid-1", 0)) for r in student_rows), 2)
+        mid2_total = round(sum(float(r.get("Mid-2", 0)) for r in student_rows), 2)
+        average_total = round((mid1_total + mid2_total) / 2, 2) if student_count else 0
 
     return render_template(
         "faculty/internal_marks.html",
         subject=subject,
         students=student_rows,
         student_count=student_count,
-        mid1_count=mid1_count,
-        mid2_count=mid2_count,
-        total_questions=total_count
+        mid1_total=mid1_total,
+        mid2_total=mid2_total,
+        average_total=average_total
     )
 
 
@@ -365,12 +365,17 @@ def subject_internal_marks_student(subject_id, student_id):
         student_id
     )
 
+    selected_exam = request.args.get("exam_type", "").strip()
+    if selected_exam:
+        student_marks = student_marks[student_marks["ExamType"] == selected_exam]
+
     return render_template(
         "faculty/internal_marks_student.html",
         subject=subject,
         student_marks=student_marks,
         student_id=student_id,
-        external=False
+        external=False,
+        selected_exam=selected_exam
     )
 
 
@@ -485,14 +490,14 @@ def subject_external_marks(subject_id):
     student_rows = []
     exam_label = "End Semester"
     student_count = 0
-    exam_count = 0
-    total_count = 0
+    exam_total = 0
+    total_marks = 0
 
     if student_summary is not None and not student_summary.empty:
         student_rows = student_summary.to_dict(orient="records")
         student_count = len(student_rows)
-        exam_count = int(sum(int(r.get(exam_label, 0)) > 0 for r in student_rows))
-        total_count = sum(int(r.get("Total", 0)) for r in student_rows)
+        exam_total = round(sum(float(r.get(exam_label, 0)) for r in student_rows), 2)
+        total_marks = round(sum(float(r.get("Total", 0)) for r in student_rows), 2)
 
     return render_template(
         "faculty/external_marks.html",
@@ -500,8 +505,8 @@ def subject_external_marks(subject_id):
         students=student_rows,
         student_count=student_count,
         exam_label=exam_label,
-        exam_count=exam_count,
-        total_questions=total_count
+        exam_total=exam_total,
+        total_marks=total_marks
     )
 
 
@@ -516,10 +521,15 @@ def subject_external_marks_student(subject_id, student_id):
         student_id
     )
 
+    selected_exam = request.args.get("exam_type", "End Semester").strip()
+    if selected_exam:
+        student_marks = student_marks[student_marks["ExamType"] == selected_exam]
+
     return render_template(
         "faculty/internal_marks_student.html",
         subject=subject,
         student_marks=student_marks,
         student_id=student_id,
-        external=True
+        external=True,
+        selected_exam=selected_exam
     )

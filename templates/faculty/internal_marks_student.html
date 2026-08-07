@@ -20,6 +20,25 @@
 
     <div class="card shadow-sm mb-4">
         <div class="card-body">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <div>
+                    <h5 class="mb-1">Question-wise Marks</h5>
+                    {% if selected_exam %}
+                        <small class="text-muted">Showing breakdown for {{ selected_exam }}</small>
+                    {% else %}
+                        <small class="text-muted">Select a mid exam to view question-level marks</small>
+                    {% endif %}
+                </div>
+                <div class="btn-group" role="group">
+                    <a class="btn btn-outline-primary {{ 'active' if not selected_exam else '' }}" href="{{ url_for('faculty.subject_internal_marks_student' if not external else 'faculty.subject_external_marks_student', subject_id=subject.SubjectID, student_id=student_id) }}">All</a>
+                    {% if external %}
+                        <a class="btn btn-outline-primary {{ 'active' if selected_exam == 'End Semester' else '' }}" href="{{ url_for('faculty.subject_external_marks_student', subject_id=subject.SubjectID, student_id=student_id, exam_type='End Semester') }}">End Semester</a>
+                    {% else %}
+                        <a class="btn btn-outline-primary {{ 'active' if selected_exam == 'Mid-1' else '' }}" href="{{ url_for('faculty.subject_internal_marks_student', subject_id=subject.SubjectID, student_id=student_id, exam_type='Mid-1') }}">Mid-1</a>
+                        <a class="btn btn-outline-primary {{ 'active' if selected_exam == 'Mid-2' else '' }}" href="{{ url_for('faculty.subject_internal_marks_student', subject_id=subject.SubjectID, student_id=student_id, exam_type='Mid-2') }}">Mid-2</a>
+                    {% endif %}
+                </div>
+            </div>
             <div class="table-responsive">
                 <table class="table table-hover">
                     <thead class="table-dark">
