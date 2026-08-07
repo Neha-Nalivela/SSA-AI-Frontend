@@ -24,12 +24,40 @@ Performance Analysis | {{ subject.SubjectName }}
                     <ul class="list-group list-group-flush">
                         {% if analysis.weak_students %}
                             {% for student in analysis.weak_students %}
-                                <li class="list-group-item d-flex justify-content-between align-items-center">
-                                    <div>
-                                        <strong>{{ student.StudentName or student.StudentID }}</strong><br>
-                                        <small class="text-muted">{{ student.StudentID }}</small>
+                                <li class="list-group-item">
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <div>
+                                            <strong>{{ student.StudentName or student.StudentID }}</strong><br>
+                                            <small class="text-muted">{{ student.StudentID }}</small>
+                                        </div>
+                                        <span class="badge bg-danger rounded-pill">{{ student.OverallPercent }}%</span>
                                     </div>
-                                    <span class="badge bg-danger rounded-pill">{{ student.OverallPercent }}%</span>
+                                    {% if student.RemedialAction %}
+                                        <div class="small mt-2 border rounded p-2 bg-light">
+                                            <strong>AI suggestion:</strong><br>
+                                            <div><strong>Classes:</strong> {{ student.RemedialAction.RemedialClasses or '—' }}</div>
+                                            <div><strong>Assessment:</strong> {{ student.RemedialAction.Assessment or '—' }}</div>
+                                            <div><strong>Link:</strong> {% if student.RemedialAction.YouTubeLink %}<a href="{{ student.RemedialAction.YouTubeLink }}" target="_blank" rel="noopener">Open</a>{% else %}—{% endif %}</div>
+                                            <div><strong>Notes:</strong> {{ student.RemedialAction.Notes or '—' }}</div>
+                                        </div>
+                                    {% endif %}
+                                    <form method="post" class="mt-2">
+                                        <input type="hidden" name="student_id" value="{{ student.StudentID }}">
+                                        <input type="hidden" name="category" value="Weak">
+                                        <div class="mb-2">
+                                            <input class="form-control form-control-sm" type="text" name="remedial_classes" placeholder="Remedial classes">
+                                        </div>
+                                        <div class="mb-2">
+                                            <input class="form-control form-control-sm" type="text" name="assessment" placeholder="Assessment">
+                                        </div>
+                                        <div class="mb-2">
+                                            <input class="form-control form-control-sm" type="url" name="youtube_link" placeholder="YouTube link">
+                                        </div>
+                                        <div class="mb-2">
+                                            <textarea class="form-control form-control-sm" name="notes" rows="2" placeholder="Notes"></textarea>
+                                        </div>
+                                        <button class="btn btn-sm btn-outline-danger" type="submit">Save plan</button>
+                                    </form>
                                 </li>
                             {% endfor %}
                         {% else %}
@@ -47,12 +75,40 @@ Performance Analysis | {{ subject.SubjectName }}
                     <ul class="list-group list-group-flush">
                         {% if analysis.avg_students %}
                             {% for student in analysis.avg_students %}
-                                <li class="list-group-item d-flex justify-content-between align-items-center">
-                                    <div>
-                                        <strong>{{ student.StudentName or student.StudentID }}</strong><br>
-                                        <small class="text-muted">{{ student.StudentID }}</small>
+                                <li class="list-group-item">
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <div>
+                                            <strong>{{ student.StudentName or student.StudentID }}</strong><br>
+                                            <small class="text-muted">{{ student.StudentID }}</small>
+                                        </div>
+                                        <span class="badge bg-warning text-dark rounded-pill">{{ student.OverallPercent }}%</span>
                                     </div>
-                                    <span class="badge bg-warning text-dark rounded-pill">{{ student.OverallPercent }}%</span>
+                                    {% if student.RemedialAction %}
+                                        <div class="small mt-2 border rounded p-2 bg-light">
+                                            <strong>AI suggestion:</strong><br>
+                                            <div><strong>Classes:</strong> {{ student.RemedialAction.RemedialClasses or '—' }}</div>
+                                            <div><strong>Assessment:</strong> {{ student.RemedialAction.Assessment or '—' }}</div>
+                                            <div><strong>Link:</strong> {% if student.RemedialAction.YouTubeLink %}<a href="{{ student.RemedialAction.YouTubeLink }}" target="_blank" rel="noopener">Open</a>{% else %}—{% endif %}</div>
+                                            <div><strong>Notes:</strong> {{ student.RemedialAction.Notes or '—' }}</div>
+                                        </div>
+                                    {% endif %}
+                                    <form method="post" class="mt-2">
+                                        <input type="hidden" name="student_id" value="{{ student.StudentID }}">
+                                        <input type="hidden" name="category" value="Average">
+                                        <div class="mb-2">
+                                            <input class="form-control form-control-sm" type="text" name="remedial_classes" placeholder="Remedial classes">
+                                        </div>
+                                        <div class="mb-2">
+                                            <input class="form-control form-control-sm" type="text" name="assessment" placeholder="Assessment">
+                                        </div>
+                                        <div class="mb-2">
+                                            <input class="form-control form-control-sm" type="url" name="youtube_link" placeholder="YouTube link">
+                                        </div>
+                                        <div class="mb-2">
+                                            <textarea class="form-control form-control-sm" name="notes" rows="2" placeholder="Notes"></textarea>
+                                        </div>
+                                        <button class="btn btn-sm btn-outline-warning" type="submit">Save plan</button>
+                                    </form>
                                 </li>
                             {% endfor %}
                         {% else %}

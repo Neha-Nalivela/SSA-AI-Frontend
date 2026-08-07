@@ -44,6 +44,7 @@ from services.attainment_service import (
 )
 from services.performance_service import (
     get_subject_performance_analysis,
+    save_remedial_action,
 )
 
 faculty = Blueprint(
@@ -485,7 +486,7 @@ def subject_po_attainment(subject_id):
     )
 
 
-@faculty.route("/faculty/subject/<subject_id>/analytics")
+@faculty.route("/faculty/subject/<subject_id>/analytics", methods=["GET", "POST"])
 def subject_performance_analysis(subject_id):
     reference_id = session.get("reference_id")
     subject, analysis = get_subject_performance_analysis(reference_id, subject_id)
@@ -493,6 +494,30 @@ def subject_performance_analysis(subject_id):
     if subject is None:
         flash("Subject not found or not assigned to your account.", "warning")
         return redirect(url_for("faculty.dashboard"))
+
+    if request.method == "POST":
+        student_id = request.form.get("student_id", "").strip()
+        category = request.form.get("category", "").strip()
+        remedial_classes = request.form.get("remedial_classes", "").strip()
+        assessment = request.form.get("assessment", "").strip()
+        youtube_link = request.form.get("youtube_link", "").strip()
+        notes = request.form.get("notes", "").strip()
+
+        if student_id and category:
+            save_remedial_action(
+                subject_id=subject_id,
+                student_id=student_id,
+                category=category,
+                remedial_classes=remedial_classes,
+                assessment=assessment,
+                youtube_link=youtube_link,
+                notes=notes,
+            )
+            flash("Remedial plan saved successfully.", "success")
+        else:
+            flash("Student and category are required.", "warning")
+
+        subject, analysis = get_subject_performance_analysis(reference_id, subject_id)
 
     return render_template(
         "faculty/performance_analysis.html",

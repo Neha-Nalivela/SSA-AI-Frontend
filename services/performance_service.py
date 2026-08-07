@@ -1,6 +1,14 @@
-from models.data_manager import DataManager
-import pandas as pd
+import os
 import re
+
+import pandas as pd
+
+from models.data_manager import DataManager
+
+try:
+    from config import ACADEMIC_FOLDER
+except Exception:  # pragma: no cover
+    ACADEMIC_FOLDER = os.path.join(os.getcwd(), "data", "academic")
 
 
 def _numeric_key(value):
@@ -14,6 +22,83 @@ def _normalize_subject_key(df, column="SubjectID"):
     df[column] = df[column].astype(str).str.strip()
     df["_SubjectKey"] = df[column].apply(_numeric_key)
     return df
+
+
+def save_remedial_action(subject_id, student_id, category, remedial_classes, assessment, youtube_link, notes):
+    file_path = os.path.join(ACADEMIC_FOLDER, "18_RemedialClasses.xlsx")
+    os.makedirs(ACADEMIC_FOLDER, exist_ok=True)
+
+    if os.path.exists(file_path):
+        try:
+            existing = pd.read_excel(file_path)
+        except Exception:
+            existing = pd.DataFrame()
+    else:
+        existing = pd.DataFrame()
+
+    new_row = pd.DataFrame([{
+        "SubjectID": str(subject_id).strip(),
+        "StudentID": str(student_id).strip(),
+        "Category": str(category).strip(),
+        "RemedialClasses": str(remedial_classes).strip(),
+        "Assessment": str(assessment).strip(),
+        "YouTubeLink": str(youtube_link).strip(),
+        "Notes": str(notes).strip(),
+    }])
+
+    if existing.empty:
+        combined = new_row
+    else:
+        combined = pd.concat([existing, new_row], ignore_index=True)
+
+    combined.to_excel(file_path, index=False)
+    return new_row.iloc[0].to_dict()
+
+
+def get_remedial_actions(subject_id=None):
+    file_path = os.path.join(ACADEMIC_FOLDER, "18_RemedialClasses.xlsx")
+    if not os.path.exists(file_path):
+        return []
+
+    try:
+        actions = pd.read_excel(file_path)
+    except Exception:
+        return []
+
+    if actions.empty:
+        return []
+
+    if subject_id is not None:
+        actions = actions[actions["SubjectID"].astype(str).str.strip() == str(subject_id).strip()]
+
+    return actions.to_dict(orient="records")
+
+
+def _build_remedial_recommendation(student_percent, category, subject_name):
+    if category == "Weak":
+        remedial_classes = "Daily revision and doubt-clearing sessions"
+        assessment = "Short quiz on weak topics"
+        youtube_link = "https://www.youtube.com/results?search_query=" + str(subject_name).replace(" ", "+") + "+tutorial"
+        notes = "Focus on foundational concepts and repeated practice."
+    else:
+        remedial_classes = "Weekly practice and concept reinforcement"
+        assessment = "Topic-wise assignment and oral test"
+        youtube_link = "https://www.youtube.com/results?search_query=" + str(subject_name).replace(" ", "+") + "+explanation"
+        notes = "Improve consistency and strengthen moderate-level topics."
+
+    if student_percent < 30:
+        remedial_classes = "Intensive remedial coaching and one-to-one doubt sessions"
+        assessment = "Diagnostic test followed by retest"
+    elif student_percent < 40 and category == "Weak":
+        remedial_classes = "Focused revision classes on core concepts"
+        assessment = "Mini test on important topics"
+
+    return {
+        "RemedialClasses": remedial_classes,
+        "Assessment": assessment,
+        "YouTubeLink": youtube_link,
+        "Notes": notes,
+    }
 
 
 def get_subject_performance_analysis(reference_id, subject_id):
@@ -120,9 +205,30 @@ def get_subject_performance_analysis(reference_id, subject_id):
 
     lagging_rows = lagging.head(10)[["StudentID", "SubjectName", "StudentPercent", "SubjectPercent", "Lag"]].to_dict(orient="records")
 
+    remedial_actions = get_remedial_actions(subject_id)
+    action_map = {}
+    for action in remedial_actions:
+        action_map[(str(action.get("SubjectID", "")).strip(), str(action.get("StudentID", "")).strip())] = action
+
+    for student_group in [weak_students, avg_students]:
+        for student in student_group:
+            student_id = str(student.get("StudentID", "")).strip()
+            existing_action = action_map.get((str(subject_id).strip(), student_id), {})
+            if existing_action:
+                student["RemedialAction"] = existing_action
+            else:
+                category = "Weak" if student in weak_students else "Average"
+                student_percent = float(student.get("OverallPercent", 0) or 0)
+                student["RemedialAction"] = _build_remedial_recommendation(
+                    student_percent,
+                    category,
+                    subject.get("SubjectName", "")
+                )
+
     return subject, {
         "weak_students": weak_students,
         "avg_students": avg_students,
         "top_students": top_students,
-        "lagging_subjects": lagging_rows
+        "lagging_subjects": lagging_rows,
+        "remedial_actions": remedial_actions
     }
