@@ -29,12 +29,11 @@ Attendance - Student Detail
                         </tr>
                     </thead>
                     <tbody>
-                        {% if records is not none and not records.empty %}
-                            {% for row in records.iterrows() %}
-                                {% set r = row[1] %}
+                        {% if detail_rows and detail_rows|length > 0 %}
+                            {% for row in detail_rows %}
                                 <tr>
-                                    <td>{{ r.Date if r.Date is defined else r.get('Date', '') }}</td>
-                                    <td>{{ r.Status if r.Status is defined else r.get('Status', '') }}</td>
+                                    <td>{{ row.Date }}</td>
+                                    <td>{{ row.Status }}</td>
                                 </tr>
                             {% endfor %}
                         {% else %}

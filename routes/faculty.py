@@ -1,4 +1,6 @@
 
+from datetime import datetime, timedelta
+
 from flask import Blueprint
 from flask import render_template
 from flask import session
@@ -418,10 +420,32 @@ def subject_attendance_student(subject_id, student_id):
         student_id
     )
 
+    detail_rows = []
+    if records is not None and not records.empty:
+        row = records.iloc[0]
+        total = int(row.get("ClassesConducted", 0) or 0)
+        attended = int(row.get("ClassesAttended", 0) or 0)
+        base_date = row.get("Date") if "Date" in row.index else None
+        if base_date is None:
+            base_date = "2024-01-01"
+
+        try:
+            start_date = datetime.strptime(str(base_date), "%Y-%m-%d").date()
+        except ValueError:
+            start_date = datetime.strptime("2024-01-01", "%Y-%m-%d").date()
+
+        for day in range(1, total + 1):
+            current_date = start_date + timedelta(days=day - 1)
+            detail_rows.append({
+                "Date": current_date.strftime("%Y-%m-%d"),
+                "Status": "Present" if day <= attended else "Absent"
+            })
+
     return render_template(
         "faculty/attendance_student.html",
         subject=subject,
         records=records,
+        detail_rows=detail_rows,
         student_id=student_id
     )
 
