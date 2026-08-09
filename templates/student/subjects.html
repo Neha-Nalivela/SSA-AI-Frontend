@@ -1,0 +1,84 @@
+{% extends "student_base.html" %}
+
+{% block title %}
+My Subjects
+{% endblock %}
+
+{% block content %}
+
+<div class="container-fluid">
+
+    <div class="mb-4">
+
+        <h2>
+            My Subjects
+        </h2>
+
+        <small class="text-muted">
+            Subjects registered for your semester
+        </small>
+
+    </div>
+
+    <div class="card shadow-sm">
+
+        <div class="card-body">
+
+            <div class="table-responsive">
+
+                <table class="table table-hover">
+
+                    <thead class="table-dark">
+
+                        <tr>
+                            <th>Subject ID</th>
+                            <th>Code</th>
+                            <th>Subject Name</th>
+                            <th>Semester</th>
+                            <th>Credits</th>
+                            <th>Status</th>
+                        </tr>
+
+                    </thead>
+
+                    <tbody>
+
+                    {% if subjects is not none %}
+
+                        {% for row in subjects.iterrows() %}
+
+                        {% set s = row[1] %}
+
+                        <tr>
+
+                            <td>{{ s.SubjectID }}</td>
+
+                            <td>{{ s.SubjectCode }}</td>
+
+                            <td>{{ s.SubjectName }}</td>
+
+                            <td>{{ s.Semester }}</td>
+
+                            <td>{{ s.Credits }}</td>
+
+                            <td>{{ s.Status }}</td>
+
+                        </tr>
+
+                        {% endfor %}
+
+                    {% endif %}
+
+                    </tbody>
+
+                </table>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+{% endblock %}

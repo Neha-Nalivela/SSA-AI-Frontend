@@ -1,0 +1,91 @@
+{% extends "student_base.html" %}
+
+{% block title %}
+AI Recommendations
+{% endblock %}
+
+{% block content %}
+
+<div class="container-fluid">
+
+    <div class="mb-4">
+
+        <h2>
+            AI Recommendations
+        </h2>
+
+        <small class="text-muted">
+            Personalized academic recommendations
+        </small>
+
+    </div>
+
+    <div class="row g-4">
+
+    {% if data.recommendations is not none
+          and not data.recommendations.empty %}
+
+        {% for row in data.recommendations.iterrows() %}
+
+            {% set r = row[1] %}
+
+            <div class="col-md-6">
+
+                <div class="card shadow-sm h-100">
+
+                    <div class="card-body">
+
+                        {% if "Subject" in r.index %}
+
+                            <h5>
+                                {{ r.Subject }}
+                            </h5>
+
+                        {% endif %}
+
+                        {% for column in r.index %}
+
+                            {% if column != "StudentID"
+                                  and column != "Subject" %}
+
+                                <p>
+
+                                    <strong>
+                                        {{ column }}:
+                                    </strong>
+
+                                    {{ r[column] }}
+
+                                </p>
+
+                            {% endif %}
+
+                        {% endfor %}
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        {% endfor %}
+
+    {% else %}
+
+        <div class="col-12">
+
+            <div class="alert alert-info">
+
+                No AI recommendations are available yet.
+
+            </div>
+
+        </div>
+
+    {% endif %}
+
+    </div>
+
+</div>
+
+{% endblock %}

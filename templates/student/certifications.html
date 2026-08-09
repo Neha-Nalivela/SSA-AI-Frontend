@@ -1,0 +1,87 @@
+{% extends "student_base.html" %}
+
+{% block title %}
+Certifications
+{% endblock %}
+
+{% block content %}
+
+<div class="container-fluid">
+
+    <h2 class="mb-4">
+        My Certifications
+    </h2>
+
+    <div class="card shadow-sm">
+
+        <div class="card-body">
+
+            {% if data is not none and not data.empty %}
+
+                <div class="table-responsive">
+
+                    <table class="table table-hover">
+
+                        <thead class="table-dark">
+
+                            <tr>
+
+                                {% for column in data.columns %}
+
+                                    <th>
+                                        {{ column }}
+                                    </th>
+
+                                {% endfor %}
+
+                            </tr>
+
+                        </thead>
+
+                        <tbody>
+
+                        {% for row in data.iterrows() %}
+
+                            <tr>
+
+                                {% for value in row[1] %}
+
+                                    <td>
+                                        {{ value }}
+                                    </td>
+
+                                {% endfor %}
+
+                            </tr>
+
+                        {% endfor %}
+
+                        </tbody>
+
+                    </table>
+
+                </div>
+
+            {% else %}
+
+                <div class="text-center py-4">
+
+                    <h5>
+                        No Certifications
+                    </h5>
+
+                    <p class="text-muted">
+                        Your certifications will appear here.
+                    </p>
+
+                </div>
+
+            {% endif %}
+
+        </div>
+
+    </div>
+
+</div>
+
+{% endblock %}

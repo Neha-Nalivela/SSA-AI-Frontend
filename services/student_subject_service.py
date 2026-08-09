@@ -53,15 +53,3 @@ def get_subjects(reference_id):
             pass
 
     return result
-def get_marks(reference_id):
-
-    marks = DataManager.get("marks")
-
-    if marks is None or marks.empty:
-        return marks
-
-    student_marks = marks[
-        marks["StudentID"].astype(str) == str(reference_id)
-    ].copy()
-
-    return student_marks

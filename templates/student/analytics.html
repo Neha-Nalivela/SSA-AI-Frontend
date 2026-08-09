@@ -1,0 +1,80 @@
+{% extends "student_base.html" %}
+
+{% block title %}
+Performance Analytics
+{% endblock %}
+
+{% block content %}
+
+<div class="container-fluid">
+
+    <h2 class="mb-4">
+        Performance Analytics
+    </h2>
+
+    <div class="card shadow-sm">
+
+        <div class="card-body">
+
+            <h5 class="mb-3">
+                Subject-wise Performance
+            </h5>
+
+            <div class="table-responsive">
+
+                <table class="table table-hover">
+
+                    <thead class="table-dark">
+
+                        <tr>
+                            <th>Subject ID</th>
+                            <th>Average Marks</th>
+                        </tr>
+
+                    </thead>
+
+                    <tbody>
+
+                    {% for item in data.subject_summary %}
+
+                        <tr>
+
+                            <td>
+                                {{ item.SubjectID }}
+                            </td>
+
+                            <td>
+                                {{ item.Average }}
+                            </td>
+
+                        </tr>
+
+                    {% else %}
+
+                        <tr>
+
+                            <td
+                                colspan="2"
+                                class="text-center text-muted">
+
+                                No performance data available.
+
+                            </td>
+
+                        </tr>
+
+                    {% endfor %}
+
+                    </tbody>
+
+                </table>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+{% endblock %}

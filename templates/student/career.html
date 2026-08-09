@@ -1,0 +1,80 @@
+{% extends "student_base.html" %}
+
+{% block title %}
+Career Recommendation
+{% endblock %}
+
+{% block content %}
+
+<div class="container-fluid">
+
+    <h2 class="mb-4">
+        Career Recommendation
+    </h2>
+
+    <div class="card shadow-sm">
+
+        <div class="card-body">
+
+            {% if data.career is not none
+                  and not data.career.empty %}
+
+                <div class="table-responsive">
+
+                    <table class="table table-hover">
+
+                        <thead class="table-dark">
+
+                            <tr>
+
+                                {% for column in data.career.columns %}
+
+                                    <th>
+                                        {{ column }}
+                                    </th>
+
+                                {% endfor %}
+
+                            </tr>
+
+                        </thead>
+
+                        <tbody>
+
+                        {% for row in data.career.iterrows() %}
+
+                            <tr>
+
+                                {% for value in row[1] %}
+
+                                    <td>
+                                        {{ value }}
+                                    </td>
+
+                                {% endfor %}
+
+                            </tr>
+
+                        {% endfor %}
+
+                        </tbody>
+
+                    </table>
+
+                </div>
+
+            {% else %}
+
+                <p class="text-muted">
+                    Career recommendations will appear here.
+                </p>
+
+            {% endif %}
+
+        </div>
+
+    </div>
+
+</div>
+
+{% endblock %}

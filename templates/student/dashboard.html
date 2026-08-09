@@ -1,0 +1,320 @@
+{% extends "student_base.html" %}
+
+{% block title %}
+Student Dashboard
+{% endblock %}
+
+
+{% block content %}
+
+<div class="container-fluid">
+
+    <!-- ============================== -->
+    <!-- Header -->
+    <!-- ============================== -->
+
+    <div class="mb-4">
+
+        <h2>
+
+            Welcome,
+
+            {% if data %}
+                {{ data.student.Name }}
+            {% else %}
+                Student
+            {% endif %}
+
+        </h2>
+
+        <small class="text-muted">
+
+            Student Academic Dashboard
+
+        </small>
+
+    </div>
+
+
+    {% if data %}
+
+    <!-- ============================== -->
+    <!-- Student Information -->
+    <!-- ============================== -->
+
+    <div class="card shadow-sm mb-4">
+
+        <div class="card-body">
+
+            <div class="row">
+
+                <div class="col-md-3">
+
+                    <small class="text-muted">
+                        Student ID
+                    </small>
+
+                    <h6>
+                        {{ data.student.StudentID }}
+                    </h6>
+
+                </div>
+
+
+                <div class="col-md-3">
+
+                    <small class="text-muted">
+                        Department
+                    </small>
+
+                    <h6>
+                        {{ data.student.Department }}
+                    </h6>
+
+                </div>
+
+
+                <div class="col-md-3">
+
+                    <small class="text-muted">
+                        Year
+                    </small>
+
+                    <h6>
+                        {{ data.student.Year }}
+                    </h6>
+
+                </div>
+
+
+                <div class="col-md-3">
+
+                    <small class="text-muted">
+                        Semester
+                    </small>
+
+                    <h6>
+                        {{ data.student.Semester }}
+                    </h6>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- ============================== -->
+    <!-- Summary Cards -->
+    <!-- ============================== -->
+
+    <div class="row g-4 mb-4">
+
+
+        <!-- Subjects -->
+
+        <div class="col-md-4">
+
+            <div class="card shadow-sm h-100">
+
+                <div class="card-body text-center">
+
+                    <h6 class="text-muted">
+                        My Subjects
+                    </h6>
+
+                    <h2>
+                        {{ data.total_subjects }}
+                    </h2>
+
+                    <a
+                        href="{{ url_for('student.subjects') }}"
+                        class="btn btn-outline-primary btn-sm">
+
+                        View Subjects
+
+                    </a>
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <!-- Marks -->
+
+        <div class="col-md-4">
+
+            <div class="card shadow-sm h-100">
+
+                <div class="card-body text-center">
+
+                    <h6 class="text-muted">
+                        Average Marks
+                    </h6>
+
+                    <h2>
+                        {{ data.average_marks }}%
+                    </h2>
+
+                    <a
+                        href="{{ url_for('student.marks') }}"
+                        class="btn btn-outline-success btn-sm">
+
+                        View Marks
+
+                    </a>
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <!-- Attendance -->
+
+        <div class="col-md-4">
+
+            <div class="card shadow-sm h-100">
+
+                <div class="card-body text-center">
+
+                    <h6 class="text-muted">
+                        Attendance
+                    </h6>
+
+                    <h2>
+                        {{ data.attendance_percentage }}%
+                    </h2>
+
+                    <a
+                        href="{{ url_for('student.attendance') }}"
+                        class="btn btn-outline-warning btn-sm">
+
+                        View Attendance
+
+                    </a>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- ============================== -->
+    <!-- Academic Analysis -->
+    <!-- ============================== -->
+
+    <div class="card shadow-sm mb-4">
+
+        <div class="card-body">
+
+            <h5 class="mb-3">
+                Academic Analysis
+            </h5>
+
+            <div class="row g-3">
+
+                <div class="col-md-4">
+
+                    <a
+                        href="#"
+                        class="btn btn-primary w-100 py-3">
+
+                        🎯 CO Performance
+
+                    </a>
+
+                </div>
+
+
+                <div class="col-md-4">
+
+                    <a
+                        href="#"
+                        class="btn btn-info w-100 py-3">
+
+                        📈 PO Performance
+
+                    </a>
+
+                </div>
+
+
+                <div class="col-md-4">
+
+                    <a
+                        href="#"
+                        class="btn btn-secondary w-100 py-3">
+
+                        🧠 BTL Performance
+
+                    </a>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- ============================== -->
+    <!-- AI Recommendation -->
+    <!-- ============================== -->
+
+    <div class="card shadow-sm">
+
+        <div class="card-body">
+
+            <h5>
+                🤖 AI Academic Insights
+            </h5>
+
+            <p class="text-muted mb-3">
+
+                Your personalized academic analysis and
+                career recommendations will appear here.
+
+            </p>
+
+            <a
+                href="#"
+                class="btn btn-dark">
+
+                View AI Recommendations
+
+            </a>
+
+        </div>
+
+    </div>
+
+
+    {% else %}
+
+    <!-- ============================== -->
+    <!-- Student Not Found -->
+    <!-- ============================== -->
+
+    <div class="alert alert-danger">
+
+        Student record could not be found.
+
+        Please contact the administrator.
+
+    </div>
+
+    {% endif %}
+
+</div>
+
+{% endblock %}

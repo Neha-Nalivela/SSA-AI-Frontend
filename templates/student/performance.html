@@ -1,0 +1,172 @@
+{% extends "student_base.html" %}
+
+{% block title %}
+My Performance
+{% endblock %}
+
+{% block content %}
+
+<div class="container-fluid">
+
+    <!-- Header -->
+
+    <div class="d-flex justify-content-between align-items-center mb-4">
+
+        <div>
+
+            <h2>My Performance</h2>
+
+            <small class="text-muted">
+                View your subject-wise academic performance
+            </small>
+
+        </div>
+
+    </div>
+
+
+    <!-- Summary -->
+
+    <div class="row g-4 mb-4">
+
+        <div class="col-md-4">
+
+            <div class="card shadow-sm">
+
+                <div class="card-body text-center">
+
+                    <h6 class="text-muted">
+                        Overall Average
+                    </h6>
+
+                    <h2>
+                        {{ data.average }}
+                    </h2>
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <div class="col-md-4">
+
+            <div class="card shadow-sm">
+
+                <div class="card-body text-center">
+
+                    <h6 class="text-muted">
+                        Subjects
+                    </h6>
+
+                    <h2>
+                        {{ data.marks["SubjectID"].nunique() if not data.marks.empty else 0 }}
+                    </h2>
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <div class="col-md-4">
+
+            <div class="card shadow-sm">
+
+                <div class="card-body text-center">
+
+                    <h6 class="text-muted">
+                        Student ID
+                    </h6>
+
+                    <h2>
+                        {{ data.student.StudentID if data.student is not none else "-" }}
+                    </h2>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- Subject-wise Performance -->
+
+    <div class="card shadow-sm">
+
+        <div class="card-body">
+
+            <h5 class="mb-3">
+                Subject-wise Performance
+            </h5>
+
+            <div class="table-responsive">
+
+                <table class="table table-hover">
+
+                    <thead class="table-dark">
+
+                        <tr>
+
+                            <th>Subject ID</th>
+
+                            <th>Marks Obtained</th>
+
+                        </tr>
+
+                    </thead>
+
+                    <tbody>
+
+                        {% if not data.marks.empty %}
+
+                            {% for row in data.marks.iterrows() %}
+
+                                {% set m = row[1] %}
+
+                                <tr>
+
+                                    <td>
+                                        {{ m.SubjectID }}
+                                    </td>
+
+                                    <td>
+                                        {{ m.MarksObtained }}
+                                    </td>
+
+                                </tr>
+
+                            {% endfor %}
+
+                        {% else %}
+
+                            <tr>
+
+                                <td colspan="2"
+                                    class="text-center text-muted">
+
+                                    No marks available.
+
+                                </td>
+
+                            </tr>
+
+                        {% endif %}
+
+                    </tbody>
+
+                </table>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+{% endblock %}

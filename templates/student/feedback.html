@@ -1,0 +1,152 @@
+{% extends "student_base.html" %}
+
+{% block title %}
+Feedback
+{% endblock %}
+
+{% block content %}
+
+<div class="container-fluid">
+
+    <div class="mb-4">
+
+        <h2>
+            Feedback
+        </h2>
+
+        <small class="text-muted">
+            Share your feedback with the institution.
+        </small>
+
+    </div>
+
+    <div class="card shadow-sm">
+
+        <div class="card-body">
+
+            <form
+                method="POST"
+                action="{{ url_for('student.feedback') }}">
+
+                <div class="mb-3">
+
+                    <label class="form-label">
+                        Feedback Type
+                    </label>
+
+                    <select
+                        name="FeedbackType"
+                        class="form-select"
+                        required>
+
+                        <option value="">
+                            Select Type
+                        </option>
+
+                        <option>
+                            Course
+                        </option>
+
+                        <option>
+                            Faculty
+                        </option>
+
+                        <option>
+                            Academic System
+                        </option>
+
+                        <option>
+                            General
+                        </option>
+
+                    </select>
+
+                </div>
+
+
+                <div class="mb-3">
+
+                    <label class="form-label">
+                        Subject
+                    </label>
+
+                    <input
+                        type="text"
+                        name="Subject"
+                        class="form-control">
+
+                </div>
+
+
+                <div class="mb-3">
+
+                    <label class="form-label">
+                        Rating
+                    </label>
+
+                    <select
+                        name="Rating"
+                        class="form-select"
+                        required>
+
+                        <option value="">
+                            Select Rating
+                        </option>
+
+                        <option value="5">
+                            5 - Excellent
+                        </option>
+
+                        <option value="4">
+                            4 - Very Good
+                        </option>
+
+                        <option value="3">
+                            3 - Good
+                        </option>
+
+                        <option value="2">
+                            2 - Needs Improvement
+                        </option>
+
+                        <option value="1">
+                            1 - Poor
+                        </option>
+
+                    </select>
+
+                </div>
+
+
+                <div class="mb-3">
+
+                    <label class="form-label">
+                        Comments
+                    </label>
+
+                    <textarea
+                        name="Comments"
+                        class="form-control"
+                        rows="5"
+                        required></textarea>
+
+                </div>
+
+
+                <button
+                    type="submit"
+                    class="btn btn-primary">
+
+                    Submit Feedback
+
+                </button>
+
+            </form>
+
+        </div>
+
+    </div>
+
+</div>
+
+{% endblock %}

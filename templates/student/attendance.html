@@ -1,0 +1,77 @@
+{% extends "student_base.html" %}
+
+{% block title %}
+Attendance
+{% endblock %}
+
+{% block content %}
+
+<div class="container-fluid">
+
+    <h2 class="mb-4">
+        My Attendance
+    </h2>
+
+    <div class="card shadow-sm">
+
+        <div class="card-body">
+
+            <div class="table-responsive">
+
+                <table class="table table-hover">
+
+                    <thead class="table-dark">
+
+                        <tr>
+
+                            {% if attendance is not none %}
+
+                                {% for column in attendance.columns %}
+
+                                    <th>
+                                        {{ column }}
+                                    </th>
+
+                                {% endfor %}
+
+                            {% endif %}
+
+                        </tr>
+
+                    </thead>
+
+                    <tbody>
+
+                    {% if attendance is not none %}
+
+                        {% for row in attendance.iterrows() %}
+
+                            <tr>
+
+                                {% for value in row[1] %}
+
+                                    <td>
+                                        {{ value }}
+                                    </td>
+
+                                {% endfor %}
+
+                            </tr>
+
+                        {% endfor %}
+
+                    {% endif %}
+
+                    </tbody>
+
+                </table>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+{% endblock %}

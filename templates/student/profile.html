@@ -1,0 +1,55 @@
+{% extends "student_base.html" %}
+
+{% block title %}
+My Profile
+{% endblock %}
+
+{% block content %}
+
+<div class="container-fluid">
+
+    <h2 class="mb-4">
+        My Profile
+    </h2>
+
+    {% if data %}
+
+    <div class="card shadow-sm">
+
+        <div class="card-body">
+
+            <div class="row g-3">
+
+                {% for key, value in data.items() %}
+
+                <div class="col-md-6">
+
+                    <label class="fw-bold">
+                        {{ key }}
+                    </label>
+
+                    <div class="form-control bg-light">
+                        {{ value }}
+                    </div>
+
+                </div>
+
+                {% endfor %}
+
+            </div>
+
+        </div>
+
+    </div>
+
+    {% else %}
+
+    <div class="alert alert-warning">
+        Student profile not found.
+    </div>
+
+    {% endif %}
+
+</div>
+
+{% endblock %}
