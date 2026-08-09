@@ -8,10 +8,14 @@ AI Recommendations
 
 <div class="container-fluid">
 
+    <!-- ============================== -->
+    <!-- Header -->
+    <!-- ============================== -->
+
     <div class="mb-4">
 
         <h2>
-            AI Recommendations
+            🤖 AI Recommendations
         </h2>
 
         <small class="text-muted">
@@ -20,69 +24,284 @@ AI Recommendations
 
     </div>
 
+
+    <!-- ============================== -->
+    <!-- Recommendations -->
+    <!-- ============================== -->
+
     <div class="row g-4">
 
-    {% if data.recommendations is not none
-          and not data.recommendations.empty %}
+        {% if data.recommendations %}
 
-        {% for row in data.recommendations.iterrows() %}
+            {% for r in data.recommendations %}
 
-            {% set r = row[1] %}
+                <div class="col-md-6">
 
-            <div class="col-md-6">
+                    <div class="card shadow-sm h-100">
 
-                <div class="card shadow-sm h-100">
+                        <div class="card-body">
 
-                    <div class="card-body">
+                            <!-- Subject -->
 
-                        {% if "Subject" in r.index %}
+                            {% if r.get("Subject") %}
 
-                            <h5>
-                                {{ r.Subject }}
-                            </h5>
+                                <h5 class="mb-3">
 
-                        {% endif %}
+                                    📚 {{ r.get("Subject") }}
 
-                        {% for column in r.index %}
+                                </h5>
 
-                            {% if column != "StudentID"
-                                  and column != "Subject" %}
+                            {% endif %}
+
+
+                            <!-- Recommendation -->
+
+                            {% if r.get("Recommendation") %}
+
+                                <div class="card shadow-sm h-100">
+
+    <div class="card-body">
+
+        {% if r.get("Subject") %}
+
+            <h5 class="mb-3">
+                📚 {{ r.get("Subject") }}
+            </h5>
+
+        {% endif %}
+
+
+        {% if r.get("Recommendation") %}
+
+            <div class="alert alert-info">
+
+                <strong>
+                    Recommendation:
+                </strong>
+
+                {{ r.get("Recommendation") }}
+
+            </div>
+
+        {% endif %}
+
+
+        {% if r.get("Reason") %}
+
+            <p>
+
+                <strong>
+                    Why this is recommended:
+                </strong>
+
+                {{ r.get("Reason") }}
+
+            </p>
+
+        {% endif %}
+
+
+        {% if r.get("CO") %}
+
+            <p>
+
+                <strong>CO:</strong>
+                {{ r.get("CO") }}
+
+            </p>
+
+        {% endif %}
+
+
+        {% if r.get("BTL") %}
+
+            <p>
+
+                <strong>BTL:</strong>
+                {{ r.get("BTL") }}
+
+            </p>
+
+        {% endif %}
+
+
+        {% if r.get("Marks") is not none %}
+
+            <p>
+
+                <strong>Marks:</strong>
+                {{ r.get("Marks") }}
+
+            </p>
+
+        {% endif %}
+
+
+        {% if r.get("ResourceURL") %}
+
+            <a
+                href="{{ r.get('ResourceURL') }}"
+                target="_blank"
+                rel="noopener noreferrer"
+                class="btn btn-primary btn-sm">
+
+                🔗 View Learning Resource
+
+            </a>
+
+        {% endif %}
+
+    </div>
+
+</div>
+
+                            {% endif %}
+
+
+                            <!-- Reason -->
+
+                            {% if r.get("Reason") %}
 
                                 <p>
 
                                     <strong>
-                                        {{ column }}:
+                                        Reason:
                                     </strong>
 
-                                    {{ r[column] }}
+                                    {{ r.get("Reason") }}
 
                                 </p>
 
                             {% endif %}
 
-                        {% endfor %}
+
+                            <!-- Resource -->
+
+                            {% if r.get("Resource") %}
+
+                                <p>
+
+                                    <strong>
+                                        Recommended Resource:
+                                    </strong>
+
+                                    {{ r.get("Resource") }}
+
+                                </p>
+
+                            {% endif %}
+
+
+                            <!-- CO -->
+
+                            {% if r.get("CO") %}
+
+                                <p>
+
+                                    <strong>
+                                        Course Outcome:
+                                    </strong>
+
+                                    {{ r.get("CO") }}
+
+                                </p>
+
+                            {% endif %}
+
+
+                            <!-- BTL -->
+
+                            {% if r.get("BTL") %}
+
+                                <p>
+
+                                    <strong>
+                                        BTL Level:
+                                    </strong>
+
+                                    {{ r.get("BTL") }}
+
+                                </p>
+
+                            {% endif %}
+
+
+                            <!-- Marks -->
+
+                            {% if r.get("Marks") is not none %}
+
+                                <p>
+
+                                    <strong>
+                                        Marks:
+                                    </strong>
+
+                                    {{ r.get("Marks") }}
+
+                                </p>
+
+                            {% endif %}
+
+
+                            <!-- Generic fields -->
+
+                            {% for key, value in r.items() %}
+
+                                {% if key not in [
+                                    "StudentID",
+                                    "Subject",
+                                    "Recommendation",
+                                    "Reason",
+                                    "Resource",
+                                    "CO",
+                                    "BTL",
+                                    "Marks"
+                                ] %}
+
+                                    <p>
+
+                                        <strong>
+                                            {{ key }}:
+                                        </strong>
+
+                                        {{ value }}
+
+                                    </p>
+
+                                {% endif %}
+
+                            {% endfor %}
+
+                        </div>
 
                     </div>
 
                 </div>
 
+            {% endfor %}
+
+        {% else %}
+
+            <div class="col-12">
+
+                <div class="alert alert-info">
+
+                    <h5>
+                        No AI recommendations available
+                    </h5>
+
+                    <p class="mb-0">
+
+                        AI recommendations will appear here
+                        after your academic performance is analyzed.
+
+                    </p>
+
+                </div>
+
             </div>
 
-        {% endfor %}
-
-    {% else %}
-
-        <div class="col-12">
-
-            <div class="alert alert-info">
-
-                No AI recommendations are available yet.
-
-            </div>
-
-        </div>
-
-    {% endif %}
+        {% endif %}
 
     </div>
 
