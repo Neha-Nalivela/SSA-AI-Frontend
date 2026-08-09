@@ -2,6 +2,25 @@ import pandas as pd
 
 from models.data_manager import DataManager
 
+def get_student(reference_id):
+
+    students = DataManager.get("students")
+
+    if students is None or students.empty:
+        return None
+
+    if "StudentID" not in students.columns:
+        return None
+
+    student_rows = students[
+        students["StudentID"].astype(str)
+        == str(reference_id)
+    ]
+
+    if student_rows.empty:
+        return None
+
+    return student_rows.iloc[0]
 
 def get_student_marks(reference_id):
 
@@ -20,7 +39,7 @@ def get_student_marks(reference_id):
 
 
 def get_performance(reference_id):
-
+    student = get_student(reference_id)
     marks = get_student_marks(reference_id)
 
     average = 0
@@ -44,15 +63,25 @@ def get_performance(reference_id):
                 )
 
                 highest = values.max()
+
                 lowest = values.min()
 
     return {
-        "marks": marks,
-        "average": average,
-        "highest": highest,
-        "lowest": lowest
-    }
 
+        # Student information
+        "student": student,
+
+        # Marks
+        "marks": marks,
+
+        # Overall statistics
+        "average": average,
+
+        "highest": highest,
+
+        "lowest": lowest
+
+    }
 
 def get_analytics(reference_id):
 
