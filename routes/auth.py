@@ -13,10 +13,18 @@ from services.auth_service import login as authenticate
 auth = Blueprint("auth", __name__)
 
 
+# =========================
+# LOGIN PAGE
+# =========================
+
 @auth.route("/")
 def login_page():
     return render_template("auth/login.html")
 
+
+# =========================
+# LOGIN
+# =========================
 
 @auth.route("/login", methods=["POST"])
 def login():
@@ -42,3 +50,20 @@ def login():
 
     else:
         return redirect("/student/dashboard")
+
+
+# =========================
+# LOGOUT
+# =========================
+
+@auth.route("/logout", methods=["GET", "POST"])
+def logout():
+
+    # Clear all login/session information
+    session.clear()
+
+    # Show message on login page
+    flash("You have been logged out successfully.", "success")
+
+    # Redirect to the actual login PAGE
+    return redirect(url_for("auth.login_page"))

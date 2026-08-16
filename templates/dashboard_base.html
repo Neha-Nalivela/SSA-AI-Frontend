@@ -56,7 +56,7 @@
         <a href="{{ url_for('co_po_admin.mappings') }}">
             🔗 CO-PO Mapping
         </a>
-        <a href="/admin/reports">
+        <a href="{{ url_for('admin.reports') }}">
             📄 Reports
         </a>
         <a href="{{ url_for('question_bank_admin.questions') }}">
@@ -94,7 +94,7 @@
 
                         </span>
 
-                        <a href="/logout"
+                        <a href="{{ url_for('auth.logout') }}"
                            class="btn btn-danger btn-sm">
 
                             Logout
