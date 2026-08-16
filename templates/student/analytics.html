@@ -8,197 +8,56 @@ Performance Analytics
 
 <div class="container-fluid">
 
-    <!-- =========================
-         PAGE TITLE
-         ========================= -->
-
     <h2 class="mb-4">
         Performance Analytics
     </h2>
 
 
-    <!-- =========================
-         SUBJECT PERFORMANCE GRAPH
-         ========================= -->
+    <!-- ==========================================
+         ASSESSMENT PERFORMANCE GRAPH
+         ========================================== -->
 
     <div class="card shadow-sm mb-4">
 
         <div class="card-body">
 
             <h5 class="mb-3">
-                Subject-wise Performance
+                Assessment Performance Analysis
             </h5>
+
+            <p class="text-muted">
+                Performance is analyzed from previous
+                assessment responses and classified according
+                to marks obtained.
+            </p>
+
 
             {% if data.subject_summary %}
 
-                <div style="height: 380px;">
+                <div style="position: relative; height: 400px;">
+
                     <canvas id="performanceChart"></canvas>
+
                 </div>
 
             {% else %}
 
                 <div class="text-center text-muted py-5">
+
                     No performance data available.
-                </div>
-
-            {% endif %}
-
-            <!-- =====================================================
-            ASSESSMENT PERFORMANCE ANALYSIS
-            ===================================================== -->
-
-            {% if data.assessment_analysis %}
-
-            <div class="card shadow-sm mb-4">
-
-                <div class="card-body">
-
-                    <h5 class="mb-3">
-                        Assessment Performance Analysis
-                    </h5>
-
-                    <p class="text-muted">
-                        Performance is analyzed from previous assessment
-                        responses and classified according to marks obtained
-                        in each question.
-                    </p>
-
-                    <div style="height: 400px;">
-                        <canvas id="assessmentPerformanceChart"></canvas>
-                    </div>
 
                 </div>
 
-            </div>
-
             {% endif %}
 
-            {% if data.assessment_analysis %}
-
-            <script>
-
-            const assessmentSubjects = [
-
-                {% for item in data.assessment_analysis %}
-
-                    "{{ item.SubjectID }}"
-
-                    {% if not loop.last %},{% endif %}
-
-                {% endfor %}
-
-            ];
-
-
-            const assessmentAverages = [
-
-                {% for item in data.assessment_analysis %}
-
-                    {{ item.Average | float }}
-
-                    {% if not loop.last %},{% endif %}
-
-                {% endfor %}
-
-            ];
-
-
-            const assessmentChart =
-                document.getElementById(
-                    "assessmentPerformanceChart"
-                );
-
-
-            if (assessmentChart) {
-
-                new Chart(
-                    assessmentChart.getContext("2d"),
-                    {
-
-                        type: "bar",
-
-                        data: {
-
-                            labels: assessmentSubjects,
-
-                            datasets: [
-
-                                {
-
-                                    label:
-                                        "Assessment Performance (%)",
-
-                                    data:
-                                        assessmentAverages,
-
-                                    borderWidth: 1,
-
-                                    borderRadius: 6
-
-                                }
-
-                            ]
-
-                        },
-
-                        options: {
-
-                            responsive: true,
-
-                            maintainAspectRatio: false,
-
-                            scales: {
-
-                                y: {
-
-                                    beginAtZero: true,
-
-                                    max: 100,
-
-                                    title: {
-
-                                        display: true,
-
-                                        text:
-                                            "Performance (%)"
-
-                                    }
-
-                                },
-
-                                x: {
-
-                                    title: {
-
-                                        display: true,
-
-                                        text:
-                                            "Subjects"
-
-                                    }
-
-                                }
-
-                            }
-
-                        }
-
-                    }
-                );
-
-            }
-
-            </script>
-
-            {% endif %}
         </div>
 
     </div>
 
 
-    <!-- =========================
+    <!-- ==========================================
          PERFORMANCE DESCRIPTION
-         ========================= -->
+         ========================================== -->
 
     {% if data.subject_summary %}
 
@@ -213,8 +72,7 @@ Performance Analytics
             <p id="performanceDescription"
                class="text-muted mb-0">
 
-                Your performance is being analyzed based
-                on your subject-wise academic results.
+                Your performance is being analyzed.
 
             </p>
 
@@ -225,9 +83,9 @@ Performance Analytics
     {% endif %}
 
 
-    <!-- =========================
-         PERFORMANCE TABLE
-         ========================= -->
+    <!-- ==========================================
+         SUBJECT PERFORMANCE DETAILS
+         ========================================== -->
 
     <div class="card shadow-sm mb-4">
 
@@ -244,11 +102,19 @@ Performance Analytics
                     <thead class="table-dark">
 
                         <tr>
-                            <th>Subject ID</th>
-                            <th>Average Marks</th>
+
+                            <th>
+                                Subject ID
+                            </th>
+
+                            <th>
+                                Average Marks
+                            </th>
+
                         </tr>
 
                     </thead>
+
 
                     <tbody>
 
@@ -291,412 +157,244 @@ Performance Analytics
 
     </div>
 
-
-    <!-- =========================
-         ASSESSMENT RECOMMENDATIONS
-         DISPLAY ONLY
-         ========================= -->
-
-    {% if data.subject_summary %}
-
-    <div class="card shadow-sm mb-4">
-
-        <div class="card-body">
-
-            <h5 class="mb-2">
-                Recommended Assessments
-            </h5>
-
-            <p class="text-muted mb-4">
-
-                Based on your academic performance, future
-                assessments will focus more on topics that
-                require improvement while also reinforcing
-                your stronger areas.
-
-            </p>
-
-
-            {% for item in data.subject_summary %}
-
-            <div class="card border mb-4">
-
-                <div class="card-body">
-
-                    <!-- SUBJECT -->
-
-                    <div class="mb-3">
-
-                        <h5 class="mb-1">
-                            {{ item.SubjectID }}
-                        </h5>
-
-                        <small class="text-muted">
-                            Average Performance:
-                            {{ item.Average }}%
-                        </small>
-
-                    </div>
-
-
-                    <!-- ASSESSMENT DISTRIBUTION -->
-
-                    <h6 class="mb-3">
-                        Recommended Question Distribution
-                    </h6>
-
-
-                    <!-- WEAK TOPICS -->
-
-                    <div class="mb-3">
-
-                        <div class="d-flex justify-content-between">
-
-                            <span>
-                                Topics Requiring Improvement
-                            </span>
-
-                            <strong>
-                                80%
-                            </strong>
-
-                        </div>
-
-                        <div class="progress"
-                             style="height: 10px;">
-
-                            <div class="progress-bar bg-warning"
-                                 style="width: 80%;">
-                            </div>
-
-                        </div>
-
-                    </div>
-
-
-                    <!-- STRONG TOPICS -->
-
-                    <div class="mb-4">
-
-                        <div class="d-flex justify-content-between">
-
-                            <span>
-                                Strong Topics
-                            </span>
-
-                            <strong>
-                                20%
-                            </strong>
-
-                        </div>
-
-                        <div class="progress"
-                             style="height: 10px;">
-
-                            <div class="progress-bar bg-success"
-                                 style="width: 20%;">
-                            </div>
-
-                        </div>
-
-                    </div>
-
-
-                    <!-- TOPIC ANALYSIS -->
-
-                    <div class="row">
-
-                        <!-- WEAK -->
-
-                        <div class="col-md-6 mb-3">
-
-                            <div class="p-3 bg-light rounded">
-
-                                <h6>
-                                    Topics Requiring Improvement
-                                </h6>
-
-                                {% if item.weak_topics %}
-
-                                    <ul class="mb-0">
-
-                                        {% for topic in item.weak_topics %}
-
-                                            <li>
-                                                {{ topic }}
-                                            </li>
-
-                                        {% endfor %}
-
-                                    </ul>
-
-                                {% else %}
-
-                                    <p class="text-muted mb-0">
-
-                                        Topic-level analysis will
-                                        be available when assessment
-                                        analysis is implemented.
-
-                                    </p>
-
-                                {% endif %}
-
-                            </div>
-
-                        </div>
-
-
-                        <!-- STRONG -->
-
-                        <div class="col-md-6 mb-3">
-
-                            <div class="p-3 bg-light rounded">
-
-                                <h6>
-                                    Strong Topics
-                                </h6>
-
-                                {% if item.strong_topics %}
-
-                                    <ul class="mb-0">
-
-                                        {% for topic in item.strong_topics %}
-
-                                            <li>
-                                                {{ topic }}
-                                            </li>
-
-                                        {% endfor %}
-
-                                    </ul>
-
-                                {% else %}
-
-                                    <p class="text-muted mb-0">
-
-                                        Strong-topic analysis will
-                                        be displayed here.
-
-                                    </p>
-
-                                {% endif %}
-
-                            </div>
-
-                        </div>
-
-                    </div>
-
-
-                    <!-- INFORMATION -->
-
-                    <div class="mt-2">
-
-                        <span class="badge bg-primary">
-                            Future Assessment: 10 Questions
-                        </span>
-
-                        <span class="badge bg-warning text-dark">
-                            80% Weak Topics
-                        </span>
-
-                        <span class="badge bg-success">
-                            20% Strong Topics
-                        </span>
-
-                    </div>
-
-                </div>
-
-            </div>
-
-            {% endfor %}
-
-        </div>
-
-    </div>
-
-    {% endif %}
-
 </div>
 
 
-<!-- =========================
+<!-- ==========================================
      CHART.JS
-     ========================= -->
-
-{% if data.subject_summary %}
+     ========================================== -->
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
+
+{% if data.subject_summary %}
+
 <script>
 
-const subjects = [
+document.addEventListener(
+    "DOMContentLoaded",
+    function () {
 
-    {% for item in data.subject_summary %}
+        /*
+        ==========================================
+        GET DATA FROM FLASK
+        ==========================================
+        */
 
-        "{{ item.SubjectID }}"
+        const subjects = [
 
-        {% if not loop.last %},{% endif %}
+            {% for item in data.subject_summary %}
 
-    {% endfor %}
+                "{{ item.SubjectID }}"
 
-];
+                {% if not loop.last %},{% endif %}
 
+            {% endfor %}
 
-const averages = [
-
-    {% for item in data.subject_summary %}
-
-        {{ item.Average | float }}
-
-        {% if not loop.last %},{% endif %}
-
-    {% endfor %}
-
-];
+        ];
 
 
-const chartElement =
-    document.getElementById("performanceChart");
+        const averages = [
+
+            {% for item in data.subject_summary %}
+
+                {{ item.Average | float }}
+
+                {% if not loop.last %},{% endif %}
+
+            {% endfor %}
+
+        ];
 
 
-if (chartElement) {
+        console.log(
+            "Subjects:",
+            subjects
+        );
 
-    const ctx =
-        chartElement.getContext("2d");
+        console.log(
+            "Averages:",
+            averages
+        );
 
 
-    new Chart(ctx, {
+        /*
+        ==========================================
+        FIND CANVAS
+        ==========================================
+        */
 
-        type: "bar",
+        const canvas =
+            document.getElementById(
+                "performanceChart"
+            );
 
-        data: {
 
-            labels: subjects,
+        if (!canvas) {
 
-            datasets: [{
+            console.error(
+                "performanceChart canvas not found"
+            );
 
-                label: "Average Marks",
+            return;
 
-                data: averages,
+        }
 
-                backgroundColor:
-                    "rgba(54, 162, 235, 0.65)",
 
-                borderColor:
-                    "rgba(54, 162, 235, 1)",
+        /*
+        ==========================================
+        CREATE CHART
+        ==========================================
+        */
 
-                borderWidth: 1,
+        new Chart(
+            canvas,
+            {
 
-                borderRadius: 6
+                type: "bar",
 
-            }]
+                data: {
 
-        },
+                    labels: subjects,
 
-        options: {
+                    datasets: [
 
-            responsive: true,
+                        {
 
-            maintainAspectRatio: false,
+                            label:
+                                "Average Marks",
 
-            scales: {
+                            data:
+                                averages,
 
-                y: {
+                            backgroundColor:
+                                "rgba(54, 162, 235, 0.65)",
 
-                    beginAtZero: true,
+                            borderColor:
+                                "rgba(54, 162, 235, 1)",
 
-                    max: 100,
+                            borderWidth: 1,
 
-                    title: {
+                            borderRadius: 6
 
-                        display: true,
+                        }
 
-                        text: "Average Marks"
-
-                    }
+                    ]
 
                 },
 
-                x: {
 
-                    title: {
+                options: {
 
-                        display: true,
+                    responsive: true,
 
-                        text: "Subjects"
+                    maintainAspectRatio: false,
+
+
+                    scales: {
+
+                        y: {
+
+                            beginAtZero: true,
+
+                            title: {
+
+                                display: true,
+
+                                text:
+                                    "Average Marks"
+
+                            }
+
+                        },
+
+
+                        x: {
+
+                            title: {
+
+                                display: true,
+
+                                text:
+                                    "Subjects"
+
+                            }
+
+                        }
+
+                    },
+
+
+                    plugins: {
+
+                        legend: {
+
+                            display: true
+
+                        }
 
                     }
-
-                }
-
-            },
-
-            plugins: {
-
-                legend: {
-
-                    display: true
 
                 }
 
             }
 
-        }
-
-    });
+        );
 
 
-    /* =========================
-       PERFORMANCE DESCRIPTION
-       ========================= */
+        /*
+        ==========================================
+        PERFORMANCE DESCRIPTION
+        ==========================================
+        */
 
-    if (averages.length > 0) {
+        if (averages.length > 0) {
 
-        const highest =
-            Math.max(...averages);
+            const highest =
+                Math.max(...averages);
 
-        const lowest =
-            Math.min(...averages);
-
-        const highestIndex =
-            averages.indexOf(highest);
-
-        const lowestIndex =
-            averages.indexOf(lowest);
+            const lowest =
+                Math.min(...averages);
 
 
-        const description =
+            const highestIndex =
+                averages.indexOf(highest);
 
-            "Your strongest performance is in "
-            + subjects[highestIndex]
-            + " with an average of "
-            + highest
-            + " marks. Your lowest performance is in "
-            + subjects[lowestIndex]
-            + " with an average of "
-            + lowest
-            + " marks. Future assessments will place greater emphasis on weaker topics while also including questions from stronger topics for reinforcement.";
+            const lowestIndex =
+                averages.indexOf(lowest);
 
 
-        const descriptionElement =
-            document.getElementById(
-                "performanceDescription"
-            );
+            const description =
+
+                "Your strongest performance is in "
+                + subjects[highestIndex]
+                + " with an average of "
+                + highest
+                + " marks. Your lowest performance is in "
+                + subjects[lowestIndex]
+                + " with an average of "
+                + lowest
+                + " marks.";
 
 
-        if (descriptionElement) {
+            const descriptionElement =
+                document.getElementById(
+                    "performanceDescription"
+                );
 
-            descriptionElement.textContent =
-                description;
+
+            if (descriptionElement) {
+
+                descriptionElement.textContent =
+                    description;
+
+            }
 
         }
 
     }
 
-}
+);
 
 </script>
 
