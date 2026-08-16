@@ -8,12 +8,17 @@ Performance Analytics
 
 <div class="container-fluid">
 
+    <!-- =========================
+         PAGE TITLE
+         ========================= -->
+
     <h2 class="mb-4">
         Performance Analytics
     </h2>
 
+
     <!-- =========================
-         PERFORMANCE GRAPH
+         SUBJECT PERFORMANCE GRAPH
          ========================= -->
 
     <div class="card shadow-sm mb-4">
@@ -26,15 +31,15 @@ Performance Analytics
 
             {% if data.subject_summary %}
 
-            <div style="height: 380px;">
-                <canvas id="performanceChart"></canvas>
-            </div>
+                <div style="height: 380px;">
+                    <canvas id="performanceChart"></canvas>
+                </div>
 
             {% else %}
 
-            <div class="text-center text-muted py-5">
-                No performance data available.
-            </div>
+                <div class="text-center text-muted py-5">
+                    No performance data available.
+                </div>
 
             {% endif %}
 
@@ -57,10 +62,12 @@ Performance Analytics
                 Performance Description
             </h5>
 
-            <p class="mb-0" id="performanceDescription">
-                Your subject-wise performance is shown in the graph above.
-                The analysis highlights your stronger and weaker subjects
-                based on your average marks.
+            <p id="performanceDescription"
+               class="text-muted mb-0">
+
+                Your performance is being analyzed based
+                on your subject-wise academic results.
+
             </p>
 
         </div>
@@ -74,7 +81,7 @@ Performance Analytics
          PERFORMANCE TABLE
          ========================= -->
 
-    <div class="card shadow-sm">
+    <div class="card shadow-sm mb-4">
 
         <div class="card-body">
 
@@ -115,8 +122,7 @@ Performance Analytics
 
                         <tr>
 
-                            <td
-                                colspan="2"
+                            <td colspan="2"
                                 class="text-center text-muted">
 
                                 No performance data available.
@@ -137,6 +143,234 @@ Performance Analytics
 
     </div>
 
+
+    <!-- =========================
+         ASSESSMENT RECOMMENDATIONS
+         DISPLAY ONLY
+         ========================= -->
+
+    {% if data.subject_summary %}
+
+    <div class="card shadow-sm mb-4">
+
+        <div class="card-body">
+
+            <h5 class="mb-2">
+                Recommended Assessments
+            </h5>
+
+            <p class="text-muted mb-4">
+
+                Based on your academic performance, future
+                assessments will focus more on topics that
+                require improvement while also reinforcing
+                your stronger areas.
+
+            </p>
+
+
+            {% for item in data.subject_summary %}
+
+            <div class="card border mb-4">
+
+                <div class="card-body">
+
+                    <!-- SUBJECT -->
+
+                    <div class="mb-3">
+
+                        <h5 class="mb-1">
+                            {{ item.SubjectID }}
+                        </h5>
+
+                        <small class="text-muted">
+                            Average Performance:
+                            {{ item.Average }}%
+                        </small>
+
+                    </div>
+
+
+                    <!-- ASSESSMENT DISTRIBUTION -->
+
+                    <h6 class="mb-3">
+                        Recommended Question Distribution
+                    </h6>
+
+
+                    <!-- WEAK TOPICS -->
+
+                    <div class="mb-3">
+
+                        <div class="d-flex justify-content-between">
+
+                            <span>
+                                Topics Requiring Improvement
+                            </span>
+
+                            <strong>
+                                80%
+                            </strong>
+
+                        </div>
+
+                        <div class="progress"
+                             style="height: 10px;">
+
+                            <div class="progress-bar bg-warning"
+                                 style="width: 80%;">
+                            </div>
+
+                        </div>
+
+                    </div>
+
+
+                    <!-- STRONG TOPICS -->
+
+                    <div class="mb-4">
+
+                        <div class="d-flex justify-content-between">
+
+                            <span>
+                                Strong Topics
+                            </span>
+
+                            <strong>
+                                20%
+                            </strong>
+
+                        </div>
+
+                        <div class="progress"
+                             style="height: 10px;">
+
+                            <div class="progress-bar bg-success"
+                                 style="width: 20%;">
+                            </div>
+
+                        </div>
+
+                    </div>
+
+
+                    <!-- TOPIC ANALYSIS -->
+
+                    <div class="row">
+
+                        <!-- WEAK -->
+
+                        <div class="col-md-6 mb-3">
+
+                            <div class="p-3 bg-light rounded">
+
+                                <h6>
+                                    Topics Requiring Improvement
+                                </h6>
+
+                                {% if item.weak_topics %}
+
+                                    <ul class="mb-0">
+
+                                        {% for topic in item.weak_topics %}
+
+                                            <li>
+                                                {{ topic }}
+                                            </li>
+
+                                        {% endfor %}
+
+                                    </ul>
+
+                                {% else %}
+
+                                    <p class="text-muted mb-0">
+
+                                        Topic-level analysis will
+                                        be available when assessment
+                                        analysis is implemented.
+
+                                    </p>
+
+                                {% endif %}
+
+                            </div>
+
+                        </div>
+
+
+                        <!-- STRONG -->
+
+                        <div class="col-md-6 mb-3">
+
+                            <div class="p-3 bg-light rounded">
+
+                                <h6>
+                                    Strong Topics
+                                </h6>
+
+                                {% if item.strong_topics %}
+
+                                    <ul class="mb-0">
+
+                                        {% for topic in item.strong_topics %}
+
+                                            <li>
+                                                {{ topic }}
+                                            </li>
+
+                                        {% endfor %}
+
+                                    </ul>
+
+                                {% else %}
+
+                                    <p class="text-muted mb-0">
+
+                                        Strong-topic analysis will
+                                        be displayed here.
+
+                                    </p>
+
+                                {% endif %}
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+
+                    <!-- INFORMATION -->
+
+                    <div class="mt-2">
+
+                        <span class="badge bg-primary">
+                            Future Assessment: 10 Questions
+                        </span>
+
+                        <span class="badge bg-warning text-dark">
+                            80% Weak Topics
+                        </span>
+
+                        <span class="badge bg-success">
+                            20% Strong Topics
+                        </span>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+            {% endfor %}
+
+        </div>
+
+    </div>
+
+    {% endif %}
+
 </div>
 
 
@@ -150,26 +384,41 @@ Performance Analytics
 
 <script>
 
-    const subjects = [
-        {% for item in data.subject_summary %}
-            "{{ item.SubjectID }}"{% if not loop.last %},{% endif %}
-        {% endfor %}
-    ];
+const subjects = [
 
-    const averages = [
-        {% for item in data.subject_summary %}
-            {{ item.Average | float }}{% if not loop.last %},{% endif %}
-        {% endfor %}
-    ];
+    {% for item in data.subject_summary %}
+
+        "{{ item.SubjectID }}"
+
+        {% if not loop.last %},{% endif %}
+
+    {% endfor %}
+
+];
 
 
-    /* =========================
-       CREATE PERFORMANCE CHART
-       ========================= */
+const averages = [
 
-    const ctx = document
-        .getElementById("performanceChart")
-        .getContext("2d");
+    {% for item in data.subject_summary %}
+
+        {{ item.Average | float }}
+
+        {% if not loop.last %},{% endif %}
+
+    {% endfor %}
+
+];
+
+
+const chartElement =
+    document.getElementById("performanceChart");
+
+
+if (chartElement) {
+
+    const ctx =
+        chartElement.getContext("2d");
+
 
     new Chart(ctx, {
 
@@ -185,9 +434,11 @@ Performance Analytics
 
                 data: averages,
 
-                backgroundColor: "rgba(54, 162, 235, 0.65)",
+                backgroundColor:
+                    "rgba(54, 162, 235, 0.65)",
 
-                borderColor: "rgba(54, 162, 235, 1)",
+                borderColor:
+                    "rgba(54, 162, 235, 1)",
 
                 borderWidth: 1,
 
@@ -227,7 +478,7 @@ Performance Analytics
 
                         display: true,
 
-                        text: "Subject"
+                        text: "Subjects"
 
                     }
 
@@ -240,22 +491,6 @@ Performance Analytics
                 legend: {
 
                     display: true
-
-                },
-
-                tooltip: {
-
-                    callbacks: {
-
-                        label: function(context) {
-
-                            return "Average: "
-                                + context.parsed.y
-                                + " marks";
-
-                        }
-
-                    }
 
                 }
 
@@ -272,15 +507,21 @@ Performance Analytics
 
     if (averages.length > 0) {
 
-        const highest = Math.max(...averages);
+        const highest =
+            Math.max(...averages);
 
-        const lowest = Math.min(...averages);
+        const lowest =
+            Math.min(...averages);
 
-        const highestIndex = averages.indexOf(highest);
+        const highestIndex =
+            averages.indexOf(highest);
 
-        const lowestIndex = averages.indexOf(lowest);
+        const lowestIndex =
+            averages.indexOf(lowest);
+
 
         const description =
+
             "Your strongest performance is in "
             + subjects[highestIndex]
             + " with an average of "
@@ -289,13 +530,25 @@ Performance Analytics
             + subjects[lowestIndex]
             + " with an average of "
             + lowest
-            + " marks. Continue strengthening your weaker subjects while maintaining your performance in the stronger areas.";
+            + " marks. Future assessments will place greater emphasis on weaker topics while also including questions from stronger topics for reinforcement.";
 
-        document.getElementById(
-            "performanceDescription"
-        ).textContent = description;
+
+        const descriptionElement =
+            document.getElementById(
+                "performanceDescription"
+            );
+
+
+        if (descriptionElement) {
+
+            descriptionElement.textContent =
+                description;
+
+        }
 
     }
+
+}
 
 </script>
 
