@@ -12,12 +12,74 @@ Performance Analytics
         Performance Analytics
     </h2>
 
-    <div class="card shadow-sm">
+    <!-- =========================
+         PERFORMANCE GRAPH
+         ========================= -->
+
+    <div class="card shadow-sm mb-4">
 
         <div class="card-body">
 
             <h5 class="mb-3">
                 Subject-wise Performance
+            </h5>
+
+            {% if data.subject_summary %}
+
+            <div style="height: 380px;">
+                <canvas id="performanceChart"></canvas>
+            </div>
+
+            {% else %}
+
+            <div class="text-center text-muted py-5">
+                No performance data available.
+            </div>
+
+            {% endif %}
+
+        </div>
+
+    </div>
+
+
+    <!-- =========================
+         PERFORMANCE DESCRIPTION
+         ========================= -->
+
+    {% if data.subject_summary %}
+
+    <div class="card shadow-sm mb-4">
+
+        <div class="card-body">
+
+            <h5 class="mb-3">
+                Performance Description
+            </h5>
+
+            <p class="mb-0" id="performanceDescription">
+                Your subject-wise performance is shown in the graph above.
+                The analysis highlights your stronger and weaker subjects
+                based on your average marks.
+            </p>
+
+        </div>
+
+    </div>
+
+    {% endif %}
+
+
+    <!-- =========================
+         PERFORMANCE TABLE
+         ========================= -->
+
+    <div class="card shadow-sm">
+
+        <div class="card-body">
+
+            <h5 class="mb-3">
+                Subject-wise Performance Details
             </h5>
 
             <div class="table-responsive">
@@ -76,5 +138,167 @@ Performance Analytics
     </div>
 
 </div>
+
+
+<!-- =========================
+     CHART.JS
+     ========================= -->
+
+{% if data.subject_summary %}
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<script>
+
+    const subjects = [
+        {% for item in data.subject_summary %}
+            "{{ item.SubjectID }}"{% if not loop.last %},{% endif %}
+        {% endfor %}
+    ];
+
+    const averages = [
+        {% for item in data.subject_summary %}
+            {{ item.Average | float }}{% if not loop.last %},{% endif %}
+        {% endfor %}
+    ];
+
+
+    /* =========================
+       CREATE PERFORMANCE CHART
+       ========================= */
+
+    const ctx = document
+        .getElementById("performanceChart")
+        .getContext("2d");
+
+    new Chart(ctx, {
+
+        type: "bar",
+
+        data: {
+
+            labels: subjects,
+
+            datasets: [{
+
+                label: "Average Marks",
+
+                data: averages,
+
+                backgroundColor: "rgba(54, 162, 235, 0.65)",
+
+                borderColor: "rgba(54, 162, 235, 1)",
+
+                borderWidth: 1,
+
+                borderRadius: 6
+
+            }]
+
+        },
+
+        options: {
+
+            responsive: true,
+
+            maintainAspectRatio: false,
+
+            scales: {
+
+                y: {
+
+                    beginAtZero: true,
+
+                    max: 100,
+
+                    title: {
+
+                        display: true,
+
+                        text: "Average Marks"
+
+                    }
+
+                },
+
+                x: {
+
+                    title: {
+
+                        display: true,
+
+                        text: "Subject"
+
+                    }
+
+                }
+
+            },
+
+            plugins: {
+
+                legend: {
+
+                    display: true
+
+                },
+
+                tooltip: {
+
+                    callbacks: {
+
+                        label: function(context) {
+
+                            return "Average: "
+                                + context.parsed.y
+                                + " marks";
+
+                        }
+
+                    }
+
+                }
+
+            }
+
+        }
+
+    });
+
+
+    /* =========================
+       PERFORMANCE DESCRIPTION
+       ========================= */
+
+    if (averages.length > 0) {
+
+        const highest = Math.max(...averages);
+
+        const lowest = Math.min(...averages);
+
+        const highestIndex = averages.indexOf(highest);
+
+        const lowestIndex = averages.indexOf(lowest);
+
+        const description =
+            "Your strongest performance is in "
+            + subjects[highestIndex]
+            + " with an average of "
+            + highest
+            + " marks. Your lowest performance is in "
+            + subjects[lowestIndex]
+            + " with an average of "
+            + lowest
+            + " marks. Continue strengthening your weaker subjects while maintaining your performance in the stronger areas.";
+
+        document.getElementById(
+            "performanceDescription"
+        ).textContent = description;
+
+    }
+
+</script>
+
+{% endif %}
 
 {% endblock %}
