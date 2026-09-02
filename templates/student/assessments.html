@@ -1,0 +1,436 @@
+{% extends "student_base.html" %}
+
+{% block title %}
+Assessment Performance
+{% endblock %}
+
+{% block content %}
+
+<div class="container-fluid">
+
+    <h2 class="mb-4">
+        Assessment Performance
+    </h2>
+
+
+    <!-- =========================================
+         SUMMARY CARDS
+         ========================================= -->
+
+    <div class="row mb-4">
+
+        <!-- TOTAL ASSESSMENTS -->
+
+        <div class="col-md-4 mb-3">
+
+            <div class="card shadow-sm h-100">
+
+                <div class="card-body text-center">
+
+                    <h6 class="text-muted">
+                        Total Assessments
+                    </h6>
+
+                    <h2>
+                        {{ data.assessments|length }}
+                    </h2>
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <!-- AVERAGE -->
+
+        <div class="col-md-4 mb-3">
+
+            <div class="card shadow-sm h-100">
+
+                <div class="card-body text-center">
+
+                    <h6 class="text-muted">
+                        Average Performance
+                    </h6>
+
+                    <h2>
+                        {{ data.average }}%
+                    </h2>
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <!-- CATEGORY -->
+
+        <div class="col-md-4 mb-3">
+
+            <div class="card shadow-sm h-100">
+
+                <div class="card-body text-center">
+
+                    <h6 class="text-muted">
+                        Overall Performance
+                    </h6>
+
+
+                    {% if data.category == "Weak" %}
+
+                        <span class="badge bg-danger fs-5">
+                            Weak
+                        </span>
+
+                    {% elif data.category == "Average" %}
+
+                        <span class="badge bg-warning text-dark fs-5">
+                            Average
+                        </span>
+
+                    {% elif data.category == "Above Average" %}
+
+                        <span class="badge bg-info fs-5">
+                            Above Average
+                        </span>
+
+                    {% elif data.category == "Good" %}
+
+                        <span class="badge bg-success fs-5">
+                            Good
+                        </span>
+
+                    {% else %}
+
+                        <span class="badge bg-secondary fs-5">
+                            No Data
+                        </span>
+
+                    {% endif %}
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- =========================================
+         ASSESSMENT GRAPH
+         ========================================= -->
+
+    <div class="card shadow-sm mb-4">
+
+        <div class="card-body">
+
+            <h5 class="mb-3">
+                Assessment Performance Analysis
+            </h5>
+
+            {% if data.assessments %}
+
+                <div style="height: 400px;">
+
+                    <canvas id="assessmentChart"></canvas>
+
+                </div>
+
+            {% else %}
+
+                <div class="text-center text-muted py-5">
+
+                    No assessment data available.
+
+                </div>
+
+            {% endif %}
+
+        </div>
+
+    </div>
+
+
+    <!-- =========================================
+         ASSESSMENT DETAILS
+         ========================================= -->
+
+    <div class="card shadow-sm mb-4">
+
+        <div class="card-body">
+
+            <h5 class="mb-3">
+                Assessment Details
+            </h5>
+
+
+            <div class="table-responsive">
+
+                <table class="table table-hover">
+
+                    <thead class="table-dark">
+
+                        <tr>
+
+                            <th>
+                                Assessment
+                            </th>
+
+                            <th>
+                                Subject
+                            </th>
+
+                            <th>
+                                Marks Obtained
+                            </th>
+
+                            <th>
+                                Maximum Marks
+                            </th>
+
+                            <th>
+                                Percentage
+                            </th>
+
+                            <th>
+                                Performance
+                            </th>
+
+                        </tr>
+
+                    </thead>
+
+
+                    <tbody>
+
+                    {% for item in data.assessments %}
+
+                        <tr>
+
+                            <td>
+                                {{ item.AssessmentNo }}
+                            </td>
+
+                            <td>
+                                {{ item.SubjectID }}
+                            </td>
+
+                            <td>
+                                {{ item.MarksObtained }}
+                            </td>
+
+                            <td>
+                                {{ item.MaxMarks }}
+                            </td>
+
+                            <td>
+                                {{ item.Percentage }}%
+                            </td>
+
+                            <td>
+
+                                {% if item.Category == "Weak" %}
+
+                                    <span class="badge bg-danger">
+                                        Weak
+                                    </span>
+
+                                {% elif item.Category == "Average" %}
+
+                                    <span class="badge bg-warning text-dark">
+                                        Average
+                                    </span>
+
+                                {% elif item.Category == "Above Average" %}
+
+                                    <span class="badge bg-info">
+                                        Above Average
+                                    </span>
+
+                                {% else %}
+
+                                    <span class="badge bg-success">
+                                        Good
+                                    </span>
+
+                                {% endif %}
+
+                            </td>
+
+                        </tr>
+
+                    {% else %}
+
+                        <tr>
+
+                            <td colspan="6"
+                                class="text-center text-muted">
+
+                                No assessment data available.
+
+                            </td>
+
+                        </tr>
+
+                    {% endfor %}
+
+                    </tbody>
+
+                </table>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+<!-- =========================================
+     CHART.JS
+     ========================================= -->
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+
+{% if data.assessments %}
+
+<script>
+
+document.addEventListener(
+    "DOMContentLoaded",
+    function () {
+
+        const canvas =
+            document.getElementById(
+                "assessmentChart"
+            );
+
+
+        if (!canvas) {
+            return;
+        }
+
+
+        const labels = [
+
+            {% for item in data.assessments %}
+
+                "Assessment {{ item.AssessmentNo }}"
+
+                {% if not loop.last %},{% endif %}
+
+            {% endfor %}
+
+        ];
+
+
+        const percentages = [
+
+            {% for item in data.assessments %}
+
+                {{ item.Percentage | float }}
+
+                {% if not loop.last %},{% endif %}
+
+            {% endfor %}
+
+        ];
+
+
+        new Chart(
+
+            canvas,
+
+            {
+
+                type: "line",
+
+                data: {
+
+                    labels: labels,
+
+                    datasets: [
+
+                        {
+
+                            label:
+                                "Assessment Performance (%)",
+
+                            data:
+                                percentages,
+
+                            borderWidth: 3,
+
+                            tension: 0.3,
+
+                            fill: false,
+
+                            pointRadius: 5
+
+                        }
+
+                    ]
+
+                },
+
+
+                options: {
+
+                    responsive: true,
+
+                    maintainAspectRatio: false,
+
+                    scales: {
+
+                        y: {
+
+                            beginAtZero: true,
+
+                            max: 100,
+
+                            title: {
+
+                                display: true,
+
+                                text:
+                                    "Percentage"
+
+                            }
+
+                        },
+
+                        x: {
+
+                            title: {
+
+                                display: true,
+
+                                text:
+                                    "Assessment"
+
+                            }
+
+                        }
+
+                    }
+
+                }
+
+            }
+
+        );
+
+    }
+
+);
+
+</script>
+
+{% endif %}
+
+{% endblock %}

@@ -1,5 +1,6 @@
 
 from datetime import datetime, timedelta
+import re
 
 from flask import Blueprint
 from flask import render_template
@@ -9,6 +10,7 @@ from flask import redirect
 from flask import url_for
 from flask import flash
 from services.faculty_dashboard_service import get_dashboard
+from models.data_manager import DataManager
 
 from services.faculty_profile_service import (
     get_faculty_profile,
@@ -46,6 +48,8 @@ from services.performance_service import (
     get_subject_performance_analysis,
     save_remedial_action,
 )
+from services.assessment_marks_service import AssessmentMarksService
+from services.faculty_ai_service import get_faculty_ai_recommendations
 
 faculty = Blueprint(
     "faculty",
@@ -483,6 +487,70 @@ def subject_po_attainment(subject_id):
         "faculty/po_attainment.html",
         subject_id=subject_id,
         rows=rows
+    )
+
+
+@faculty.route("/faculty/ai-recommendations")
+def ai_recommendations():
+    reference_id = session.get("reference_id")
+    data = get_faculty_ai_recommendations(reference_id)
+    return render_template(
+        "faculty/ai_recommendations.html",
+        data=data
+    )
+
+
+@faculty.route("/faculty/subject/<subject_id>/prepare-assessment", methods=["GET", "POST"])
+def prepare_assessment(subject_id):
+    faculty_id = str(session.get("reference_id", "")).strip()
+    assigned = get_faculty_subjects(faculty_id)
+    subject_rows = assigned[assigned["SubjectID"].astype(str).str.strip() == str(subject_id).strip()]
+    if subject_rows.empty:
+        flash("This subject is not assigned to your account.", "warning")
+        return redirect(url_for("faculty.dashboard"))
+
+    subject_key_match = re.search(r"(\d+)", str(subject_id))
+    subject_key = subject_key_match.group(1) if subject_key_match else str(subject_id).strip()
+    marks = DataManager.get("marks")
+    student_ids = []
+    if marks is not None and not marks.empty and {"SubjectID", "StudentID"}.issubset(marks.columns):
+        mark_subject_keys = marks["SubjectID"].astype(str).str.extract(r"(\d+)", expand=False).fillna(
+            marks["SubjectID"].astype(str).str.strip()
+        )
+        student_ids = sorted(
+            marks.loc[mark_subject_keys == subject_key, "StudentID"]
+            .astype(str).str.strip().unique().tolist()
+        )
+
+    students = DataManager.get("students")
+    if students is not None and not students.empty and "StudentID" in students.columns:
+        student_ids = sorted(students["StudentID"].astype(str).str.strip().unique().tolist())
+
+    prepared = []
+    if request.method == "POST":
+        selected_student_ids = request.form.getlist("student_ids")
+        selected_student_ids = [student_id.strip() for student_id in selected_student_ids if student_id.strip()]
+        invalid_ids = [student_id for student_id in selected_student_ids if student_id not in student_ids]
+        if not selected_student_ids or invalid_ids:
+            flash("Select one or more valid students.", "warning")
+        else:
+            prepared = [
+                AssessmentMarksService.prepare_faculty_assessment(
+                    faculty_id, student_id, subject_id
+                )
+                for student_id in selected_student_ids
+            ]
+            prepared = [item for item in prepared if item]
+            if prepared:
+                flash(f"Assessment prepared for {len(prepared)} student(s).", "success")
+            else:
+                flash("No active questions are available for this subject.", "warning")
+
+    return render_template(
+        "faculty/prepare_assessment.html",
+        subject=subject_rows.iloc[0],
+        student_ids=student_ids,
+        prepared=prepared,
     )
 
 

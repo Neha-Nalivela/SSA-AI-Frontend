@@ -1,0 +1,58 @@
+{% extends "faculty_base.html" %}
+
+{% block title %}
+AI Recommendations
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="mb-4">
+        <h2>🤖 AI Recommendations</h2>
+        <small class="text-muted">Personalized support and improvement suggestions for your subjects.</small>
+    </div>
+
+    {% if data.subjects %}
+        {% for subject in data.subjects %}
+            <div class="card shadow-sm mb-4">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <div>
+                            <h4 class="mb-0">📚 {{ subject.subject_name }}</h4>
+                            <small class="text-muted">{{ subject.subject_id }} · {{ subject.student_count }} students</small>
+                        </div>
+                    </div>
+
+                    {% if subject.ai_recommendations %}
+                        <div class="row g-3">
+                            {% for item in subject.ai_recommendations %}
+                                <div class="col-md-6">
+                                    <div class="border rounded p-3 h-100">
+                                        <div class="d-flex justify-content-between align-items-center mb-2">
+                                            <strong>{{ item.Topic }}</strong>
+                                            <span class="badge bg-warning text-dark">{{ item.Priority }}</span>
+                                        </div>
+                                        <p class="mb-2"><strong>Student:</strong> {{ item.StudentID }}</p>
+                                        <p class="mb-2"><strong>Reason:</strong> {{ item.Reason }}</p>
+                                        <p class="mb-2"><strong>Resource:</strong> {{ item.ResourceTitle }}</p>
+                                        {% if item.ResourceURL %}
+                                            <a href="{{ item.ResourceURL }}" target="_blank" rel="noopener noreferrer" class="btn btn-sm btn-primary">Open resource</a>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        <div class="alert alert-light border mb-0">
+                            No AI recommendations are available for this subject yet.
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        {% endfor %}
+    {% else %}
+        <div class="alert alert-info">
+            No subject AI recommendations are available for your assigned courses.
+        </div>
+    {% endif %}
+</div>
+{% endblock %}

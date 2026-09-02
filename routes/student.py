@@ -10,6 +10,7 @@ from services.student_career_service import get_career_recommendations
 from services.student_certification_service import get_certifications
 from services.student_project_service import get_projects
 from services.student_feedback_service import save_feedback
+from services.assessment_marks_service import AssessmentMarksService
 
 student = Blueprint("student", __name__)
 
@@ -120,6 +121,96 @@ def analytics():
         data=data
     )
 
+@student.route("/student/assessments")
+def assessments():
+
+    reference_id = session.get(
+        "reference_id"
+    )
+
+    AssessmentMarksService.sync_generated_assessments(reference_id)
+
+    assessments = (
+        AssessmentMarksService
+        .get_student_assessments(
+            reference_id
+        )
+    )
+
+
+    # =========================================
+    # CALCULATE OVERALL AVERAGE
+    # =========================================
+
+    if assessments:
+
+        average = round(
+            sum(
+                item["Percentage"]
+                for item in assessments
+            )
+            / len(assessments),
+            2
+        )
+
+    else:
+
+        average = 0
+
+
+    # =========================================
+    # CLASSIFY OVERALL PERFORMANCE
+    # =========================================
+
+    if not assessments:
+
+        category = "No Data"
+
+    elif average < 35:
+
+        category = "Weak"
+
+    elif average < 65:
+
+        category = "Average"
+
+    elif average <= 80:
+
+        category = "Above Average"
+
+    else:
+
+        category = "Good"
+
+
+    # =========================================
+    # SEND DATA TO HTML
+    # =========================================
+
+    data = {
+
+        "assessments":
+            assessments,
+
+        "average":
+            average,
+
+        "category":
+            category
+    }
+
+
+    print("================================")
+    print("ASSESSMENT PAGE DATA")
+    print("================================")
+    print(data)
+    print("================================")
+
+
+    return render_template(
+        "student/assessments.html",
+        data=data
+    )
 
 # =========================================================
 # AI RECOMMENDATIONS
@@ -131,11 +222,45 @@ def ai_recommendations():
     reference_id = session.get("reference_id")
 
     data = get_ai_recommendations(reference_id)
+    data["completed_assessments"] = AssessmentMarksService.get_completed_assessments(reference_id)
+    data["pending_assessments"] = AssessmentMarksService.get_pending_assessments(reference_id)
+    data["generated_assessment"] = None
 
     return render_template(
         "student/ai_recommendations.html",
         data=data
     )
+
+
+@student.route("/student/ai-recommendations/generate-assessment", methods=["POST"])
+def generate_ai_assessment():
+    reference_id = session.get("reference_id")
+    subject_id = request.form.get("subject_id") or None
+    generated = AssessmentMarksService.generate_next_assessment(reference_id, subject_id)
+    data = get_ai_recommendations(reference_id)
+    data["completed_assessments"] = AssessmentMarksService.get_completed_assessments(reference_id)
+    data["pending_assessments"] = AssessmentMarksService.get_pending_assessments(reference_id)
+    data["generated_assessment"] = generated
+
+    return render_template(
+        "student/ai_recommendations.html",
+        data=data
+    )
+
+
+@student.route("/student/assessment/<assessment_id>/submit", methods=["POST"])
+def submit_assessment(assessment_id):
+    reference_id = session.get("reference_id")
+    selected_answers = {
+        key: request.form.getlist(key)
+        for key in request.form
+        if key.startswith("question_")
+    }
+    if AssessmentMarksService.submit_assessment(reference_id, assessment_id, selected_answers):
+        flash("Assessment submitted successfully. Your answers are saved for evaluation.", "success")
+    else:
+        flash("Unable to submit this assessment.", "warning")
+    return redirect(url_for("student.ai_recommendations"))
 
 
 # =========================================================

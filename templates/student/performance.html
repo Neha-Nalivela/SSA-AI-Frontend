@@ -66,6 +66,25 @@ My Performance
 
         </div>
 
+        <div class="col-md-4">
+
+            <div class="card shadow-sm">
+
+                <div class="card-body text-center">
+
+                    <h6 class="text-muted">
+                        Overall CGPA
+                    </h6>
+
+                    <h2>
+                        {{ data.cgpa }}
+                    </h2>
+
+                </div>
+
+            </div>
+
+        </div>
 
         <div class="col-md-4">
 
@@ -87,31 +106,7 @@ My Performance
 
         </div>
 
-
-        <div class="col-md-4">
-
-            <div class="card shadow-sm">
-
-                <div class="card-body text-center">
-
-                    <h6 class="text-muted">
-                        Student ID
-                    </h6>
-
-                    <h2>
-                        {{ data.student.StudentID if data.student is not none else "-" }}
-                    </h2>
-
-                </div>
-
-            </div>
-
-        </div>
-
     </div>
-
-
-    <!-- Subject-wise Performance -->
 
     <div class="card shadow-sm">
 
@@ -128,33 +123,29 @@ My Performance
                     <thead class="table-dark">
 
                         <tr>
-
                             <th>Subject ID</th>
-
-                            <th>Marks Obtained</th>
-
+                            <th>Mid-1</th>
+                            <th>Mid-2</th>
+                            <th>End Semester</th>
+                            <th>Overall %</th>
+                            <th>CGPA</th>
                         </tr>
 
                     </thead>
 
                     <tbody>
 
-                        {% if not data.marks.empty %}
+                        {% if data.subject_summary %}
 
-                            {% for row in data.marks.iterrows() %}
-
-                                {% set m = row[1] %}
+                            {% for item in data.subject_summary %}
 
                                 <tr>
-
-                                    <td>
-                                        {{ m.SubjectID }}
-                                    </td>
-
-                                    <td>
-                                        {{ m.MarksObtained }}
-                                    </td>
-
+                                    <td>{{ item.SubjectID }}</td>
+                                    <td>{{ item['Mid-1'] }}</td>
+                                    <td>{{ item['Mid-2'] }}</td>
+                                    <td>{{ item['End Semester'] }}</td>
+                                    <td>{{ item.OverallPercent }}</td>
+                                    <td>{{ item.CGPA }}</td>
                                 </tr>
 
                             {% endfor %}
@@ -162,14 +153,9 @@ My Performance
                         {% else %}
 
                             <tr>
-
-                                <td colspan="2"
-                                    class="text-center text-muted">
-
+                                <td colspan="6" class="text-center text-muted">
                                     No marks available.
-
                                 </td>
-
                             </tr>
 
                         {% endif %}

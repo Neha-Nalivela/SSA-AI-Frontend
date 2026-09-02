@@ -83,7 +83,8 @@ class AssessmentService:
     @staticmethod
     def get_student_marks(
         student_id,
-        subject_id=None
+        subject_id=None,
+        exam_types=None
     ):
 
         marks = DataManager.get(
@@ -97,6 +98,13 @@ class AssessmentService:
             marks["StudentID"].astype(str)
             == str(student_id)
         ].copy()
+
+        if exam_types is not None:
+            exam_types = [str(item).strip() for item in exam_types if str(item).strip()]
+            if exam_types:
+                data = data[
+                    data["ExamType"].astype(str).str.strip().isin(exam_types)
+                ].copy()
 
         if subject_id is not None:
 
@@ -153,12 +161,14 @@ class AssessmentService:
     def get_question_performance(
         cls,
         student_id,
-        subject_id=None
+        subject_id=None,
+        exam_types=None
     ):
 
         marks = cls.get_student_marks(
             student_id,
-            subject_id
+            subject_id,
+            exam_types
         )
 
         question_bank = cls.get_question_bank()
@@ -401,12 +411,14 @@ class AssessmentService:
     def analyze_subject(
         cls,
         student_id,
-        subject_id
+        subject_id,
+        exam_types=None
     ):
 
         records = cls.get_question_performance(
             student_id,
-            subject_id
+            subject_id,
+            exam_types
         )
 
         if not records:
@@ -581,7 +593,8 @@ class AssessmentService:
 
         analysis = cls.analyze_subject(
             student_id,
-            subject_id
+            subject_id,
+            ["Mid-1", "Mid-2"]
         )
 
         question_bank = (
@@ -604,6 +617,20 @@ class AssessmentService:
                 .str.lower()
                 == "active"
             ]
+
+        # Restrict to MCQ-type questions for assessment generation.
+        # If the workbook does not contain MCQ explicitly, fall back to the non-descriptive
+        # objective questions already present in the bank so the generator still works.
+        if "QuestionType" in question_bank.columns:
+            question_bank = question_bank.copy()
+            question_bank["QuestionType"] = question_bank["QuestionType"].astype(str).str.strip()
+            mcq_mask = question_bank["QuestionType"].str.contains("MCQ|Multiple Choice|Objective|Quiz", case=False, na=False)
+            if mcq_mask.any():
+                question_bank = question_bank[mcq_mask]
+            else:
+                question_bank = question_bank[
+                    ~question_bank["QuestionType"].str.contains("Descriptive|Programming|Case Study", case=False, na=False)
+                ]
 
 
         # -----------------------------------------------------

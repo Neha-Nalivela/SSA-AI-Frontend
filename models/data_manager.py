@@ -64,6 +64,8 @@ class DataManager:
             "interests":
                 cls.load_dataset(ACADEMIC_FOLDER,
                                  "14_Interests.xlsx"),
+            "assessments":
+                cls.load_dataset(ACADEMIC_FOLDER,"24_AssessmentMarks.xlsx"),
             # OBE
             "co":
                 cls.load_dataset(OBE_FOLDER,

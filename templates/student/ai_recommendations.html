@@ -1,310 +1,150 @@
 {% extends "student_base.html" %}
 
-{% block title %}
-AI Recommendations
-{% endblock %}
+{% block title %}AI Learning Center{% endblock %}
 
 {% block content %}
-
 <div class="container-fluid">
-
-    <!-- ============================== -->
-    <!-- Header -->
-    <!-- ============================== -->
-
     <div class="mb-4">
-
-        <h2>
-            🤖 AI Recommendations
-        </h2>
-
-        <small class="text-muted">
-            Personalized academic recommendations
-        </small>
-
+        <h2>AI Learning Center</h2>
+        <p class="text-muted">Personalized tutorials and assessments based on your academic performance.</p>
     </div>
 
+    <ul class="nav nav-tabs mb-4" role="tablist">
+        <li class="nav-item" role="presentation">
+            <button class="nav-link active" data-bs-toggle="tab" data-bs-target="#tutorials" type="button">Tutorials</button>
+        </li>
+        <li class="nav-item" role="presentation">
+            <button class="nav-link" data-bs-toggle="tab" data-bs-target="#assessments" type="button">Assessments</button>
+        </li>
+    </ul>
 
-    <!-- ============================== -->
-    <!-- Recommendations -->
-    <!-- ============================== -->
-
-    <div class="row g-4">
-
-        {% if data.recommendations %}
-
-            {% for r in data.recommendations %}
-
+    <div class="tab-content">
+        <section class="tab-pane fade show active" id="tutorials">
+            <div class="row g-4">
+                {% for recommendation in data.recommendations %}
                 <div class="col-md-6">
-
-                    <div class="card shadow-sm h-100">
-
+                    <article class="card shadow-sm h-100">
                         <div class="card-body">
-
-                            <!-- Subject -->
-
-                            {% if r.get("Subject") %}
-
-                                <h5 class="mb-3">
-
-                                    📚 {{ r.get("Subject") }}
-
-                                </h5>
-
-                            {% endif %}
-
-
-                            <!-- Recommendation -->
-
-                            {% if r.get("Recommendation") %}
-
-                                <div class="card shadow-sm h-100">
-
-    <div class="card-body">
-
-        {% if r.get("Subject") %}
-
-            <h5 class="mb-3">
-                📚 {{ r.get("Subject") }}
-            </h5>
-
-        {% endif %}
-
-
-        {% if r.get("Recommendation") %}
-
-            <div class="alert alert-info">
-
-                <strong>
-                    Recommendation:
-                </strong>
-
-                {{ r.get("Recommendation") }}
-
-            </div>
-
-        {% endif %}
-
-
-        {% if r.get("Reason") %}
-
-            <p>
-
-                <strong>
-                    Why this is recommended:
-                </strong>
-
-                {{ r.get("Reason") }}
-
-            </p>
-
-        {% endif %}
-
-
-        {% if r.get("CO") %}
-
-            <p>
-
-                <strong>CO:</strong>
-                {{ r.get("CO") }}
-
-            </p>
-
-        {% endif %}
-
-
-        {% if r.get("BTL") %}
-
-            <p>
-
-                <strong>BTL:</strong>
-                {{ r.get("BTL") }}
-
-            </p>
-
-        {% endif %}
-
-
-        {% if r.get("Marks") is not none %}
-
-            <p>
-
-                <strong>Marks:</strong>
-                {{ r.get("Marks") }}
-
-            </p>
-
-        {% endif %}
-
-
-        {% if r.get("ResourceURL") %}
-
-            <a
-                href="{{ r.get('ResourceURL') }}"
-                target="_blank"
-                rel="noopener noreferrer"
-                class="btn btn-primary btn-sm">
-
-                🔗 View Learning Resource
-
-            </a>
-
-        {% endif %}
-
-    </div>
-
-</div>
-
-                            {% endif %}
-
-
-                            <!-- Reason -->
-
-                            {% if r.get("Reason") %}
-
-                                <p>
-
-                                    <strong>
-                                        Reason:
-                                    </strong>
-
-                                    {{ r.get("Reason") }}
-
-                                </p>
-
-                            {% endif %}
-
-
-                            <!-- Resource -->
-
-                            {% if r.get("Resource") %}
-
-                                <p>
-
-                                    <strong>
-                                        Recommended Resource:
-                                    </strong>
-
-                                    {{ r.get("Resource") }}
-
-                                </p>
-
-                            {% endif %}
-
-
-                            <!-- CO -->
-
-                            {% if r.get("CO") %}
-
-                                <p>
-
-                                    <strong>
-                                        Course Outcome:
-                                    </strong>
-
-                                    {{ r.get("CO") }}
-
-                                </p>
-
-                            {% endif %}
-
-
-                            <!-- BTL -->
-
-                            {% if r.get("BTL") %}
-
-                                <p>
-
-                                    <strong>
-                                        BTL Level:
-                                    </strong>
-
-                                    {{ r.get("BTL") }}
-
-                                </p>
-
-                            {% endif %}
-
-
-                            <!-- Marks -->
-
-                            {% if r.get("Marks") is not none %}
-
-                                <p>
-
-                                    <strong>
-                                        Marks:
-                                    </strong>
-
-                                    {{ r.get("Marks") }}
-
-                                </p>
-
-                            {% endif %}
-
-
-                            <!-- Generic fields -->
-
-                            {% for key, value in r.items() %}
-
-                                {% if key not in [
-                                    "StudentID",
-                                    "Subject",
-                                    "Recommendation",
-                                    "Reason",
-                                    "Resource",
-                                    "CO",
-                                    "BTL",
-                                    "Marks"
-                                ] %}
-
-                                    <p>
-
-                                        <strong>
-                                            {{ key }}:
-                                        </strong>
-
-                                        {{ value }}
-
-                                    </p>
-
-                                {% endif %}
-
-                            {% endfor %}
-
+                            <h5>{{ recommendation.Subject }}</h5>
+                            <p class="text-muted">{{ recommendation.Topic }}</p>
+                            <div class="alert alert-info">{{ recommendation.Recommendation }}</div>
+                            {% if recommendation.Reason %}<p><strong>Why:</strong> {{ recommendation.Reason }}</p>{% endif %}
+                            {% if recommendation.CO %}<p><strong>Course outcome:</strong> {{ recommendation.CO }}</p>{% endif %}
+                            {% if recommendation.BTL %}<p><strong>BTL:</strong> {{ recommendation.BTL }}</p>{% endif %}
+                            <p class="mb-2"><strong>Learning path</strong></p>
+                            <div class="d-flex flex-wrap gap-2">
+                                {% for resource in recommendation.LearningPath %}
+                                <a class="btn btn-outline-primary btn-sm" href="{{ resource.URL }}" target="_blank" rel="noopener noreferrer">{{ resource.Platform }}</a>
+                                {% endfor %}
+                            </div>
                         </div>
+                    </article>
+                </div>
+                {% else %}
+                <div class="col-12"><div class="alert alert-info">No tutorials are available yet.</div></div>
+                {% endfor %}
+            </div>
+        </section>
 
+        <section class="tab-pane fade" id="assessments">
+            {% if data.pending_assessments %}
+            <div class="card shadow-sm mb-4 border-primary">
+                <div class="card-body">
+                    <h5>Assessments to complete</h5>
+                    <p class="text-muted">These assessments were prepared for you by your faculty.</p>
+                    {% for assessment in data.pending_assessments %}
+                    <div class="border rounded p-3 mb-3">
+                        <div class="d-flex justify-content-between">
+                            <strong>{{ assessment.SubjectID }} | Assessment {{ assessment.AssessmentNo }}</strong>
+                            <span class="badge bg-primary">{{ assessment.Status }}</span>
+                        </div>
+                        <form class="mt-3" method="post" action="{{ url_for('student.submit_assessment', assessment_id=assessment.AssessmentID) }}">
+                        <p class="small text-muted mb-2">Select all options that apply.</p>
+                        <ol class="list-group list-group-numbered">
+                        {% for question in assessment.Questions %}
+                            <li class="list-group-item">
+                                <div class="d-flex justify-content-between">
+                                    <strong>{{ question.Question }}</strong>
+                                    <span class="badge bg-light text-dark">{{ question.MaxMarks }} marks</span>
+                                </div>
+                                <div class="mt-2">
+                                {% for option in question.Options %}
+                                    <label class="form-check">
+                                        <input class="form-check-input" type="checkbox" name="question_{{ question.QuestionID }}" value="{{ loop.index0 }}">
+                                        <span class="form-check-label">{{ option }}</span>
+                                    </label>
+                                {% endfor %}
+                                </div>
+                            </li>
+                        {% endfor %}
+                        </ol>
+                        <button class="btn btn-success mt-3" type="submit">Submit assessment</button>
+                        </form>
                     </div>
-
+                    {% endfor %}
                 </div>
-
-            {% endfor %}
-
-        {% else %}
-
-            <div class="col-12">
-
-                <div class="alert alert-info">
-
-                    <h5>
-                        No AI recommendations available
-                    </h5>
-
-                    <p class="mb-0">
-
-                        AI recommendations will appear here
-                        after your academic performance is analyzed.
-
-                    </p>
-
+            </div>
+            {% endif %}
+            <div class="card shadow-sm mb-4">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <div>
+                            <h5 class="mb-1">Completed assessments</h5>
+                            <small class="text-muted">Your previous results guide the next assessment.</small>
+                        </div>
+                        <form method="post" action="{{ url_for('student.generate_ai_assessment') }}">
+                            <button class="btn btn-primary" type="submit">Generate new assessment</button>
+                        </form>
+                    </div>
+                    <div class="table-responsive">
+                        <table class="table table-hover mb-0">
+                            <thead><tr><th>Assessment</th><th>Subject</th><th>Marks</th><th>Percentage</th><th>Performance</th></tr></thead>
+                            <tbody>
+                            {% for assessment in data.completed_assessments %}
+                            <tr>
+                                <td>{{ assessment.AssessmentNo }}</td>
+                                <td>{{ assessment.SubjectID }}</td>
+                                <td>{{ assessment.MarksObtained }} / {{ assessment.MaxMarks }}</td>
+                                <td>{{ assessment.Percentage }}%</td>
+                                <td>{{ assessment.Category }}</td>
+                            </tr>
+                            {% else %}
+                            <tr><td colspan="5" class="text-muted text-center">No completed assessments available.</td></tr>
+                            {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
-
             </div>
 
-        {% endif %}
-
+            {% if data.generated_assessment %}
+            <div class="card shadow-sm">
+                <div class="card-body">
+                    <h5>New assessment: {{ data.generated_assessment.SubjectID }}</h5>
+                    <p class="text-muted">Generated from performance in {{ data.generated_assessment.BasedOnAssessments }} previous assessment(s). Answer these MCQ/objective questions before generating another.</p>
+                    <p class="small text-muted mt-3 mb-2">Select all options that apply.</p>
+                    <ol class="list-group list-group-numbered">
+                    {% for question in data.generated_assessment.Questions %}
+                        <li class="list-group-item">
+                            <div class="d-flex justify-content-between">
+                                <strong>{{ question.Question }}</strong>
+                                <span class="badge bg-light text-dark">{{ question.MaxMarks }} marks</span>
+                            </div>
+                            <div class="mt-2">
+                            {% for option in question.Options %}
+                                <label class="form-check">
+                                    <input class="form-check-input" type="checkbox" name="question_{{ question.QuestionID }}" value="{{ loop.index0 }}">
+                                    <span class="form-check-label">{{ option }}</span>
+                                </label>
+                            {% endfor %}
+                            </div>
+                        </li>
+                    {% endfor %}
+                    </ol>
+                </div>
+            </div>
+            {% endif %}
+        </section>
     </div>
-
 </div>
-
 {% endblock %}

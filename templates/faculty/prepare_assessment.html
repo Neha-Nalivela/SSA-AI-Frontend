@@ -1,0 +1,33 @@
+{% extends "faculty_base.html" %}
+
+{% block title %}Prepare Assessment{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="mb-4">
+        <h2>Prepare Assessment</h2>
+        <p class="text-muted">{{ subject.SubjectName }} ({{ subject.SubjectID }})</p>
+    </div>
+
+    <div class="card shadow-sm" style="max-width: 720px;">
+        <div class="card-body">
+            <h5 class="mb-3">Assign question-bank assessment</h5>
+            <p class="text-muted">Select one or more students. Each selected student receives this as their first assessment, using only active questions from this subject's question bank.</p>
+            <form method="post">
+                <label class="form-label" for="student_ids">Students</label>
+                <select class="form-select mb-3" id="student_ids" name="student_ids" multiple size="10" required>
+                    {% for student_id in student_ids %}
+                    <option value="{{ student_id }}">{{ student_id }}</option>
+                    {% endfor %}
+                </select>
+                <button class="btn btn-primary" type="submit">Prepare and send to selected students</button>
+            </form>
+            {% if prepared %}
+            <div class="alert alert-success mt-4 mb-0">
+                Assessment prepared for {{ prepared | length }} student(s) from the question bank.
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}
