@@ -1,6 +1,7 @@
 import os
 import json
 import re
+from datetime import datetime, timezone
 
 import pandas as pd
 
@@ -9,6 +10,10 @@ from models.data_manager import DataManager
 
 
 class AssessmentMarksService:
+
+    @staticmethod
+    def _now():
+        return datetime.now(timezone.utc).isoformat()
 
     @staticmethod
     def _assessment_file_path():
@@ -33,7 +38,7 @@ class AssessmentMarksService:
         return f"AI_{student_id}_{subject_id}_{count}"
 
     @staticmethod
-    def _question_bank_items(subject_id, number_of_questions):
+    def _question_bank_items(subject_id, number_of_questions, topic=None):
         question_bank = DataManager.get("question_bank")
         if question_bank is None or question_bank.empty or "SubjectID" not in question_bank.columns:
             return []
@@ -44,6 +49,8 @@ class AssessmentMarksService:
             data["SubjectID"].astype(str).str.strip()
         )
         data = data[question_subject_keys == subject_key]
+        if topic:
+            data = data[data["Topic"].astype(str).str.strip().str.lower() == str(topic).strip().lower()] if "Topic" in data.columns else data.iloc[0:0]
         if "Status" in data.columns:
             active = data[data["Status"].astype(str).str.strip().str.lower() == "active"]
             if not active.empty:
@@ -61,6 +68,7 @@ class AssessmentMarksService:
                     data = objective_fallback
         questions = data.head(number_of_questions).to_dict(orient="records")
         option_columns = ["OptionA", "OptionB", "OptionC", "OptionD"]
+        answer_columns = ["CorrectAnswer", "Answer", "AnswerKey"]
         for question in questions:
             options = [
                 str(question[column]).strip()
@@ -68,14 +76,32 @@ class AssessmentMarksService:
                 if column in question and pd.notna(question[column]) and str(question[column]).strip()
             ]
             question["Options"] = options or ["Option A", "Option B", "Option C", "Option D"]
+            for column in answer_columns:
+                if column in question and pd.notna(question[column]) and str(question[column]).strip():
+                    question["CorrectAnswer"] = str(question[column]).strip()
+                    break
         return questions
 
     @classmethod
-    def prepare_faculty_assessment(cls, faculty_id, student_id, subject_id, number_of_questions=10):
+    def get_subject_topics(cls, subject_id):
+        question_bank = DataManager.get("question_bank")
+        if question_bank is None or question_bank.empty or "Topic" not in question_bank.columns:
+            return []
+        subject_key = re.search(r"(\d+)", str(subject_id))
+        subject_key = subject_key.group(1) if subject_key else str(subject_id).strip()
+        keys = question_bank["SubjectID"].astype(str).str.extract(r"(\d+)", expand=False).fillna(
+            question_bank["SubjectID"].astype(str).str.strip()
+        )
+        return sorted(question_bank.loc[keys == subject_key, "Topic"].dropna().astype(str).str.strip().unique().tolist())
+
+    @classmethod
+    def prepare_faculty_assessment(cls, faculty_id, student_id, subject_id, number_of_questions=10, topic=None):
         """Create a pending assessment using only the assigned subject's question bank."""
         from services.assessment_service import AssessmentService
 
-        questions = cls._question_bank_items(subject_id, number_of_questions)
+        questions = cls._question_bank_items(subject_id, number_of_questions, topic)
+        if not questions and topic:
+            questions = cls._question_bank_items(subject_id, number_of_questions)
         if not questions:
             return None
 
@@ -99,6 +125,8 @@ class AssessmentMarksService:
             "PreparedBy": str(faculty_id),
             "AssessmentQuestions": json.dumps(questions, default=str),
             "Source": "faculty_question_bank",
+            "CreatedAt": cls._now(),
+            "SubmittedAt": "",
         }
         row["Questions"] = questions
         assessments = pd.concat([assessments, pd.DataFrame([row])], ignore_index=True)
@@ -258,12 +286,56 @@ class AssessmentMarksService:
             )
             subject_id = str((subject_scores["obtained"] / subject_scores["maximum"]).idxmin())
 
-        questions = cls._question_bank_items(subject_id, number_of_questions)
+        topic = None
+        marks = DataManager.get("marks")
+        question_bank = DataManager.get("question_bank")
+        if marks is not None and question_bank is not None and not marks.empty and not question_bank.empty:
+            mid_marks = marks[
+                (marks["StudentID"].astype(str).str.strip() == str(student_id).strip())
+                & marks["ExamType"].astype(str).str.strip().isin(["Mid-1", "Mid-2"])
+            ]
+            if not mid_marks.empty and "QuestionID" in mid_marks.columns and "QuestionID" in question_bank.columns and "Topic" in question_bank.columns:
+                joined = mid_marks.merge(question_bank[["QuestionID", "Topic"]], on="QuestionID", how="inner")
+                if not joined.empty:
+                    joined["MarksObtained"] = pd.to_numeric(joined["MarksObtained"], errors="coerce").fillna(0)
+                    joined["MaxMarks"] = pd.to_numeric(joined["MaxMarks"], errors="coerce").fillna(0)
+                    topic_scores = joined.groupby("Topic")["MarksObtained"].sum() / joined.groupby("Topic")["MaxMarks"].sum()
+                    if not topic_scores.empty:
+                        topic = str(topic_scores.idxmin())
+        questions = cls._question_bank_items(subject_id, number_of_questions, topic)
+        if not questions and topic:
+            questions = cls._question_bank_items(subject_id, number_of_questions)
         if not questions:
             return None
 
-        next_number = len([item for item in completed if str(item["SubjectID"]) == str(subject_id)]) + 1
+        existing_assessments = cls.get_student_assessments(student_id)
+        next_number = len([
+            item for item in existing_assessments
+            if str(item["SubjectID"]) == str(subject_id)
+        ]) + 1
+        assessment_id = f"AI_{student_id}_{subject_id}_{next_number}"
+        assessments = cls._ensure_assessment_df()
+        row = {
+            "AssessmentID": assessment_id,
+            "StudentID": str(student_id).strip(),
+            "SubjectID": str(subject_id).strip(),
+            "AssessmentNo": next_number,
+            "MaxMarks": sum(float(item.get("MaxMarks", 0) or 0) for item in questions),
+            "MarksObtained": 0,
+            "Status": "Pending",
+            "PreparedBy": "AI",
+            "AssessmentQuestions": json.dumps(questions, default=str),
+            "Source": "student_question_bank",
+            "CreatedAt": cls._now(),
+            "SubmittedAt": "",
+        }
+        assessments = pd.concat([assessments, pd.DataFrame([row])], ignore_index=True)
+        file_path = cls._assessment_file_path()
+        os.makedirs(os.path.dirname(file_path), exist_ok=True)
+        assessments.to_excel(file_path, index=False)
+        DataManager.datasets["assessments"] = assessments
         return {
+            "AssessmentID": assessment_id,
             "SubjectID": str(subject_id),
             "AssessmentNo": next_number,
             "Questions": questions,
@@ -405,6 +477,10 @@ class AssessmentMarksService:
 
                 ,"Questions": cls._decode_questions(row.get("AssessmentQuestions", ""))
 
+                ,"SelectedAnswers": cls._decode_json(row.get("SelectedAnswers", ""))
+
+                ,"Evaluation": cls._decode_json(row.get("Evaluation", ""))
+
             })
 
         return results
@@ -418,18 +494,27 @@ class AssessmentMarksService:
         except (TypeError, ValueError):
             return []
 
+    @staticmethod
+    def _decode_json(value):
+        if not value or not isinstance(value, str):
+            return {}
+        try:
+            return json.loads(value)
+        except (TypeError, ValueError):
+            return {}
+
     @classmethod
     def get_completed_assessments(cls, student_id):
         return [
             item for item in cls.get_student_assessments(student_id)
-            if str(item.get("Status", "Completed")).strip().lower() == "completed"
+            if str(item.get("Status", "Completed")).strip().lower() in {"completed", "submitted"}
         ]
 
     @classmethod
     def get_pending_assessments(cls, student_id):
         return [
             item for item in cls.get_student_assessments(student_id)
-            if str(item.get("Status", "Completed")).strip().lower() in {"pending", "submitted"}
+            if str(item.get("Status", "Completed")).strip().lower() == "pending"
         ]
 
     @classmethod
@@ -445,12 +530,46 @@ class AssessmentMarksService:
         if not match.any():
             return False
         index = assessments.index[match][0]
+        questions = cls._decode_questions(assessments.loc[index].get("AssessmentQuestions", ""))
+        evaluation = cls._evaluate_answers(questions, selected_answers)
         assessments.loc[index, "SelectedAnswers"] = json.dumps(selected_answers)
         assessments.loc[index, "Status"] = "Submitted"
+        assessments.loc[index, "SubmittedAt"] = cls._now()
+        if evaluation["Evaluated"]:
+            assessments.loc[index, "MarksObtained"] = evaluation["MarksObtained"]
+            assessments.loc[index, "Evaluation"] = json.dumps(evaluation)
         file_path = cls._assessment_file_path()
         assessments.to_excel(file_path, index=False)
         DataManager.datasets["assessments"] = assessments
+        from services.assessment_report_service import AssessmentReportService
+        AssessmentReportService.generate_weekly_reports()
         return True
+
+    @staticmethod
+    def _evaluate_answers(questions, selected_answers):
+        if not questions or not all(question.get("CorrectAnswer") for question in questions):
+            return {"Evaluated": False, "Reason": "Answer key is not available."}
+        marks = 0.0
+        correct = 0
+        for question in questions:
+            question_id = str(question.get("QuestionID", ""))
+            selected = selected_answers.get(f"question_{question_id}", [])
+            expected = str(question["CorrectAnswer"]).strip().lower()
+            expected_values = {expected}
+            try:
+                expected_values.add(str(int(float(expected))))
+            except ValueError:
+                pass
+            if any(str(value).strip().lower() in expected_values for value in selected):
+                correct += 1
+                marks += float(question.get("MaxMarks", 0) or 0)
+        return {
+            "Evaluated": True,
+            "CorrectAnswers": correct,
+            "TotalQuestions": len(questions),
+            "MarksObtained": round(marks, 2),
+            "MaxMarks": round(sum(float(question.get("MaxMarks", 0) or 0) for question in questions), 2),
+        }
 
 
     @classmethod

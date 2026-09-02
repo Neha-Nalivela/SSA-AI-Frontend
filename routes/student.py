@@ -1,4 +1,5 @@
-from flask import Blueprint, render_template, request, session, redirect, url_for, flash
+from flask import Blueprint, render_template, request, session, redirect, url_for, flash, send_file
+import os
 from services.student_performance_service import get_performance, get_analytics
 from services.student_ai_service import get_ai_recommendations
 from services.student_dashboard_service import get_dashboard
@@ -11,6 +12,7 @@ from services.student_certification_service import get_certifications
 from services.student_project_service import get_projects
 from services.student_feedback_service import save_feedback
 from services.assessment_marks_service import AssessmentMarksService
+from services.assessment_report_service import AssessmentReportService
 
 student = Blueprint("student", __name__)
 
@@ -123,94 +125,7 @@ def analytics():
 
 @student.route("/student/assessments")
 def assessments():
-
-    reference_id = session.get(
-        "reference_id"
-    )
-
-    AssessmentMarksService.sync_generated_assessments(reference_id)
-
-    assessments = (
-        AssessmentMarksService
-        .get_student_assessments(
-            reference_id
-        )
-    )
-
-
-    # =========================================
-    # CALCULATE OVERALL AVERAGE
-    # =========================================
-
-    if assessments:
-
-        average = round(
-            sum(
-                item["Percentage"]
-                for item in assessments
-            )
-            / len(assessments),
-            2
-        )
-
-    else:
-
-        average = 0
-
-
-    # =========================================
-    # CLASSIFY OVERALL PERFORMANCE
-    # =========================================
-
-    if not assessments:
-
-        category = "No Data"
-
-    elif average < 35:
-
-        category = "Weak"
-
-    elif average < 65:
-
-        category = "Average"
-
-    elif average <= 80:
-
-        category = "Above Average"
-
-    else:
-
-        category = "Good"
-
-
-    # =========================================
-    # SEND DATA TO HTML
-    # =========================================
-
-    data = {
-
-        "assessments":
-            assessments,
-
-        "average":
-            average,
-
-        "category":
-            category
-    }
-
-
-    print("================================")
-    print("ASSESSMENT PAGE DATA")
-    print("================================")
-    print(data)
-    print("================================")
-
-
-    return render_template(
-        "student/assessments.html",
-        data=data
-    )
+    return redirect(url_for("student.ai_recommendations"))
 
 # =========================================================
 # AI RECOMMENDATIONS
@@ -261,6 +176,29 @@ def submit_assessment(assessment_id):
     else:
         flash("Unable to submit this assessment.", "warning")
     return redirect(url_for("student.ai_recommendations"))
+
+
+@student.route("/student/assessment-reports")
+def assessment_reports():
+    reference_id = session.get("reference_id")
+    reports = AssessmentReportService.get_student_weekly_reports(reference_id)
+    return render_template("student/assessment_reports.html", reports=reports)
+
+
+@student.route("/student/assessment-reports/download")
+def download_assessment_report():
+    reference_id = session.get("reference_id")
+    AssessmentReportService.get_student_weekly_reports(reference_id)
+    report_path = AssessmentReportService._report_file_path()
+    if not os.path.exists(report_path):
+        flash("No assessment report is available for the last seven days.", "warning")
+        return redirect(url_for("student.assessment_reports"))
+    return send_file(
+        report_path,
+        as_attachment=True,
+        download_name=f"weekly_assessment_report_{reference_id}.xlsx",
+        mimetype="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+    )
 
 
 # =========================================================

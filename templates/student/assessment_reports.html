@@ -1,0 +1,41 @@
+{% extends "student_base.html" %}
+
+{% block title %}Weekly Assessment Reports{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="mb-4">
+        <h2>Weekly Assessment Reports</h2>
+        <p class="text-muted">Assessment activity from the last seven days.</p>
+        <a class="btn btn-outline-primary" href="{{ url_for('student.download_assessment_report') }}">Download report</a>
+    </div>
+    <div class="table-responsive card shadow-sm">
+        <table class="table table-hover mb-0">
+            <thead class="table-dark">
+                <tr>
+                    <th>Subject</th>
+                    <th>Period</th>
+                    <th>Assessments</th>
+                    <th>Completed</th>
+                    <th>Marks</th>
+                    <th>Average</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for report in reports %}
+                <tr>
+                    <td>{{ report.SubjectID }}</td>
+                    <td>{{ report.PeriodStart }} to {{ report.PeriodEnd }}</td>
+                    <td>{{ report.AssessmentCount }}</td>
+                    <td>{{ report.CompletedCount }}</td>
+                    <td>{{ report.TotalMarks }} / {{ report.TotalMaxMarks }}</td>
+                    <td>{{ report.AveragePercentage }}%</td>
+                </tr>
+                {% else %}
+                <tr><td colspan="6" class="text-center text-muted py-4">No assessment activity in the last seven days.</td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

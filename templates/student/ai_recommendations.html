@@ -67,6 +67,7 @@
                                     <strong>{{ question.Question }}</strong>
                                     <span class="badge bg-light text-dark">{{ question.MaxMarks }} marks</span>
                                 </div>
+                                {% if question.Topic %}<small class="text-muted">Topic: {{ question.Topic }}</small>{% endif %}
                                 <div class="mt-2">
                                 {% for option in question.Options %}
                                     <label class="form-check">
@@ -114,6 +115,23 @@
                             </tbody>
                         </table>
                     </div>
+                    {% for assessment in data.completed_assessments if assessment.Status == 'Submitted' and assessment.Questions %}
+                    <div class="border-top mt-4 pt-3">
+                        <h6>{{ assessment.SubjectID }} | Assessment {{ assessment.AssessmentNo }} feedback</h6>
+                        {% if assessment.Evaluation.Evaluated %}
+                        <p class="text-success"><strong>Score:</strong> {{ assessment.Evaluation.MarksObtained }} / {{ assessment.Evaluation.MaxMarks }} ({{ assessment.Evaluation.CorrectAnswers }} correct)</p>
+                        {% else %}
+                        <p class="text-muted">Submitted successfully. Evaluation is unavailable because this question bank has no answer key.</p>
+                        {% endif %}
+                        {% for question in assessment.Questions %}
+                        <div class="small mb-2">
+                            <strong>{{ question.Question }}</strong><br>
+                            Your answer: {{ assessment.SelectedAnswers.get('question_' ~ question.QuestionID, []) | join(', ') or 'Not answered' }}
+                            {% if question.CorrectAnswer %}<br><span class="text-success">Correct answer: {{ question.CorrectAnswer }}</span>{% endif %}
+                        </div>
+                        {% endfor %}
+                    </div>
+                    {% endfor %}
                 </div>
             </div>
 
@@ -121,7 +139,8 @@
             <div class="card shadow-sm">
                 <div class="card-body">
                     <h5>New assessment: {{ data.generated_assessment.SubjectID }}</h5>
-                    <p class="text-muted">Generated from performance in {{ data.generated_assessment.BasedOnAssessments }} previous assessment(s). Answer these MCQ/objective questions before generating another.</p>
+                    <p class="text-muted">Generated from performance in {{ data.generated_assessment.BasedOnAssessments }} previous assessment(s). Select all answers that apply and submit your responses.</p>
+                    <form method="post" action="{{ url_for('student.submit_assessment', assessment_id=data.generated_assessment.AssessmentID) }}">
                     <p class="small text-muted mt-3 mb-2">Select all options that apply.</p>
                     <ol class="list-group list-group-numbered">
                     {% for question in data.generated_assessment.Questions %}
@@ -130,6 +149,7 @@
                                 <strong>{{ question.Question }}</strong>
                                 <span class="badge bg-light text-dark">{{ question.MaxMarks }} marks</span>
                             </div>
+                            {% if question.Topic %}<small class="text-muted">Topic: {{ question.Topic }}</small>{% endif %}
                             <div class="mt-2">
                             {% for option in question.Options %}
                                 <label class="form-check">
@@ -141,10 +161,20 @@
                         </li>
                     {% endfor %}
                     </ol>
+                    <button class="btn btn-success mt-3" type="submit">Submit assessment</button>
+                    </form>
                 </div>
             </div>
             {% endif %}
         </section>
     </div>
 </div>
+<script>
+    if (window.location.hash === '#assessments') {
+        const assessmentsTab = document.querySelector('[data-bs-target="#assessments"]');
+        if (assessmentsTab) {
+            bootstrap.Tab.getOrCreateInstance(assessmentsTab).show();
+        }
+    }
+</script>
 {% endblock %}

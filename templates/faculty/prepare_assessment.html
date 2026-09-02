@@ -20,6 +20,11 @@
                     <option value="{{ student_id }}">{{ student_id }}</option>
                     {% endfor %}
                 </select>
+                <label class="form-label" for="topic">Topic</label>
+                <select class="form-select mb-3" id="topic" name="topic">
+                    <option value="">All topics</option>
+                    {% for topic in topics %}<option value="{{ topic }}">{{ topic }}</option>{% endfor %}
+                </select>
                 <button class="btn btn-primary" type="submit">Prepare and send to selected students</button>
             </form>
             {% if prepared %}

@@ -529,6 +529,7 @@ def prepare_assessment(subject_id):
     prepared = []
     if request.method == "POST":
         selected_student_ids = request.form.getlist("student_ids")
+        topic = request.form.get("topic", "").strip() or None
         selected_student_ids = [student_id.strip() for student_id in selected_student_ids if student_id.strip()]
         invalid_ids = [student_id for student_id in selected_student_ids if student_id not in student_ids]
         if not selected_student_ids or invalid_ids:
@@ -537,6 +538,7 @@ def prepare_assessment(subject_id):
             prepared = [
                 AssessmentMarksService.prepare_faculty_assessment(
                     faculty_id, student_id, subject_id
+                    , topic=topic
                 )
                 for student_id in selected_student_ids
             ]
@@ -550,6 +552,7 @@ def prepare_assessment(subject_id):
         "faculty/prepare_assessment.html",
         subject=subject_rows.iloc[0],
         student_ids=student_ids,
+        topics=AssessmentMarksService.get_subject_topics(subject_id),
         prepared=prepared,
     )
 
