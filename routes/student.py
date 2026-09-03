@@ -12,6 +12,7 @@ from services.student_certification_service import get_certifications
 from services.student_project_service import get_projects
 from services.student_feedback_service import save_feedback
 from services.feedback_question_service import FeedbackQuestionService
+from services.student_subject_service import get_subjects as get_registered_subjects
 from services.assessment_marks_service import AssessmentMarksService
 from services.assessment_report_service import AssessmentReportService
 
@@ -264,13 +265,23 @@ def projects():
 def feedback():
 
     reference_id = session.get("reference_id")
+    questions = FeedbackQuestionService.get_questions(active_only=True)
+    registered_subjects = get_registered_subjects(reference_id)
+    subjects = (
+        registered_subjects.fillna("").to_dict(orient="records")
+        if registered_subjects is not None else []
+    )
 
     if request.method == "POST":
-
-        success = save_feedback(
-            reference_id,
-            request.form
-        )
+        if questions:
+            success = FeedbackQuestionService.save_responses(
+                reference_id,
+                request.form,
+                questions,
+                subjects
+            )
+        else:
+            success = save_feedback(reference_id, request.form)
 
         if success:
 
@@ -292,5 +303,6 @@ def feedback():
 
     return render_template(
         "student/feedback.html",
-        questions=FeedbackQuestionService.get_questions(active_only=True)
+        questions=questions,
+        subjects=subjects
     )

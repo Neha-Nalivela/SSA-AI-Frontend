@@ -1,44 +1,34 @@
 {% extends "student_base.html" %}
 
-{% block title %}
-Feedback
-{% endblock %}
+{% block title %}Feedback{% endblock %}
 
 {% block content %}
-
 <div class="container-fluid">
-
     <div class="mb-4">
-
-        <h2>
-            Feedback
-        </h2>
-
-        <small class="text-muted">
-            Share your feedback with the institution.
-        </small>
-
+        <h2>Feedback</h2>
+        <small class="text-muted">Answer the feedback questions for each registered subject.</small>
     </div>
 
+    {% if subjects and questions %}
     <div class="card shadow-sm">
-
         <div class="card-body">
+            <div class="progress mb-4" role="progressbar" aria-label="Feedback progress">
+                <div id="feedbackProgress" class="progress-bar" style="width: 0%"></div>
+            </div>
 
-            <form
-                method="POST"
-                action="{{ url_for('student.feedback') }}">
-
-                <div class="mb-3">
-
-                    {% if questions %}
-                    <label class="form-label">Faculty feedback questions</label>
+            <form method="POST" action="{{ url_for('student.feedback') }}" id="feedbackForm">
+                {% for subject in subjects %}
+                    {% set subject_number = loop.index %}
                     {% for question in questions %}
-                    <div class="mb-3">
-                        <label class="form-label">{{ question.QuestionText }}</label>
+                    <section class="feedback-step d-none" data-subject="{{ subject.SubjectID }}">
+                        <p class="text-muted mb-1">Subject {{ subject_number }} of {{ subjects|length }}</p>
+                        <h4>{{ subject.SubjectCode }} - {{ subject.SubjectName }}</h4>
+                        <p class="small text-muted">Question {{ loop.index }} of {{ questions|length }}</p>
+                        <label class="form-label fw-semibold" for="Question_{{ subject.SubjectID }}_{{ question.QuestionID }}">{{ question.QuestionText }}</label>
                         {% if question.QuestionType == "Text" %}
-                        <textarea name="Question_{{ question.QuestionID }}" class="form-control" rows="3" required></textarea>
+                        <textarea id="Question_{{ subject.SubjectID }}_{{ question.QuestionID }}" name="Question_{{ subject.SubjectID }}_{{ question.QuestionID }}" class="form-control" rows="4" required></textarea>
                         {% else %}
-                        <select name="Question_{{ question.QuestionID }}" class="form-select" required>
+                        <select id="Question_{{ subject.SubjectID }}_{{ question.QuestionID }}" name="Question_{{ subject.SubjectID }}_{{ question.QuestionID }}" class="form-select" required>
                             <option value="">Select rating</option>
                             <option value="5">5 - Excellent</option>
                             <option value="4">4 - Very Good</option>
@@ -47,131 +37,59 @@ Feedback
                             <option value="1">1 - Poor</option>
                         </select>
                         {% endif %}
-                    </div>
+                        <button type="button" class="btn btn-primary mt-4 next-question">Next</button>
+                    </section>
                     {% endfor %}
-                    {% endif %}
+                {% endfor %}
 
+                <div id="feedbackDone" class="d-none text-center">
+                    <h4>All subjects completed</h4>
+                    <p class="text-muted">Click Done to submit your feedback.</p>
+                    <button type="submit" class="btn btn-success">Done</button>
                 </div>
-
-                <div class="mb-3">
-
-                    <label class="form-label">
-                        Feedback Type
-                    </label>
-
-                    <select
-                        name="FeedbackType"
-                        class="form-select"
-                        required>
-
-                        <option value="">
-                            Select Type
-                        </option>
-
-                        <option>
-                            Course
-                        </option>
-
-                        <option>
-                            Faculty
-                        </option>
-
-                        <option>
-                            Academic System
-                        </option>
-
-                        <option>
-                            General
-                        </option>
-
-                    </select>
-
-                </div>
-
-
-                <div class="mb-3">
-
-                    <label class="form-label">
-                        Subject
-                    </label>
-
-                    <input
-                        type="text"
-                        name="Subject"
-                        class="form-control">
-
-                </div>
-
-
-                <div class="mb-3">
-
-                    <label class="form-label">
-                        Rating
-                    </label>
-
-                    <select
-                        name="Rating"
-                        class="form-select"
-                        required>
-
-                        <option value="">
-                            Select Rating
-                        </option>
-
-                        <option value="5">
-                            5 - Excellent
-                        </option>
-
-                        <option value="4">
-                            4 - Very Good
-                        </option>
-
-                        <option value="3">
-                            3 - Good
-                        </option>
-
-                        <option value="2">
-                            2 - Needs Improvement
-                        </option>
-
-                        <option value="1">
-                            1 - Poor
-                        </option>
-
-                    </select>
-
-                </div>
-
-
-                <div class="mb-3">
-
-                    <label class="form-label">
-                        Comments
-                    </label>
-
-                    <textarea
-                        name="Comments"
-                        class="form-control"
-                        rows="5"
-                        required></textarea>
-
-                </div>
-
-
-                <button
-                    type="submit"
-                    class="btn btn-primary">
-
-                    Submit Feedback
-
-                </button>
-
             </form>
-
         </div>
-
     </div>
-
+    {% elif not subjects %}
+    <div class="alert alert-info">No registered subjects are available for feedback.</div>
+    {% else %}
+    <div class="alert alert-info">No feedback questions are available yet.</div>
+    {% endif %}
 </div>
 
+{% if subjects and questions %}
+<script>
+    (() => {
+        const steps = Array.from(document.querySelectorAll(".feedback-step"));
+        const done = document.getElementById("feedbackDone");
+        const progress = document.getElementById("feedbackProgress");
+        let current = 0;
+
+        const showStep = (index) => {
+            steps.forEach((step, stepIndex) => step.classList.toggle("d-none", stepIndex !== index));
+            const percentage = Math.round((index / steps.length) * 100);
+            progress.style.width = `${percentage}%`;
+            progress.textContent = `${index} / ${steps.length}`;
+        };
+
+        steps.forEach((step, index) => {
+            step.querySelector(".next-question").addEventListener("click", () => {
+                const field = step.querySelector("[required]");
+                if (!field.reportValidity()) return;
+                current = index + 1;
+                if (current < steps.length) {
+                    showStep(current);
+                } else {
+                    steps.forEach((item) => item.classList.add("d-none"));
+                    done.classList.remove("d-none");
+                    progress.style.width = "100%";
+                    progress.textContent = `${steps.length} / ${steps.length}`;
+                }
+            });
+        });
+
+        showStep(0);
+    })();
+</script>
+{% endif %}
 {% endblock %}
