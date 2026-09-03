@@ -121,6 +121,18 @@ Faculty Dashboard
                 📅 Attendance
             </a>
         </div>
+        <div class="col-lg-3">
+            <a href="{{ url_for('faculty.feedback_analytics') }}"
+               class="btn btn-info w-100 py-3">
+                📊 Feedback Analytics
+            </a>
+        </div>
+        <div class="col-lg-3">
+            <a href="{{ url_for('faculty.feedback_questions') }}"
+               class="btn btn-secondary w-100 py-3">
+                📝 Feedback Questions
+            </a>
+        </div>
     </div>
 </div>
 {% endblock %}

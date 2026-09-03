@@ -50,6 +50,8 @@ from services.performance_service import (
 )
 from services.assessment_marks_service import AssessmentMarksService
 from services.faculty_ai_service import get_faculty_ai_recommendations
+from services.student_feedback_service import get_all_feedback, get_feedback_analytics
+from services.feedback_question_service import FeedbackQuestionService
 
 faculty = Blueprint(
     "faculty",
@@ -70,6 +72,47 @@ def dashboard():
 
         data=data
 
+    )
+
+
+@faculty.route("/faculty/feedback")
+def feedback():
+
+    feedback_data = get_all_feedback()
+
+    return render_template(
+        "faculty/feedback.html",
+        feedback=feedback_data
+    )
+
+
+@faculty.route("/faculty/feedback/analytics")
+def feedback_analytics():
+    subject_id = request.args.get("subject_id", "").strip()
+    return render_template(
+        "faculty/feedback_analytics.html",
+        analytics=get_feedback_analytics(subject_id),
+        selected_subject=subject_id
+    )
+
+
+@faculty.route("/faculty/feedback/questions", methods=["GET", "POST"])
+def feedback_questions():
+    if request.method == "POST":
+        saved = FeedbackQuestionService.add_question(
+            session.get("reference_id"),
+            request.form.get("QuestionText"),
+            request.form.get("QuestionType")
+        )
+        flash(
+            "Feedback question added successfully." if saved else "Unable to add feedback question.",
+            "success" if saved else "danger"
+        )
+        return redirect(url_for("faculty.feedback_questions"))
+
+    return render_template(
+        "faculty/feedback_questions.html",
+        questions=FeedbackQuestionService.get_questions()
     )
 
 
@@ -478,6 +521,16 @@ def subject_co_attainment(subject_id):
     )
 
 
+@faculty.route("/faculty/po-attainment")
+def po_attainment_index():
+    reference_id = session.get("reference_id")
+    subjects = get_faculty_subjects(reference_id)
+    return render_template(
+        "faculty/po_attainment_index.html",
+        subjects=subjects
+    )
+
+
 @faculty.route("/faculty/subject/<subject_id>/po-attainment")
 def subject_po_attainment(subject_id):
     reference_id = session.get("reference_id")
@@ -497,6 +550,16 @@ def ai_recommendations():
     return render_template(
         "faculty/ai_recommendations.html",
         data=data
+    )
+
+
+@faculty.route("/faculty/assessments")
+def assessments():
+    reference_id = session.get("reference_id")
+    subjects = get_faculty_subjects(reference_id)
+    return render_template(
+        "faculty/assessments.html",
+        subjects=subjects
     )
 
 

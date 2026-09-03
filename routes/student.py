@@ -11,6 +11,7 @@ from services.student_career_service import get_career_recommendations
 from services.student_certification_service import get_certifications
 from services.student_project_service import get_projects
 from services.student_feedback_service import save_feedback
+from services.feedback_question_service import FeedbackQuestionService
 from services.assessment_marks_service import AssessmentMarksService
 from services.assessment_report_service import AssessmentReportService
 
@@ -290,5 +291,6 @@ def feedback():
         )
 
     return render_template(
-        "student/feedback.html"
+        "student/feedback.html",
+        questions=FeedbackQuestionService.get_questions(active_only=True)
     )

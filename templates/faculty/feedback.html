@@ -1,0 +1,45 @@
+{% extends "faculty_base.html" %}
+
+{% block title %}
+Student Feedback
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="mb-4">
+        <h2>Student Feedback</h2>
+        <small class="text-muted">Review feedback submitted by students.</small>
+    </div>
+
+    {% if feedback %}
+    <div class="card shadow-sm">
+        <div class="table-responsive">
+            <table class="table table-hover mb-0">
+                <thead>
+                    <tr>
+                        <th>Student</th>
+                        <th>Type</th>
+                        <th>Subject</th>
+                        <th>Rating</th>
+                        <th>Comments</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for item in feedback %}
+                    <tr>
+                        <td>{{ item.get("StudentID", "") }}</td>
+                        <td>{{ item.get("FeedbackType", "") }}</td>
+                        <td>{{ item.get("Subject", "") }}</td>
+                        <td>{{ item.get("Rating", "") }}</td>
+                        <td>{{ item.get("Comments", "") }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+    {% else %}
+    <div class="alert alert-info">No student feedback has been submitted yet.</div>
+    {% endif %}
+</div>
+{% endblock %}

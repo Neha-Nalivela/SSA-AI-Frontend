@@ -30,6 +30,31 @@ Feedback
 
                 <div class="mb-3">
 
+                    {% if questions %}
+                    <label class="form-label">Faculty feedback questions</label>
+                    {% for question in questions %}
+                    <div class="mb-3">
+                        <label class="form-label">{{ question.QuestionText }}</label>
+                        {% if question.QuestionType == "Text" %}
+                        <textarea name="Question_{{ question.QuestionID }}" class="form-control" rows="3" required></textarea>
+                        {% else %}
+                        <select name="Question_{{ question.QuestionID }}" class="form-select" required>
+                            <option value="">Select rating</option>
+                            <option value="5">5 - Excellent</option>
+                            <option value="4">4 - Very Good</option>
+                            <option value="3">3 - Good</option>
+                            <option value="2">2 - Needs Improvement</option>
+                            <option value="1">1 - Poor</option>
+                        </select>
+                        {% endif %}
+                    </div>
+                    {% endfor %}
+                    {% endif %}
+
+                </div>
+
+                <div class="mb-3">
+
                     <label class="form-label">
                         Feedback Type
                     </label>

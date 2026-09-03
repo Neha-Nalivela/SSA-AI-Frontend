@@ -1,0 +1,142 @@
+{% extends "faculty_base.html" %}
+
+{% block title %}
+Feedback Analytics
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="mb-4">
+        <h2>Feedback Analytics</h2>
+        <small class="text-muted">Analytics based on the options selected by students.</small>
+    </div>
+
+    <form class="row g-2 align-items-end mb-4" method="GET" action="{{ url_for('faculty.feedback_analytics') }}">
+        <div class="col-md-5">
+            <label class="form-label" for="subject_id">Show comments for subject</label>
+            <select class="form-select" id="subject_id" name="subject_id">
+                <option value="">All subjects</option>
+                {% for subject in analytics.subjects %}
+                <option value="{{ subject.label }}" {% if selected_subject == subject.label %}selected{% endif %}>{{ subject.label }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="col-auto">
+            <button type="submit" class="btn btn-primary">View comments</button>
+        </div>
+    </form>
+
+    <div class="row g-3 mb-4">
+        <div class="col-md-3">
+            <div class="card shadow-sm"><div class="card-body">
+                <small class="text-muted">Total submissions</small>
+                <h3 class="mb-0">{{ analytics.total }}</h3>
+            </div></div>
+        </div>
+        <div class="col-md-3">
+            <div class="card shadow-sm"><div class="card-body">
+                <small class="text-muted">Questions answered</small>
+                <h3 class="mb-0">{{ analytics.questions|length }}</h3>
+            </div></div>
+        </div>
+        <div class="col-md-3">
+            <div class="card shadow-sm"><div class="card-body">
+                <small class="text-muted">Subjects selected</small>
+                <h3 class="mb-0">{{ analytics.subjects|length }}</h3>
+            </div></div>
+        </div>
+        <div class="col-md-3">
+            <div class="card shadow-sm"><div class="card-body">
+                <small class="text-muted">Ratings selected</small>
+                <h3 class="mb-0">{{ analytics.ratings|length }}</h3>
+            </div></div>
+        </div>
+    </div>
+
+    <div class="row g-4">
+        <div class="col-lg-4">
+            <div class="card shadow-sm h-100"><div class="card-body">
+                <h5>Question ratings</h5>
+                {% if analytics.questions %}
+                <ul class="list-group list-group-flush">
+                    {% for value in analytics.questions %}
+                    <li class="list-group-item d-flex justify-content-between px-0">
+                        <span>{{ value.label }}</span><strong>{{ value.average }} / 5 ({{ value.responses }})</strong>
+                    </li>
+                    {% endfor %}
+                </ul>
+                {% else %}<p class="text-muted mb-0">No options selected yet.</p>{% endif %}
+            </div></div>
+        </div>
+        <div class="col-lg-4">
+            <div class="card shadow-sm h-100"><div class="card-body">
+                <h5>Overall ratings</h5>
+                {% if analytics.ratings %}
+                <canvas id="overallRatingsChart" aria-label="Overall ratings pie chart"></canvas>
+                <ul class="list-group list-group-flush mt-3">
+                    {% for value in analytics.ratings %}
+                    <li class="list-group-item d-flex justify-content-between px-0">
+                        <span>{{ value.label }}</span><strong>{{ value.count }}</strong>
+                    </li>
+                    {% endfor %}
+                </ul>
+                {% else %}<p class="text-muted mb-0">No ratings selected yet.</p>{% endif %}
+            </div></div>
+        </div>
+        <div class="col-lg-4">
+            <div class="card shadow-sm h-100"><div class="card-body">
+                <h5>Subjects selected</h5>
+                {% if analytics.subjects %}
+                <ul class="list-group list-group-flush">
+                    {% for value in analytics.subjects %}
+                    <li class="list-group-item d-flex justify-content-between px-0">
+                        <span>{{ value.label }}</span><strong>{{ value.count }}</strong>
+                    </li>
+                    {% endfor %}
+                </ul>
+                {% else %}<p class="text-muted mb-0">No subjects selected yet.</p>{% endif %}
+            </div></div>
+        </div>
+        </div>
+    </div>
+
+    <div class="card shadow-sm mt-4">
+        <div class="card-body">
+            <h5>Selected feedback comments</h5>
+            {% if analytics.comments %}
+            <div class="table-responsive">
+                <table class="table table-hover mb-0">
+                    <thead><tr><th>Student</th><th>Subject</th><th>Overall rating</th><th>Comment</th></tr></thead>
+                    <tbody>
+                    {% for item in analytics.comments %}
+                        <tr>
+                            <td>{{ item.get("StudentID", "") }}</td>
+                            <td>{{ item.get("SubjectID", "") }}</td>
+                            <td>{{ item.get("Overall", "") }}</td>
+                            <td>{{ item.get("Comment", "") }}</td>
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% else %}<p class="text-muted mb-0">No comments submitted yet.</p>{% endif %}
+        </div>
+    </div>
+</div>
+{% if analytics.ratings %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    new Chart(document.getElementById("overallRatingsChart"), {
+        type: "pie",
+        data: {
+            labels: {{ analytics.ratings | map(attribute="label") | list | tojson }},
+            datasets: [{
+                data: {{ analytics.ratings | map(attribute="count") | list | tojson }},
+                backgroundColor: ["#0d6efd", "#198754", "#ffc107", "#dc3545", "#6f42c1", "#20c997"]
+            }]
+        },
+        options: { responsive: true, plugins: { legend: { position: "bottom" } } }
+    });
+</script>
+{% endif %}
+{% endblock %}
