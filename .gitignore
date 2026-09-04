@@ -16,6 +16,7 @@ env/
 data/
 # Environment
 .env
+.env.example
 
 # OS
 Thumbs.db
