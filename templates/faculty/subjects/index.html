@@ -114,11 +114,19 @@ My Subjects
                             <td>{{ s.Credits }}</td>
 
                             <td>
-                                <a
-                                href="/faculty/subject/{{ s.SubjectID }}"
-                                class="btn btn-primary btn-sm">
-                                Open
+                                {% if selected_action == "marks" %}
+                                <a href="{{ url_for('faculty.subject_internal_marks', subject_id=s.SubjectID) }}" class="btn btn-success btn-sm">
+                                    Student Marks
                                 </a>
+                                {% elif selected_action == "attendance" %}
+                                <a href="{{ url_for('faculty.subject_attendance', subject_id=s.SubjectID) }}" class="btn btn-dark btn-sm">
+                                    Attendance
+                                </a>
+                                {% else %}
+                                <a href="{{ url_for('faculty.subject_dashboard', subject_id=s.SubjectID) }}" class="btn btn-primary btn-sm">
+                                    Open
+                                </a>
+                                {% endif %}
 
                             </td>
 

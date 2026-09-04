@@ -174,18 +174,41 @@ def subjects():
 
         "faculty/subjects/index.html",
 
-        subjects=subjects
+        subjects=subjects,
+        selected_action=request.args.get("action", "").strip().lower()
 
     )
 @faculty.route("/faculty/question-bank")
 def question_bank():
-
-    questions = get_all_questions()
+    reference_id = session.get("reference_id")
+    assigned = get_faculty_subjects(reference_id)
+    questions = DataManager.get("question_bank")
+    if questions is None or questions.empty or assigned is None or assigned.empty:
+        questions = questions.iloc[0:0] if questions is not None else None
+    else:
+        assigned_keys = assigned["SubjectID"].astype(str).str.extract(r"(\d+)", expand=False).fillna(
+            assigned["SubjectID"].astype(str).str.strip()
+        )
+        question_keys = questions["SubjectID"].astype(str).str.extract(r"(\d+)", expand=False).fillna(
+            questions["SubjectID"].astype(str).str.strip()
+        )
+        questions = questions[question_keys.isin(set(assigned_keys))]
 
     return render_template(
         "faculty/question_bank/index.html",
-        questions=questions
+        questions=questions,
+        subject_id=None
     )
+
+
+@faculty.route("/faculty/marks")
+def marks_index():
+    return redirect(url_for("faculty.subjects", action="marks"))
+
+
+@faculty.route("/faculty/attendance")
+def attendance_index():
+    return redirect(url_for("faculty.subjects", action="attendance"))
 
 
 @faculty.route("/faculty/subject/<subject_id>/question-bank")
@@ -350,6 +373,13 @@ def delete_question_route(question_id):
 
     )
 @faculty.route("/faculty/question-bank/view/<question_id>")
+def view_question(question_id):
+    question = get_question(question_id)
+    if question is None:
+        flash("Question not found.", "warning")
+        return redirect(url_for("faculty.question_bank"))
+    return render_template("faculty/question_bank/view.html", question=question)
+
 
 @faculty.route("/faculty/subject/<subject_id>")
 def subject_dashboard(subject_id):
@@ -587,21 +617,56 @@ def prepare_assessment(subject_id):
 
     students = DataManager.get("students")
     if students is not None and not students.empty and "StudentID" in students.columns:
-        student_ids = sorted(students["StudentID"].astype(str).str.strip().unique().tolist())
+        subject_students = students[students["StudentID"].astype(str).str.strip().isin(student_ids)]
+        if not student_ids and "Semester" in students.columns and "Semester" in subject_rows.columns:
+            subject_students = students[students["Semester"].astype(str).str.strip() == str(subject_rows.iloc[0]["Semester"]).strip()]
+        student_ids = sorted(subject_students["StudentID"].astype(str).str.strip().unique().tolist())
 
     prepared = []
     if request.method == "POST":
         selected_student_ids = request.form.getlist("student_ids")
         topic = request.form.get("topic", "").strip() or None
+        authored_questions = []
+        question_texts = request.form.getlist("question_text")
+        question_options = request.form.getlist("question_options")
+        question_answers = request.form.getlist("question_answer")
+        question_marks = request.form.getlist("question_marks")
+        for index, text in enumerate(question_texts):
+            text = text.strip()
+            if not text:
+                continue
+            options = [item.strip() for item in question_options[index].split("||")] if index < len(question_options) else []
+            options = [item for item in options if item]
+            if len(options) < 2 or index >= len(question_answers):
+                continue
+            answer_index = question_answers[index].strip()
+            if not answer_index.isdigit() or int(answer_index) >= len(options):
+                continue
+            try:
+                marks_value = float(question_marks[index]) if index < len(question_marks) else 1
+            except (TypeError, ValueError):
+                marks_value = 1
+            authored_questions.append({
+                "QuestionID": f"FACQ_{faculty_id}_{subject_id}_{len(authored_questions) + 1}",
+                "SubjectID": str(subject_id).strip(),
+                "Question": text,
+                "QuestionType": "MCQ",
+                "Options": options,
+                "CorrectAnswer": answer_index,
+                "MaxMarks": max(marks_value, 0),
+                "Topic": topic or "Faculty Assessment",
+            })
         selected_student_ids = [student_id.strip() for student_id in selected_student_ids if student_id.strip()]
         invalid_ids = [student_id for student_id in selected_student_ids if student_id not in student_ids]
         if not selected_student_ids or invalid_ids:
             flash("Select one or more valid students.", "warning")
+        elif not authored_questions:
+            flash("Add at least one complete question with two options and a correct answer.", "warning")
         else:
             prepared = [
                 AssessmentMarksService.prepare_faculty_assessment(
                     faculty_id, student_id, subject_id
-                    , topic=topic
+                    , topic=topic, authored_questions=authored_questions
                 )
                 for student_id in selected_student_ids
             ]

@@ -95,12 +95,12 @@ class AssessmentMarksService:
         return sorted(question_bank.loc[keys == subject_key, "Topic"].dropna().astype(str).str.strip().unique().tolist())
 
     @classmethod
-    def prepare_faculty_assessment(cls, faculty_id, student_id, subject_id, number_of_questions=10, topic=None):
-        """Create a pending assessment using only the assigned subject's question bank."""
-        from services.assessment_service import AssessmentService
-
-        questions = cls._question_bank_items(subject_id, number_of_questions, topic)
-        if not questions and topic:
+    def prepare_faculty_assessment(cls, faculty_id, student_id, subject_id, number_of_questions=10, topic=None, authored_questions=None):
+        """Create a pending assessment from faculty-authored or bank questions."""
+        questions = authored_questions if authored_questions is not None else cls._question_bank_items(
+            subject_id, number_of_questions, topic
+        )
+        if not questions and authored_questions is None and topic:
             questions = cls._question_bank_items(subject_id, number_of_questions)
         if not questions:
             return None
