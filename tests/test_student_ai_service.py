@@ -28,7 +28,8 @@ def test_ai_recommendations_are_unique_and_have_learning_path(monkeypatch):
 
     result = student_ai_service.get_ai_recommendations("S1")
 
-    assert len(result["recommendations"]) == 2
+    assert len(result["recommendations"]) == 1
+    assert result["recommendations"][0]["WeakTopics"] == ["Loops", "Functions"]
     platforms = [item["Platform"] for item in result["recommendations"][0]["LearningPath"]]
     assert platforms == ["W3Schools", "YouTube", "GeeksforGeeks"]
     assert all(item["URL"].startswith("https://") for item in result["recommendations"][0]["LearningPath"])

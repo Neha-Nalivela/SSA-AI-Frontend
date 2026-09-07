@@ -127,7 +127,30 @@ def analytics():
 
 @student.route("/student/assessments")
 def assessments():
-    return redirect(url_for("student.ai_recommendations"))
+    reference_id = session.get("reference_id")
+    assessment_records = AssessmentMarksService.get_completed_assessments(reference_id)
+    percentages = [
+        float(item.get("Percentage", 0) or 0)
+        for item in assessment_records
+    ]
+    average = round(sum(percentages) / len(percentages), 2) if percentages else 0
+    if average < 50:
+        category = "Weak"
+    elif average < 60:
+        category = "Average"
+    elif average < 75:
+        category = "Above Average"
+    else:
+        category = "Good"
+
+    return render_template(
+        "student/assessments.html",
+        data={
+            "assessments": assessment_records,
+            "average": average,
+            "category": category if assessment_records else "No Data",
+        },
+    )
 
 # =========================================================
 # AI RECOMMENDATIONS
