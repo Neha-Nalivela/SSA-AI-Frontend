@@ -225,7 +225,7 @@ Student Dashboard
                 <div class="col-md-4">
 
                     <a
-                        href="#"
+                        href="#co-performance"
                         class="btn btn-primary w-100 py-3">
 
                         🎯 CO Performance
@@ -238,7 +238,7 @@ Student Dashboard
                 <div class="col-md-4">
 
                     <a
-                        href="#"
+                        href="#po-performance"
                         class="btn btn-info w-100 py-3">
 
                         📈 PO Performance
@@ -251,7 +251,7 @@ Student Dashboard
                 <div class="col-md-4">
 
                     <a
-                        href="#"
+                        href="#btl-performance"
                         class="btn btn-secondary w-100 py-3">
 
                         🧠 BTL Performance
@@ -288,6 +288,27 @@ Student Dashboard
 
         </div>
 
+    </div>
+
+    <div class="row g-4 mb-4" id="co-performance">
+        <div class="col-md-4">
+            <div class="card shadow-sm h-100"><div class="card-body">
+                <h5>CO Performance</h5>
+                {% for item in data.co_performance %}<div class="d-flex justify-content-between"><span>{{ item.id }}</span><strong>{{ item.percentage }}%</strong></div>{% else %}<span class="text-muted">No mapped CO marks available.</span>{% endfor %}
+            </div></div>
+        </div>
+        <div class="col-md-4" id="po-performance">
+            <div class="card shadow-sm h-100"><div class="card-body">
+                <h5>PO Performance</h5>
+                {% for item in data.po_performance %}<div class="d-flex justify-content-between"><span>{{ item.id }}</span><strong>{{ item.percentage }}%</strong></div>{% else %}<span class="text-muted">No mapped PO marks available.</span>{% endfor %}
+            </div></div>
+        </div>
+        <div class="col-md-4" id="btl-performance">
+            <div class="card shadow-sm h-100"><div class="card-body">
+                <h5>BTL Performance</h5>
+                {% for item in data.btl_performance %}<div class="d-flex justify-content-between"><span>{{ item.id }}</span><strong>{{ item.percentage }}%</strong></div>{% else %}<span class="text-muted">No mapped BTL marks available.</span>{% endfor %}
+            </div></div>
+        </div>
     </div>
 
 
